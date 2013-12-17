@@ -80,5 +80,11 @@ include_directories(
     ${Boost_INCLUDE_DIRS}
 )
 
+#
+# Location of compiled libraries and executables
+#
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+
 add_subdirectory(src)
 
