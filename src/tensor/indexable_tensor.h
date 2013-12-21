@@ -45,7 +45,7 @@ template <typename Derived, typename T> struct IndexedTensorMult;
         using ambit::tensor::IndexableTensor< Derived, T >::operator+=; \
         using ambit::tensor::IndexableTensor< Derived, T >::operator-=; \
         using ambit::tensor::IndexableTensor< Derived, T >::operator[]; \
-        using ambit::tensor::Tensor< Derived,T >::get_derived; \
+        using ambit::tensor::Tensor< Derived,T >::getDerived; \
         using ambit::tensor::Tensor< Derived,T >::operator*=; \
         using ambit::tensor::Tensor< Derived,T >::operator/=; \
         using ambit::tensor::Tensor< Derived,T >::operator*; \
@@ -68,10 +68,10 @@ public:
 
     virtual ~IndexableTensorBase() {}
 
-    Derived& get_derived() { return static_cast<Derived&>(*this); }
-    const Derived& get_derived() const { return static_cast<const Derived&>(*this); }
+    Derived& getDerived() { return static_cast<Derived&>(*this); }
+    const Derived& getDerived() const { return static_cast<const Derived&>(*this); }
 
-    int get_dimension() const { return ndim; }
+    int getDimension() const { return ndim; }
 
     std::string implicit() const
     {
@@ -87,12 +87,12 @@ public:
      *********************************************************************/
     IndexedTensor<Derived,T> operator[](const std::string& idx)
     {
-        return IndexedTensor<Derived,T>(get_derived(), idx);
+        return IndexedTensor<Derived,T>(getDerived(), idx);
     }
 
     IndexedTensor<const Derived,T> operator[](const std::string& idx) const
     {
-        return IndexedTensor<const Derived,T>(get_derived(), idx);
+        return IndexedTensor<const Derived,T>(getDerived(), idx);
     }
 
     /**********************************************************************
@@ -104,21 +104,21 @@ public:
     Derived& operator=(const IndexedTensorMult<cvDerived,T>& other)
     {
         (*this)[implicit()] = other;
-        return get_derived();
+        return getDerived();
     }
 
     template <typename cvDerived>
     Derived& operator+=(const IndexedTensorMult<cvDerived,T>& other)
     {
         (*this)[implicit()] += other;
-        return get_derived();
+        return getDerived();
     }
 
     template <typename cvDerived>
     Derived& operator-=(const IndexedTensorMult<cvDerived,T>& other)
     {
         (*this)[implicit()] -= other;
-        return get_derived();
+        return getDerived();
     }
 
     /**********************************************************************
@@ -130,21 +130,21 @@ public:
     Derived& operator=(const IndexedTensor<cvDerived,T>& other)
     {
         (*this)[implicit()] = other;
-        return get_derived();
+        return getDerived();
     }
 
     template <typename cvDerived>
     Derived& operator+=(const IndexedTensor<cvDerived,T>& other)
     {
         (*this)[implicit()] += other;
-        return get_derived();
+        return getDerived();
     }
 
     template <typename cvDerived>
     Derived& operator-=(const IndexedTensor<cvDerived,T>& other)
     {
         (*this)[implicit()] -= other;
-        return get_derived();
+        return getDerived();
     }
 
     /**********************************************************************
@@ -192,8 +192,8 @@ public:
     using IndexableTensorBase<Derived,T>::sum;
     using IndexableTensorBase<Derived,T>::implicit;
 
-    IndexableTensor(const int ndim = 0)
-        : IndexableTensorBase<Derived, T>(ndim) {}
+    IndexableTensor(const std::string& name, const int ndim = 0)
+        : IndexableTensorBase<Derived, T>(ndim), Tensor<Derived,T>(name) {}
     virtual ~IndexableTensor() {}
 
     /**********************************************************************
@@ -211,7 +211,7 @@ public:
               const T beta)
     {
 #ifdef VALIDATE_INPUTS
-        if (ndim != A.get_dimension() || ndim != B_.get_dimension()) throw invalid_ndim_error();
+        if (ndim != A.getDimension() || ndim != B_.getDimension()) throw invalid_ndim_error();
 #endif //VALIDATE_INPUTS
 
         mult(alpha, A, A.implicit(),
@@ -226,14 +226,14 @@ public:
      *********************************************************************/
     void sum(const T alpha, const T beta)
     {
-        Derived tensor(get_derived(), alpha);
+        Derived tensor("alpha", getDerived(), alpha);
         beta*(*this)[implicit()] = tensor[""];
     }
 
     void sum(const T alpha, const Derived& A, const T beta)
     {
 #ifdef VALIDATE_INPUTS
-        if (ndim != A.get_dimension()) throw invalid_ndim_error();
+        if (ndim != A.getDimension()) throw invalid_ndim_error();
 #endif //VALIDATE_INPUTS
 
         sum(alpha, A, A.implicit(),
@@ -253,7 +253,7 @@ public:
     T dot(const Derived& A) const
     {
 #ifdef VALIDATE_INPUTS
-        if (ndim != A.get_dimension()) throw invalid_ndim_error();
+        if (ndim != A.getDimension()) throw invalid_ndim_error();
 #endif //VALIDATE_INPUTS
 
         return dot(A, A.implicit(),
@@ -275,7 +275,7 @@ struct IndexedTensor
     IndexedTensor(Derived& tensor, const std::string& idx, const T factor=(T)1)
     : tensor_(tensor), idx_(idx), factor_(factor)
     {
-        if (idx.size() != tensor.get_dimension()) throw InvalidNdimError();
+        if (idx.size() != tensor.getDimension()) throw InvalidNdimError();
     }
 
     /**********************************************************************

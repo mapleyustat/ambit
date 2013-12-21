@@ -30,8 +30,16 @@
 namespace ambit { namespace tensor {
 
 template<typename T>
-CyclopsTensor<T>::CyclopsTensor(util::World& arena, T scalar)
-    : IndexableTensor<CyclopsTensor<T>, T>(), world(arena), len(0), sym(0)
+CyclopsTensor<T>::CyclopsTensor(const std::string& name, util::World& arena, T scalar)
+    : IndexableTensor<CyclopsTensor<T>, T>(name), world(arena), len(0), sym(0)
+{
+    allocate();
+    *dt = scalar;
+}
+
+template<typename T>
+CyclopsTensor<T>::CyclopsTensor(const std::string& name, const CyclopsTensor<T>& A, T scalar)
+    : IndexableTensor<CyclopsTensor<T>, T>(name), world(A.world), len(0), sym(0)
 {
     allocate();
     *dt = scalar;
@@ -39,7 +47,7 @@ CyclopsTensor<T>::CyclopsTensor(util::World& arena, T scalar)
 
 template<typename T>
 CyclopsTensor<T>::CyclopsTensor(const CyclopsTensor<T>& A, bool copy, bool zero)
-    : IndexableTensor<CyclopsTensor<T>, T>(A.ndim), world(A.world), len(A.len), sym(A.sym)
+    : IndexableTensor<CyclopsTensor<T>, T>(A.name, A.ndim), world(A.world), len(A.len), sym(A.sym)
 {
     allocate();
 
@@ -50,8 +58,8 @@ CyclopsTensor<T>::CyclopsTensor(const CyclopsTensor<T>& A, bool copy, bool zero)
 }
 
 template <typename T>
-CyclopsTensor<T>::CyclopsTensor(util::World& arena, const std::vector<int> &len, const std::vector<int> &sym, bool zero)
-    : IndexableTensor<CyclopsTensor<T>, T>(len.size()), world(arena), len(len), sym(sym)
+CyclopsTensor<T>::CyclopsTensor(const std::string& name, util::World& arena, const std::vector<int> &len, const std::vector<int> &sym, bool zero)
+    : IndexableTensor<CyclopsTensor<T>, T>(name, len.size()), world(arena), len(len), sym(sym)
 {
     assert(len.size() == sym.size());
 
@@ -301,7 +309,7 @@ template <typename T>
 T CyclopsTensor<T>::dot(const CyclopsTensor<T>& A, const std::string& idx_A,
                                                    const std::string& idx_B) const
 {
-    CyclopsTensor<T> dt(A.world);
+    CyclopsTensor<T> dt(A.name, A.world);
     std::vector<T> val;
     dt.mult(1,     A, idx_A,
                *this, idx_B,

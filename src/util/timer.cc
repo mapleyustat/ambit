@@ -20,7 +20,7 @@
 
 #include <cstdio>
 
-namespace mints {
+namespace ambit {
 namespace util {
 
 timer::timer(std::string const & name)

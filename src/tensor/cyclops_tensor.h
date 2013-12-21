@@ -50,11 +50,12 @@ protected:
     void free();
 
 public:
-    CyclopsTensor(util::World& arena, T scalar = (T)0);
+    CyclopsTensor(const std::string& name, util::World& arena, T scalar = (T)0);
+    CyclopsTensor(const std::string& name, const CyclopsTensor<T>& A, T scalar);
 
     CyclopsTensor(const CyclopsTensor<T>& A, bool copy=true, bool zero=false);
 
-    CyclopsTensor(util::World& arena, const std::vector<int>& len, const std::vector<int>& sym,
+    CyclopsTensor(const std::string& name, util::World& arena, const std::vector<int>& len, const std::vector<int>& sym,
                 bool zero=true);
 
     ~CyclopsTensor();

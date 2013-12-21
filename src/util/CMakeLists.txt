@@ -17,10 +17,12 @@
 #
 
 set(UTIL_SOURCE_FILES
+    memory.cc
     timer.cc
 )
 
 set(UTIL_HEADER_FILES
+    memory.h
     timer.h
     world.h
 )

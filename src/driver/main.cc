@@ -149,8 +149,8 @@ BOOST_PYTHON_MODULE(ambit)
 //    typedef void   (ambit::tensor::CyclopsTensor<double>::*dt_write2)(double, double, const std::vector<tkv_pair<double> >&);
 
     class_<ambit::tensor::CyclopsTensor<double> >("Tensor", "Distributed tensor", no_init)
-        .def(init<ambit::util::World&, const std::vector<int>&, const std::vector<int>&>())
-        .def(init<ambit::util::World&, const std::vector<int>&, const std::vector<int>&, bool>())
+        .def(init<const std::string&, ambit::util::World&, const std::vector<int>&, const std::vector<int>&>())
+        .def(init<const std::string&, ambit::util::World&, const std::vector<int>&, const std::vector<int>&, bool>())
         .def(init<const ambit::tensor::CyclopsTensor<double>&>())
         .def("print_out", &ambit::tensor::CyclopsTensor<double>::print, "Print out the tensor")
         .def("fill_with_random_data", &ambit::tensor::CyclopsTensor<double>::fill_with_random_data, "Fills tensor with random data")

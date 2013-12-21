@@ -18,11 +18,14 @@
 
 set(TENSOR_SOURCE_FILES
     cyclops_tensor.cc
+    dense_tensor.cc
     util.cc
 )
 
 set(TENSOR_HEADER_FILES
     cyclops_tensor.h
+    dense_tensor.h
+    local_tensor.h
     indexable_tensor.h
     tensor.h
     util.h

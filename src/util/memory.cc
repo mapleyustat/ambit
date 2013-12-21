@@ -16,31 +16,37 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#if !defined(MINTS_LIB_UTIL_TIMER)
-#define MINTS_LIB_UTIL_TIMER
+#include "memory.h"
 
-#include <string>
-#include <chrono>
+#include <algorithm>
+#include <cassert>
+#include <cstdlib>
 
 namespace ambit {
 namespace util {
 
-struct timer
+void* ambit_malloc(const size_t size_, const char* file, const int line, const int bailout)
 {
-    typedef std::chrono::high_resolution_clock clock;
+    assert(ALIGNMENT >= sizeof(size_t));
 
-    timer(std::string const & name);
-    ~timer();
+    size_t size = std::max(size_, size_t(1));
 
-    clock::duration time_elapsed() const { return clock::now() - epoch_; }
+    void *mem;
+    if (posix_memalign(&mem, ALIGNMENT, size) != 0) {
+        if (bailout)
+            abort();
+        return NULL;
+    }
 
-private:
-    std::string const name_;
-    clock::time_point epoch_;
-};
+    return (void*)((intptr_t)mem);
+}
+
+void ambit_free(void* ptr, const char* file, const int line)
+{
+    if (ptr == NULL) return;
+    free(ptr);
+}
 
 }
+
 }
-
-#endif
-

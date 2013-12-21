@@ -19,25 +19,35 @@
 #if !defined(MINTS_LIB_UTIL_TIMER)
 #define MINTS_LIB_UTIL_TIMER
 
-#include <string>
-#include <chrono>
+#include <cstddef>
+
+#define SAFE_MALLOC(type, size) (type*)ambit::util::ambit_malloc(sizeof(type)*(size), __FILE__, __LINE__, 1)
+#define FREE(ptr) ambit::util::ambit_free(ptr, __FILE__, __LINE__)
 
 namespace ambit {
 namespace util {
 
-struct timer
-{
-    typedef std::chrono::high_resolution_clock clock;
+// Recommended alignment value from Intel
+enum { ALIGNMENT = 64 };
 
-    timer(std::string const & name);
-    ~timer();
+#ifdef __INTEL_COMPILER
 
-    clock::duration time_elapsed() const { return clock::now() - epoch_; }
+#define ALIGNED_LOOP(x) \
+_Pragma("ivdep") \
+_Pragma("vector aligned") \
+for (x)
 
-private:
-    std::string const name_;
-    clock::time_point epoch_;
-};
+#else
+
+#define ALIGNED_LOOP(x) \
+for (x)
+
+#endif
+
+extern size_t mem_used;
+
+void* ambit_malloc(const size_t size, const char* who, const int where, const int bailout);
+void ambit_free(void* ptr, const char* who, const int where);
 
 }
 }

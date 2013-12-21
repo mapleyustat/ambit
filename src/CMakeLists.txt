@@ -18,5 +18,6 @@
 
 include_directories(.)
 add_subdirectory(tensor)
+add_subdirectory(util)
 add_subdirectory(driver)
 
