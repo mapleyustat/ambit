@@ -19,6 +19,12 @@
 set(TENSOR_SOURCE_FILES
     cyclops_tensor.cc
     dense_tensor.cc
+    tensor_mult_dense.cc
+    tensor_print_dense.cc
+    tensor_scale_dense.cc
+    tensor_size_dense.cc
+    tensor_slice_dense.cc
+    tensor_sum_dense.cc
     util.cc
 )
 
