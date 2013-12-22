@@ -23,6 +23,7 @@
  */
 
 #include "dense_tensor.h"
+#include <cassert>
 
 namespace ambit { namespace tensor {
 

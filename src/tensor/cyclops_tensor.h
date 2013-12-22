@@ -25,6 +25,10 @@
 #if !defined(AMBIT_LIB_TENSOR_CYCLOPS_TENSOR)
 #define AMBIT_LIB_TENSOR_CYCLOPS_TENSOR
 
+#if !defined(MPI)
+#   error MPI is not defined and is required for compiling CyclopsTensor.
+#endif
+
 #include <ctf.hpp>
 #include "indexable_tensor.h"
 #include <util/world.h>

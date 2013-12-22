@@ -25,6 +25,9 @@
 #include "tensor.h"
 #include "util.h"
 
+namespace ambit {
+namespace tensor {
+
 int tensor_slice_dense(const double*  A, const int  ndim_A, const int* len_A, const int* lda,
                              double** B,       int* ndim_B,       int* len_B,       int* ldb,
                        const int* start, const int* len)
@@ -98,4 +101,7 @@ int tensor_slice_dense(const double*  A, const int  ndim_A, const int* len_A, co
     }
 
     return kTensorReturnCodeSuccess;
+}
+
+}
 }

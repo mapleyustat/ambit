@@ -26,6 +26,9 @@
 #include "util.h"
 #include <string.h>
 
+namespace ambit {
+namespace tensor {
+
 int tensor_scale_dense_(const double alpha, double* restrict A, const int ndim_A, const int* restrict len_A, const int* restrict lda, const int* restrict idx_A)
 {
     int i, j;
@@ -145,4 +148,7 @@ int tensor_scale_dense_(const double alpha, double* restrict A, const int ndim_A
      */
 
     return kTensorReturnCodeSuccess;
+}
+
+}
 }

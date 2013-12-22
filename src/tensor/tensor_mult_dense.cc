@@ -39,6 +39,9 @@
 #include "util.h"
 #include <string.h>
 
+namespace ambit {
+namespace tensor {
+
 int tensor_mult_dense_(const double alpha, const double* restrict A, const int ndim_A, const int* restrict len_A, const int* restrict lda, const int* restrict idx_A,
                                            const double* restrict B, const int ndim_B, const int* restrict len_B, const int* restrict ldb, const int* restrict idx_B,
                        const double beta,        double* restrict C, const int ndim_C, const int* restrict len_C, const int* restrict ldc, const int* restrict idx_C)
@@ -680,4 +683,7 @@ int tensor_mult_dense_(const double alpha, const double* restrict A, const int n
      */
 
     return kTensorReturnCodeSuccess;
+}
+
+}
 }

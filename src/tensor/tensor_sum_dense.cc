@@ -37,6 +37,9 @@
 #include "util.h"
 #include <string.h>
 
+namespace ambit {
+namespace tensor {
+
 int tensor_sum_dense_(const double alpha, const double* restrict A, const int ndim_A, const int* restrict len_A, const int* restrict lda, const int* restrict idx_A,
                       const double beta,        double* restrict B, const int ndim_B, const int* restrict len_B, const int* restrict ldb, const int* restrict idx_B)
 {
@@ -364,4 +367,7 @@ int tensor_sum_dense_(const double alpha, const double* restrict A, const int nd
      */
 
     return kTensorReturnCodeSuccess;
+}
+
+}
 }

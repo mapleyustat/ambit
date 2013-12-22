@@ -25,6 +25,9 @@
 #include "tensor.h"
 #include "util.h"
 
+namespace ambit {
+namespace tensor {
+
 int64_t tensor_size_dense(const int ndim, const int* len, const int* ld)
 {
     int i;
@@ -66,4 +69,7 @@ int64_t tensor_size_dense(const int ndim, const int* len, const int* ld)
     }
 
     return size;
+}
+
+}
 }

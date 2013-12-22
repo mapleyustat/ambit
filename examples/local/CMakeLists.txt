@@ -16,7 +16,15 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-add_subdirectory(tensor)
-add_subdirectory(util)
-add_subdirectory(driver)
+set(LOCAL1_SOURCE_FILES
+    local1.cc
+)
 
+add_executable(local1 ${LOCAL1_SOURCE_FILES})
+target_link_libraries(local1
+    tensor
+    util
+    ${CTF_LIBRARIES}
+    ${LAPACK_LIBRARIES}
+    ${BLAS_LIBRARIES}
+)

@@ -26,9 +26,9 @@
 #define AMBIT_LIB_TENSOR_LOCAL_TENSOR
 
 #include "indexable_tensor.h"
-#include <util/world.h>
 #include <util/memory.h>
 
+#include <cassert>
 #include <cfloat>
 #include <vector>
 

@@ -26,7 +26,10 @@
 #include "util.h"
 #include <string.h>
 
-int tensor_print_dense(FILE* fp, const double* A, const int ndim_A, const int* len_A, const int* lda)
+namespace ambit {
+namespace tensor {
+
+int tensor_print_dense(const double* A, const int ndim_A, const int* len_A, const int* lda)
 {
     size_t off, size;
     int i;
@@ -70,8 +73,8 @@ int tensor_print_dense(FILE* fp, const double* A, const int ndim_A, const int* l
         if (off < 0 || off >= size) return TENSOR_OUT_OF_BOUNDS;
 #endif //CHECK_BOUNDS
 
-        for (i = 0;i < ndim_A;i++) fprintf(fp, "%d ", pos[i]);
-        fprintf(fp, "%.15e\n", A[off]);
+        for (i = 0;i < ndim_A;i++) printf("%d ", pos[i]);
+        printf("%.15e\n", A[off]);
 
         for (i = 0;i < ndim_A;i++)
         {
@@ -101,4 +104,7 @@ int tensor_print_dense(FILE* fp, const double* A, const int ndim_A, const int* l
      */
 
     return kTensorReturnCodeSuccess;
+}
+
+}
 }
