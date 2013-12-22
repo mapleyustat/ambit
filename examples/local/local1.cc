@@ -17,12 +17,13 @@
  */
 
 #include <tensor/dense_tensor.h>
+#include <tensor/composite_tensor.h>
 
 int main(int argc, char** argv)
 {
-    ambit::tensor::DenseTensor<double> A("A", 2, {5, 5});
-    ambit::tensor::DenseTensor<double> B("B", 2, {5, 5});
-    ambit::tensor::DenseTensor<double> C("C", 2, {5, 5});
+    ambit::tensor::DenseTensor<double> A("A", {5, 5});
+    ambit::tensor::DenseTensor<double> B("B", {5, 5});
+    ambit::tensor::DenseTensor<double> C("C", {5, 5});
 
     C["ij"] = A["ik"] * B["jk"];
 

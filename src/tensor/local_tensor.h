@@ -150,11 +150,10 @@ public:
         }
     }
 
-    LocalTensor(const std::string& name, const int ndim, const std::vector<int>& len, const std::vector<int>& ld_, uint64_t size, T* data_, bool zero=false)
-        : IndexableTensor<Derived,T>(name, ndim), len(len), ld(ld_), size(size)
+    LocalTensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld_, uint64_t size, T* data_, bool zero=false)
+        : IndexableTensor<Derived,T>(name, len.size()), len(len), ld(ld_), size(size)
     {
-        assert(len.size() == ndim);
-
+        size_t ndim = len.size();
         if (ld.size() != ndim) {
             ld.resize(ndim);
             ld[0] = 1;
@@ -173,10 +172,10 @@ public:
             std::fill(data, data+size, (T)0);
     }
 
-    LocalTensor(const std::string& name, int ndim, const std::vector<int>& len, const std::vector<int>& ld_, uint64_t size_, bool zero=true)
-        : IndexableTensor<Derived,T>(name, ndim), len(len), ld(ld_), size(size_)
+    LocalTensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld_, uint64_t size_, bool zero=true)
+        : IndexableTensor<Derived,T>(name, len.size()), len(len), ld(ld_), size(size_)
     {
-        assert(len.size() == ndim);
+        size_t ndim = len.size();
 
         if (ld.size() != ndim) {
             ld.resize(ndim);

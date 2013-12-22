@@ -50,13 +50,13 @@ public:
 
     DenseTensor(const std::string& name, DenseTensor<T>& A, CopyType_ type=CLONE);
 
-    DenseTensor(const std::string& name, int ndim, const std::vector<int>& len, T* data, bool zero=false);
+    DenseTensor(const std::string& name, const std::vector<int>& len, T* data, bool zero=false);
 
-    DenseTensor(const std::string& name, int ndim, const std::vector<int>& len, bool zero=true);
+    DenseTensor(const std::string& name, const std::vector<int>& len, bool zero=true);
 
-    DenseTensor(const std::string& name, int ndim, const std::vector<int>& len, const std::vector<int>& ld, T* data, bool zero=false);
+    DenseTensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld, T* data, bool zero=false);
 
-    DenseTensor(const std::string& name, int ndim, const std::vector<int>& len, const std::vector<int>& ld, bool zero=true);
+    DenseTensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld, bool zero=true);
 
     static uint64_t getSize(int ndim, const std::vector<int>& len, const std::vector<int>& ld);
 

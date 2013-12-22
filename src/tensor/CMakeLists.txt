@@ -28,6 +28,7 @@ set(TENSOR_SOURCE_FILES
 )
 
 set(TENSOR_HEADER_FILES
+    composite_tensor.h
     dense_tensor.h
     local_tensor.h
     indexable_tensor.h

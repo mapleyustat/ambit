@@ -48,20 +48,20 @@ DenseTensor<T>::DenseTensor(const std::string& name, DenseTensor<T>& A, typename
     : LocalTensor< DenseTensor<T>,T >(name, A, type) {}
 
 template <typename T>
-DenseTensor<T>::DenseTensor(const std::string& name, int ndim, const std::vector<int>& len, T* data, bool zero)
-    : LocalTensor< DenseTensor<T>,T >(name, ndim, len, std::vector<int>(), getSize(ndim, len, std::vector<int>()), data, zero) {}
+DenseTensor<T>::DenseTensor(const std::string& name, const std::vector<int>& len, T* data, bool zero)
+    : LocalTensor< DenseTensor<T>,T >(name, len, std::vector<int>(), getSize(ndim, len, std::vector<int>()), data, zero) {}
 
 template <typename T>
-DenseTensor<T>::DenseTensor(const std::string& name, int ndim, const std::vector<int>& len, bool zero)
-    : LocalTensor< DenseTensor<T>,T >(name, ndim, len, std::vector<int>(), getSize(ndim, len, std::vector<int>()), zero) {}
+DenseTensor<T>::DenseTensor(const std::string& name, const std::vector<int>& len, bool zero)
+    : LocalTensor< DenseTensor<T>,T >(name, len, std::vector<int>(), getSize(ndim, len, std::vector<int>()), zero) {}
 
 template <typename T>
-DenseTensor<T>::DenseTensor(const std::string& name, int ndim, const std::vector<int>& len, const std::vector<int>& ld, T* data, bool zero)
-    : LocalTensor< DenseTensor<T>,T >(name, ndim, len, ld, getSize(ndim, len, ld), data, zero) {}
+DenseTensor<T>::DenseTensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld, T* data, bool zero)
+    : LocalTensor< DenseTensor<T>,T >(name, len, ld, getSize(ndim, len, ld), data, zero) {}
 
 template <typename T>
-DenseTensor<T>::DenseTensor(const std::string& name, int ndim, const std::vector<int>& len, const std::vector<int>& ld, bool zero)
-    : LocalTensor< DenseTensor<T>,T >(name, ndim, len, ld, getSize(ndim, len, ld), zero) {}
+DenseTensor<T>::DenseTensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld, bool zero)
+    : LocalTensor< DenseTensor<T>,T >(name, len, ld, getSize(ndim, len, ld), zero) {}
 
 template <typename T>
 uint64_t DenseTensor<T>::getSize(int ndim, const std::vector<int>& len, const std::vector<int>& ld)
