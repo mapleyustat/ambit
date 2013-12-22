@@ -55,16 +55,6 @@ foreach (flag IN ITEMS
 endforeach (flag)
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS})
 
-# CTF stuff
-if (DEFINED CTF_DIR)
-    message("CTF_DIR = ${CTF_DIR}")
-else()
-    message(FATAL_ERROR "CTF_DIR not defined. Unable to continue.")
-endif()
-
-set(CTF_INCLUDE_DIRS ${CTF_DIR}/include)
-set(CTF_LIBRARIES ${CTF_DIR}/lib/libctf.a)
-
 find_package(OpenMP)
 if (OPENMP_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -73,6 +63,24 @@ endif()
 find_package(LAPACK REQUIRED)
 find_package(PythonLibs REQUIRED)
 find_package(Boost 1.49 COMPONENTS python REQUIRED)
+
+find_package(MPI)
+if (MPI_CXX_FOUND)
+    set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+    set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+
+    add_definitions("-DHAVE_MPI")
+
+    # CTF stuff
+    if (DEFINED CTF_DIR)
+        message("CTF_DIR = ${CTF_DIR}")
+    else()
+        message(FATAL_ERROR "CTF_DIR not defined. Unable to continue.")
+    endif()
+
+    set(CTF_INCLUDE_DIRS ${CTF_DIR}/include)
+    set(CTF_LIBRARIES ${CTF_DIR}/lib/libctf.a)
+endif()
 
 # Check for restrict keyword
 # Builds the macro A_C_RESTRICT form automake

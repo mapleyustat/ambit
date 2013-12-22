@@ -25,12 +25,14 @@
 #if !defined(AMBIT_LIB_UTIL_WORLD)
 #define AMBIT_LIB_UTIL_WORLD
 
-#include <mpi.h>
-#ifdef OPENMP_FOUND
+#if defined(OPENMP_FOUND)
 #include <omp.h>
 #endif
 
+#if defined(HAVE_MPI)
+#include <mpi.h>
 #include <ctf.hpp>
+#endif // defined(MPI)
 
 #include <boost/shared_ptr.hpp>
 #include <vector>

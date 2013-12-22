@@ -16,10 +16,11 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-151 USA.
  */
 
+#if defined(HAVE_MPI)
 #include <mpi.h>
-
 #include <tensor/cyclops_tensor.h>
 #include <util/world.h>
+#endif
 
 #include <boost/python/detail/wrap_python.hpp>
 #include <boost/python/module.hpp>
@@ -106,10 +107,17 @@ struct iterable_converter
   }
 };
 
+#if defined(HAVE_MPI)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(dt_compare, ambit::tensor::CyclopsTensor<double>::compare, 1, 2);
+#endif // defined(MPI)
 
 BOOST_PYTHON_MODULE(ambit)
 {
+    class_<std::vector<int> >("IntVec")
+        .def(vector_indexing_suite<std::vector<int>, true >())
+    ;
+
+#if defined(HAVE_MPI)
     iterable_converter()
         // Built-n type.
         .from_python<std::vector<int> >()
@@ -122,10 +130,6 @@ BOOST_PYTHON_MODULE(ambit)
         .def(init<key, double>())
         .def_readwrite("k", &tkv_pair<double>::k)
         .def_readwrite("d", &tkv_pair<double>::d)
-    ;
-
-    class_<std::vector<int> >("IntVec")
-        .def(vector_indexing_suite<std::vector<int>, true >())
     ;
 
     class_<std::vector<tkv_pair<double> > >("TkvVec")
@@ -170,12 +174,15 @@ BOOST_PYTHON_MODULE(ambit)
         .def("write", dt_write1(&ambit::tensor::CyclopsTensor<double>::write), "Writes tensor data, remotely, if needed")
 //        .def("write", dt_write2(&ambit::tensor::CyclopsTensor<double>::write), "Writes tensor data, remotely, if needed")
     ;
+#endif // defined(MPI)
 
 }
 
 int main(int argc, char** argv)
 {
+#if defined(HAVE_MPI)
     MPI::Init(argc, argv);
+#endif // defined(MPI)
 
 #if PY_MAJOR_VERSION == 2
     if (PyImport_AppendInittab(strdup("ambit"), initambit) == -1)
@@ -215,25 +222,22 @@ int main(int argc, char** argv)
 
     std::string data;
     if (argc == 2) {
-        ambit::util::World world;
-//        if (world.rank == 0) {
-            std::ifstream infile(argv[1]);
-            std::string line;
-            std::stringstream stream;
-            while (std::getline(infile, line)) {
-                stream << line << std::endl;
-            }
-            data = stream.str();
-//        }
-
-//         Transmit the file to other nodes
-//        world.bcast(data, 0);
+        std::ifstream infile(argv[1]);
+        std::string line;
+        std::stringstream stream;
+        while (std::getline(infile, line)) {
+            stream << line << std::endl;
+        }
+        data = stream.str();
     }
     else
         data = interactive;
 
     PyRun_SimpleString(data.c_str());
 
+#if defined(HAVE_MPI)
     MPI::Finalize();
+#endif // defined MPI
+
     return 0;
 }

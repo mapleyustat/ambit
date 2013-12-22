@@ -25,7 +25,7 @@
 #if !defined(AMBIT_LIB_TENSOR_CYCLOPS_TENSOR)
 #define AMBIT_LIB_TENSOR_CYCLOPS_TENSOR
 
-#if !defined(MPI)
+#if !defined(HAVE_MPI)
 #   error MPI is not defined and is required for compiling CyclopsTensor.
 #endif
 

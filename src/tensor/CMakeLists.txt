@@ -17,7 +17,6 @@
 #
 
 set(TENSOR_SOURCE_FILES
-    cyclops_tensor.cc
     dense_tensor.cc
     tensor_mult_dense.cc
     tensor_print_dense.cc
@@ -29,13 +28,17 @@ set(TENSOR_SOURCE_FILES
 )
 
 set(TENSOR_HEADER_FILES
-    cyclops_tensor.h
     dense_tensor.h
     local_tensor.h
     indexable_tensor.h
     tensor.h
     util.h
 )
+
+if (MPI_CXX_FOUND)
+    list(APPEND TENSOR_SOURCE_FILES cyclops_tensor.cc)
+    list(APPEND TENSOR_HEADER_FILES cyclops_tensor.h)
+endif()
 
 add_library(tensor ${TENSOR_SOURCE_FILES} ${TENSOR_HEADER_FILES})
 
