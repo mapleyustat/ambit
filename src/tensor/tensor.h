@@ -886,58 +886,68 @@ public:
 
 class TensorError : public std::exception
 {
-    public:
-        virtual const char* what() const throw() = 0;
+public:
+    virtual const char* what() const throw() = 0;
 };
 class OutOfBoundsError : public TensorError
 {
-    public:
-        virtual const char* what() const throw() { return "out-of-bounds read or write"; }
+public:
+    virtual const char* what() const throw() { return "out-of-bounds read or write"; }
 };
 class LengthMismatchError : public TensorError
 {
-    public:
-        virtual const char* what() const throw() { return "length mismatch error"; }
+public:
+    virtual const char* what() const throw() { return "length mismatch error"; }
+};
+class IndexNotFoundError : public TensorError
+{
+public:
+    virtual const char* what() const throw() { return "index not found."; }
+};
+class IndexAlreadyExistsError : public TensorError
+{
+public:
+    virtual const char *what() const throw() { return "index already exists in global set."; }
 };
 class IndexMismatchError : public TensorError
 {
-    public:
-        virtual const char* what() const throw() { return "index mismatch error"; }
+public:
+    virtual const char* what() const throw() { return "index mismatch error"; }
 };
 class InvalidNdimError : public TensorError
 {
-    public:
-        virtual const char* what() const throw() { return "invalid number of dimensions"; }
+public:
+    virtual const char* what() const throw() { return "invalid number of dimensions"; }
 };
 class InvalidLengthError : public TensorError
 {
-    public:
-        virtual const char* what() const throw() { return "invalid length"; }
+public:
+    virtual const char* what() const throw() { return "invalid length"; }
 };
 class InvalidLdError : public TensorError
 {
-    public:
-        virtual const char* what() const throw() { return "invalid leading dimension"; }
+public:
+    virtual const char* what() const throw() { return "invalid leading dimension"; }
 };
 class LdTooSmallError : public TensorError
 {
-    public:
-        virtual const char* what() const throw() { return "leading dimension is too small"; }
+public:
+    virtual const char* what() const throw() { return "leading dimension is too small"; }
 };
 class SymmetryMismatchError : public TensorError
 {
-    public:
-        virtual const char* what() const throw() { return "symmetry mismatch error"; }
+public:
+    virtual const char* what() const throw() { return "symmetry mismatch error"; }
 };
 class InvalidSymmetryError : public TensorError
 {
-    public:
-        virtual const char* what() const throw() { return "invalid symmetry value"; }
+public:
+    virtual const char* what() const throw() { return "invalid symmetry value"; }
 };
 class InvalidStartError : public TensorError
 {
-    public:
-        virtual const char* what() const throw() { return "invalid start value"; }
+public:
+    virtual const char* what() const throw() { return "invalid start value"; }
 };
 
 /**

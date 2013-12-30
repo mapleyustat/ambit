@@ -18,6 +18,7 @@
 
 set(TENSOR_SOURCE_FILES
     dense_tensor.cc
+    indices.cc
     tensor_mult_dense.cc
     tensor_print_dense.cc
     tensor_scale_dense.cc
@@ -31,6 +32,7 @@ set(TENSOR_HEADER_FILES
     composite_tensor.h
     dense_tensor.h
     local_tensor.h
+    indices.h
     indexable_tensor.h
     tensor.h
     util.h

@@ -26,6 +26,7 @@
 #define AMBIT_LIB_TENSOR_LOCAL_TENSOR
 
 #include "indexable_tensor.h"
+#include "indices.h"
 #include <util/memory.h>
 
 #include <cassert>
@@ -170,6 +171,16 @@ public:
         isAlloced = false;
         if (zero)
             std::fill(data, data+size, (T)0);
+    }
+
+    LocalTensor(const std::string& name, const std::string& indices)
+        : IndexableTensor<Derived,T>(name, indices.size())
+    {
+        // Make sure the indices are known.
+        std::vector<IndexRange> ind = IndexRange::find(split_indices(indices));
+
+        // Check rank of the indices
+
     }
 
     LocalTensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld_, uint64_t size_, bool zero=true)

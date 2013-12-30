@@ -23,6 +23,7 @@ set(UTIL_SOURCE_FILES
 
 set(UTIL_HEADER_FILES
     memory.h
+    string.h
     timer.h
     world.h
 )

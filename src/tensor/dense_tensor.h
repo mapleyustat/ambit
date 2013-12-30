@@ -41,22 +41,15 @@ struct DenseTensor : public LocalTensor< DenseTensor<T>, T>
 
 public:
     DenseTensor(const std::string& name, T val = (T)0);
-
     DenseTensor(const std::string& name, const DenseTensor<T>& A, T val);
-
     DenseTensor(const DenseTensor<T>& A);
-
     DenseTensor(const std::string& name, const DenseTensor<T>& A);
-
     DenseTensor(const std::string& name, DenseTensor<T>& A, CopyType_ type=CLONE);
-
     DenseTensor(const std::string& name, const std::vector<int>& len, T* data, bool zero=false);
-
     DenseTensor(const std::string& name, const std::vector<int>& len, bool zero=true);
-
     DenseTensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld, T* data, bool zero=false);
-
     DenseTensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld, bool zero=true);
+    DenseTensor(const std::string& name, const std::string& indices);
 
     static uint64_t getSize(int ndim, const std::vector<int>& len, const std::vector<int>& ld);
 

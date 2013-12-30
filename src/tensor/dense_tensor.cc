@@ -64,6 +64,10 @@ DenseTensor<T>::DenseTensor(const std::string& name, const std::vector<int>& len
     : LocalTensor< DenseTensor<T>,T >(name, len, ld, getSize(ndim, len, ld), zero) {}
 
 template <typename T>
+DenseTensor<T>::DenseTensor(const std::string& name, const std::string& indices)
+    : LocalTensor<DenseTensor<T>, T>(name, indices) {}
+
+template <typename T>
 uint64_t DenseTensor<T>::getSize(int ndim, const std::vector<int>& len, const std::vector<int>& ld)
 {
     int64_t r = tensor_size_dense(ndim, len.data(), (ld.size() == 0 ? NULL : ld.data()));
