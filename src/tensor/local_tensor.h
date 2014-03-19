@@ -33,6 +33,11 @@
 #include <cfloat>
 #include <vector>
 
+#ifdef DEBUG
+#include <iostream>
+#include <util/prettyprint.h>
+#endif
+
 namespace ambit {
 
 namespace tensor {
@@ -180,7 +185,14 @@ public:
         std::vector<IndexRange> ind = IndexRange::find(split_indices(indices));
 
         // Check rank of the indices
-
+#ifdef DEBUG
+        std::cout << ind << std::endl;
+#endif
+        for (auto& i : ind) {
+            if (i.start.size() > 1)
+                throw InvalidLengthError();
+        }
+        isAlloced = false;
     }
 
     LocalTensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld_, uint64_t size_, bool zero=true)

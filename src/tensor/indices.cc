@@ -25,6 +25,7 @@
 #include <vector>
 
 #include <util/string.h>
+#include <util/prettyprint.h>
 
 namespace ambit {
 namespace tensor {
@@ -88,6 +89,12 @@ std::vector<std::string> split_indices(const std::string& indices)
     }
 
     return v;
+}
+
+std::ostream& operator<< (std::ostream& o, IndexRange const& idx)
+{
+    o << idx.name << " start: " << idx.start << " end: " << idx.end;
+    return o;
 }
 
 }

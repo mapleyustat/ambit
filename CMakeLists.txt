@@ -23,6 +23,7 @@ get_filename_component(ROOT_SRC_DIR ${CMAKE_CURRENT_LIST_FILE} PATH)
 set(CMAKE_MODULE_PATH "${ROOT_SRC_DIR}/cmake/")
 
 add_definitions("-DROOT_SRC_DIR=\"${ROOT_SRC_DIR}\"")
+add_definitions("-DDEBUG")
 
 # MAC: On Mavericks clang++ defaults to std11 being on. So when
 # installing Boost via Homebrew BoostPython uses std11 features

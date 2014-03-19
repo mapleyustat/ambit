@@ -42,7 +42,11 @@ struct IndexRange
 
     static const IndexRange& find(const std::string& index);
     static std::vector<IndexRange> find(const std::vector<std::string>& indices);
+
+    friend std::ostream& operator<< (std::ostream& o, IndexRange const& idx);
 };
+
+std::ostream& operator<< (std::ostream& o, IndexRange const& idx);
 
 void declare_index_range(const std::string& name,
                          const std::string& indices,

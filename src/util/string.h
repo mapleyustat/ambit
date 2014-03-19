@@ -41,7 +41,7 @@ static inline std::string &rtrim(std::string &s) {
 
 // trim from both ends
 static inline std::string &trim(std::string &s) {
-        return ltrim(rtrim(s));
+        return ambit::util::ltrim(ambit::util::rtrim(s));
 }
 
 }
