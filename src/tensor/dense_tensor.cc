@@ -82,6 +82,7 @@ uint64_t DenseTensor<T>::getSize(int ndim, const std::vector<int>& len, const st
 template <typename T>
 void DenseTensor<T>::print() const
 {
+    printf("Name: %s\n", getName().c_str());
     CHECK_RETURN_VALUE(
     tensor_print_dense(data, ndim, len.data(), ld.data()));
 }

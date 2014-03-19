@@ -22,6 +22,8 @@
 #include <cassert>
 #include <cstdlib>
 
+#include <iostream>
+
 namespace ambit {
 namespace util {
 
@@ -33,6 +35,13 @@ void* ambit_malloc(const size_t size_, const char* file, const int line, const i
 
     void *mem;
     if (posix_memalign(&mem, ALIGNMENT, size) != 0) {
+        std::cerr
+            << " => MEMORY ALLOCATION FAILURE <=\n"
+            << "ambit_malloc: Aligned memory allocation failed.\n"
+            << "        file: " << file << "\n"
+            << "        line: " << line << "\n"
+            << "        size: " << size << " (requested: " << size_ << ")\n"
+            << "   alignment: " << ALIGNMENT << "\n";
         if (bailout)
             abort();
         return NULL;

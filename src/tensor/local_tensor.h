@@ -33,10 +33,10 @@
 #include <cfloat>
 #include <vector>
 
-#ifdef DEBUG
+//#ifdef DEBUG
 #include <iostream>
 #include <util/prettyprint.h>
-#endif
+//#endif
 
 namespace ambit {
 
@@ -178,21 +178,44 @@ public:
             std::fill(data, data+size, (T)0);
     }
 
-    LocalTensor(const std::string& name, const std::string& indices)
-        : IndexableTensor<Derived,T>(name, indices.size())
+    LocalTensor(const std::string& name, const std::string& indices, bool zero=false)
+        : IndexableTensor<Derived,T>(name)
     {
         // Make sure the indices are known.
         std::vector<IndexRange> ind = IndexRange::find(split_indices(indices));
 
         // Check rank of the indices
 #ifdef DEBUG
-        std::cout << ind << std::endl;
+        std::cout << "LocalTensor::LocalTensor(name, indices): indices " << indices << "\n";
+        std::cout << "LocalTensor::LocalTensor(name, indices): found: " << ind << std::endl;
 #endif
+        // Sanity check for subblocks.
         for (auto& i : ind) {
-            if (i.start.size() > 1)
-                throw InvalidLengthError();
+            // This version of LocalTensor does not support subblocks.
+            if (i.start.size() > 1 || i.end.size() > 1)
+                throw InvalidNdimError();
         }
-        isAlloced = false;
+
+        ndim = ind.size();
+        ld.resize(ndim);
+        len.resize(ndim);
+
+        ld[0] = 1;
+        size_t size = ind[0].end[0] - ind[0].start[0];
+        len[0] = size;
+        std::cout << "LocalTensor::LocalTensor: len[" << 0 << "] = " << size << "\n";
+        for (int i=1; i<ndim; ++i) {
+            const size_t lsize = ind[i].end[0] - ind[i].start[0];
+            ld[i] = ld[i-1] * lsize;
+            len[i] = lsize;
+            size *= lsize;
+
+            std::cout << "LocalTensor::LocalTensor: len[" << i << "] = " << lsize << "\n";
+        }
+        data = SAFE_MALLOC(T, size);
+        isAlloced = true;
+        if (zero)
+            std::fill(data, data+size, (T)0);
     }
 
     LocalTensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld_, uint64_t size_, bool zero=true)

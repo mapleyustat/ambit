@@ -41,25 +41,19 @@ int tensor_print_dense(const double* A, const int ndim_A, const int* len_A, cons
     VALIDATE_TENSOR(ndim_A, len_A, lda, NULL);
 #endif //VALIDATE_INPUTS
 
-    if (lda == NULL)
-    {
+    if (lda == NULL) {
         if (ndim_A > 0) stride[0] = 1;
         for (i = 1;i < ndim_A;i++) stride[i] = stride[i-1]*len_A[i-1];
     }
-    else
-    {
+    else {
         if (ndim_A > 0) stride[0] = lda[0];
         for (i = 1;i < ndim_A;i++) stride[i] = stride[i-1]*lda[i];
     }
 
     if (ndim_A > 0)
-    {
         size = stride[ndim_A-1]*len_A[ndim_A-1];
-    }
     else
-    {
         size = 1;
-    }
 
     off = 0;
 
@@ -67,10 +61,12 @@ int tensor_print_dense(const double* A, const int ndim_A, const int* len_A, cons
      * loop over elements in A
      */
     memset(pos, 0, ndim_A*sizeof(int));
-    for (done = false;!done;)
-    {
+    for (done = false;!done;) {
 #ifdef CHECK_BOUNDS
-        if (off < 0 || off >= size) return TENSOR_OUT_OF_BOUNDS;
+        if (off < 0 || off >= size) {
+            printf("off = %zu; size = %zu\n", off, size);
+            return kTensorReturnCodeOutOfBounds;
+        }
 #endif //CHECK_BOUNDS
 
         for (i = 0;i < ndim_A;i++) printf("%d ", pos[i]);

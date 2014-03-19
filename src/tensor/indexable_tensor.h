@@ -50,6 +50,7 @@ template <typename Derived, typename T> struct IndexedTensorMult;
         using ambit::tensor::Tensor< Derived,T >::operator/=; \
         using ambit::tensor::Tensor< Derived,T >::operator*; \
         using ambit::tensor::Tensor< Derived,T >::operator/; \
+        using ambit::tensor::Tensor< Derived,T >::getName; \
         Derived & operator=(const Derived & other) \
         { \
             sum((T)1, other, (T)0); \

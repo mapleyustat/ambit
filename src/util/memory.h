@@ -30,8 +30,16 @@ namespace util {
 // Recommended alignment value from Intel
 enum { ALIGNMENT = 64 };
 
-#ifdef __INTEL_COMPILER
+// TODO: Ensure the _Pragma statements below work with GNU C++
+#if defined(__INTEL_COMPILER) || defined(__GNUC__)
 
+/**
+ * \def ALIGNED_LOOP(x)
+ * Tells the compiler that it is safe to assume vector memory accesses in the loop
+ * are properly aligned for SIMD instructions. If at runtime the vectors are not
+ * properly aligned a SEGFAULT will occur. Use SAFE_MALLOC to allocate memory
+ * compatible with ALIGNED_LOOP
+ */
 #define ALIGNED_LOOP(x) \
 _Pragma("ivdep") \
 _Pragma("vector aligned") \
@@ -46,7 +54,7 @@ for (x)
 
 extern size_t mem_used;
 
-void* ambit_malloc(const size_t size, const char* who, const int where, const int bailout);
+void* ambit_malloc(const size_t size, const char* who, const int where, const int bailout=1);
 void ambit_free(void* ptr, const char* who, const int where);
 
 }

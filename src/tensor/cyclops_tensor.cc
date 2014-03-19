@@ -23,6 +23,7 @@
  */
 
 #include "cyclops_tensor.h"
+#include "indices.h"
 #include "util.h"
 
 #include <cfloat>
