@@ -18,11 +18,13 @@
 
 set(UTIL_SOURCE_FILES
     memory.cc
+    property_tree.cc
     timer.cc
 )
 
 set(UTIL_HEADER_FILES
     memory.h
+    property_tree.h
     string.h
     timer.h
     world.h
