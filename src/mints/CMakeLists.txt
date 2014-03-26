@@ -16,20 +16,18 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-set(UTIL_SOURCE_FILES
-    memory.cc
-    property_tree.cc
-    timer.cc
+set(MINTS_SOURCE_FILES
+    atom.cc
+    molecule.cc
 )
 
-set(UTIL_HEADER_FILES
-    aligned.h
-    memory.h
-    property_tree.h
-    string.h
-    timer.h
-    world.h
+set(MINTS_HEADER_FILES
+    atom.h
+    molecule.h
 )
 
-add_library(util ${UTIL_SOURCE_FILES} ${UTIL_HEADER_FILES})
+if (MPI_CXX_FOUND)
+endif()
+
+add_library(mints ${MINTS_SOURCE_FILES} ${MINTS_HEADER_FILES})
 

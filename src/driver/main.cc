@@ -22,6 +22,8 @@
 #include <util/world.h>
 #endif
 
+#include <mints/molecule.h>
+
 #include <boost/python/detail/wrap_python.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python.hpp>
@@ -32,10 +34,11 @@
 #include <fstream>
 
 #define PY_TRY(ptr, command)  \
-     if(!(ptr = command)){    \
-         PyErr_Print();       \
-         exit(1);             \
-     }
+    ptr = command; \
+    if(PyErr_Occurred() || ptr == NULL){    \
+        PyErr_Print();       \
+        exit(1);             \
+    }
 
 const char* interactive =
   "import readline\n"
@@ -117,13 +120,16 @@ BOOST_PYTHON_MODULE(ambit)
         .def(vector_indexing_suite<std::vector<int>, true >())
     ;
 
-#if defined(HAVE_MPI)
     iterable_converter()
         // Built-n type.
         .from_python<std::vector<int> >()
+        //.from_python<std::array<double, 3> >()
+#if defined(HAVE_MPI)
         .from_python<std::vector<tkv_pair<double> > >()
+#endif
     ;
 
+#if defined(HAVE_MPI)
     class_<tkv_pair<double> >("TkvPair", "Tensor key/value pair")
         .def(init<>())
         .def(init<tkv_pair<double> >())
@@ -176,6 +182,10 @@ BOOST_PYTHON_MODULE(ambit)
     ;
 #endif // defined(MPI)
 
+    class_<ambit::mints::molecule>("Molecule", "Molecule", no_init)
+        .def(init<int>())
+        .def("print_out", &ambit::mints::molecule::print, "Prints the molecule out")
+    ;
 }
 
 int main(int argc, char** argv)
@@ -219,7 +229,7 @@ int main(int argc, char** argv)
     Py_DECREF(path);
     Py_DECREF(sysmod);
 
-
+    // Load into data the input file, or the script for running interactive.
     std::string data;
     if (argc == 2) {
         std::ifstream infile(argv[1]);
@@ -233,6 +243,7 @@ int main(int argc, char** argv)
     else
         data = interactive;
 
+    // Run the script found in data.
     PyRun_SimpleString(data.c_str());
 
 #if defined(HAVE_MPI)
@@ -241,3 +252,4 @@ int main(int argc, char** argv)
 
     return 0;
 }
+

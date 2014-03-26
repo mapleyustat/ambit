@@ -23,7 +23,8 @@ set(MAIN_SOURCE_FILES
 add_executable(ambit ${MAIN_SOURCE_FILES})
 target_link_libraries(ambit
     tensor
-    #util
+    mints
+    util
     ${CTF_LIBRARIES}
     ${LAPACK_LIBRARIES}
     ${BLAS_LIBRARIES}

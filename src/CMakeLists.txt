@@ -16,6 +16,7 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+add_subdirectory(mints)
 add_subdirectory(tensor)
 add_subdirectory(util)
 add_subdirectory(driver)
