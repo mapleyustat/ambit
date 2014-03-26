@@ -108,7 +108,7 @@ struct iterable_converter
 };
 
 #if defined(HAVE_MPI)
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(dt_compare, ambit::tensor::CyclopsTensor<double>::compare, 1, 2);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(dt_compare, ambit::tensor::template CyclopsTensor<double>::compare, 1, 2);
 #endif // defined(MPI)
 
 BOOST_PYTHON_MODULE(ambit)
