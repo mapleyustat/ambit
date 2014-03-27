@@ -179,7 +179,7 @@ public:
     }
 
     LocalTensor(const std::string& name, const std::string& indices, bool zero=false)
-        : IndexableTensor<Derived,T>(name)
+        : IndexableTensor<Derived,T>(name), size(0)
     {
         // Make sure the indices are known.
         std::vector<IndexRange> ind = IndexRange::find(split_indices(indices));
@@ -201,7 +201,7 @@ public:
         len.resize(ndim);
 
         ld[0] = 1;
-        size_t size = ind[0].end[0] - ind[0].start[0];
+        size = ind[0].end[0] - ind[0].start[0];
         len[0] = size;
         std::cout << "LocalTensor::LocalTensor: len[" << 0 << "] = " << size << "\n";
         for (int i=1; i<ndim; ++i) {
@@ -274,8 +274,16 @@ public:
 
     virtual void print() const = 0;
 
-    T* getData() { return data; }
-    const T* getData() const { return data; }
+    void fill_with_random_data()
+    {
+        // Set random values for only our data
+        for (uint64_t i=0; i<size; ++i) {
+            data[i] = drand48()-.5;
+        }
+    }
+
+    T* get_data() { return data; }
+    const T* get_data() const { return data; }
 
     T dot(const Derived& A, const std::string& idx_A,
                             const std::string& idx_B) const
@@ -284,7 +292,7 @@ public:
         dt.mult(1, A,            idx_A,
                    getDerived(), idx_B,
                 0,               "");
-        return dt.getData()[0];
+        return dt.get_data()[0];
     }
 };
 

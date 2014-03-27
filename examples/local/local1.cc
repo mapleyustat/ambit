@@ -27,8 +27,6 @@
 
 int main(int /*argc*/, char** /*argv*/)
 {
-//    ambit::tensor::declare_index_range("occupied", "i,j,k,l", {0, 0, 0, 0}, {3, 0, 1, 1});
-//    ambit::tensor::declare_index_range("virtual", "a,b,c,d", {3, 0, 1, 1}, {4, 0, 1, 2});
     ambit::tensor::declare_index_range("occupied", "i,j,k,l", {0}, {5});
     ambit::tensor::declare_index_range("virtual", "a,b,c,d", {3}, {4});
 
@@ -54,9 +52,17 @@ int main(int /*argc*/, char** /*argv*/)
 
     ambit::tensor::DenseTensor<double> A("A", "i,j");
     ambit::tensor::DenseTensor<double> B("B", "i,a");
+    ambit::tensor::DenseTensor<double> C("C", "j,a");
+
+    A.fill_with_random_data();
+    B.fill_with_random_data();
 
     A.print();
     B.print();
+
+    C["ja"] = A["ij"] * B["ia"];
+
+    C.print();
 
 //    ambit::tensor::DenseTensor<double> B("B", {5, 5});
 //    ambit::tensor::DenseTensor<double> C("C", {5, 5});

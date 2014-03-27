@@ -19,6 +19,7 @@
 set(TENSOR_SOURCE_FILES
     dense_tensor.cc
     indices.cc
+    local_tensor.cc
     tensor_mult_dense.cc
     tensor_print_dense.cc
     tensor_scale_dense.cc
