@@ -100,19 +100,16 @@ void property_tree::print() const
     write_json(std::cout, data_);
 }
 
-std::shared_ptr<const property_tree> property_tree::read_basis(std::string name)
+property_tree property_tree::read_basis(std::string name)
 {
     boost::to_lower(name);
-    std::shared_ptr<const property_tree> out;
 
     try {
-        out = std::make_shared<const property_tree>(name);
+        return property_tree(std::string(ROOT_SRC_DIR) + "/basis/" + name + ".json");
     }
     catch (...) {
         throw std::runtime_error(name + " cannot be opened. Please specify the full path to the basis file.");
     }
-
-    return out;
 }
 
 }} // namespace ambit::util

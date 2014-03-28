@@ -63,7 +63,7 @@ endif()
 
 find_package(LAPACK REQUIRED)
 find_package(PythonLibs REQUIRED)
-find_package(Boost 1.49 COMPONENTS python REQUIRED)
+find_package(Boost 1.49 COMPONENTS python regex REQUIRED)
 
 find_package(MPI)
 if (MPI_CXX_FOUND)

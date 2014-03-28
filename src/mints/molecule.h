@@ -26,7 +26,7 @@ namespace mints {
 
 struct molecule
 {
-    molecule(int natom);
+    molecule(const std::string& xyzfile);
 
     void print() const;
 
@@ -35,6 +35,9 @@ struct molecule
     void set_atom_z(const std::vector<double>& z);
 
     double nuclear_repulsion_energy() const;
+
+
+    bool load_xyz_file(const std::string& xyzfile, bool throw_on_error = true);
 
 private:
     /// The total number of atoms

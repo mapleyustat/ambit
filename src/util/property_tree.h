@@ -171,7 +171,7 @@ public:
     void print() const;
 
     // static function to read basis files
-    static std::shared_ptr<const property_tree> read_basis(std::string name);
+    static property_tree read_basis(std::string name);
 };
 
 template<>

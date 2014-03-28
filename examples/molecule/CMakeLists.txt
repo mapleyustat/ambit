@@ -16,20 +16,17 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-set(MINTS_SOURCE_FILES
-    atom.cc
-    basisset.cc
-    molecule.cc
+set(MOLECULE1_SOURCE_FILES
+    molecule1.cc
 )
 
-set(MINTS_HEADER_FILES
-    atom.h
-    basisset.h
-    molecule.h
+add_executable(molecule1 ${MOLECULE1_SOURCE_FILES})
+target_link_libraries(molecule1
+    mints
+    tensor
+    util
+    ${CTF_LIBRARIES}
+    ${LAPACK_LIBRARIES}
+    ${BLAS_LIBRARIES}
+    ${Boost_LIBRARIES}
 )
-
-if (MPI_CXX_FOUND)
-endif()
-
-add_library(mints ${MINTS_SOURCE_FILES} ${MINTS_HEADER_FILES})
-

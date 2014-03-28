@@ -18,6 +18,7 @@
 
 set(UTIL_SOURCE_FILES
     memory.cc
+    print.cc
     property_tree.cc
     timer.cc
 )
@@ -25,6 +26,7 @@ set(UTIL_SOURCE_FILES
 set(UTIL_HEADER_FILES
     aligned.h
     memory.h
+    print.h
     property_tree.h
     string.h
     timer.h

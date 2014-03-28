@@ -37,6 +37,8 @@
 #include <boost/shared_ptr.hpp>
 #include <vector>
 
+#include "aligned.h"
+
 namespace ambit {
 namespace util {
 
@@ -121,7 +123,7 @@ struct MPI_TYPE_<unsigned long long>
     static const MPI::Datatype& value() { return MPI::UNSIGNED_LONG_LONG; }
 };
 
-struct World
+struct world
 {
 protected:
     MPI::Intracomm comm;
@@ -163,6 +165,31 @@ public:
     {
         const MPI::Datatype& type = MPI_TYPE_<T>::value();
         comm.Bcast(&val, 1, type, root);
+    }
+
+    template<typename T>
+    void bcast(std::vector<aligned_vector<T>>& buffer, int root) const
+    {
+        size_t len=0;
+        if (root == rank)
+            size_t len = buffer.length();
+        bcast(&len, 1, root);
+
+        for (size_t i=0; i<len; ++i) {
+            size_t veclen = 0;
+            if (root == rank)
+                veclen = buffer[i].length();
+            bcast(&veclen, 1, root);
+
+            if (root == rank) {
+                bcast(buffer[i].data(), veclen, root);
+            }
+            else {
+                aligned_vector<T> avec(veclen);
+                bcast(avec.data(), veclen, root);
+                buffer.push_back(avec);
+            }
+        }
     }
 
     template<typename T>
