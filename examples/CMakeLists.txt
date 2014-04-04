@@ -16,6 +16,7 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+add_subdirectory(io)
 add_subdirectory(local)
 add_subdirectory(molecule)
 

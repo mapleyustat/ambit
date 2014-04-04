@@ -30,9 +30,9 @@
 namespace ambit {
 namespace tensor {
 
-IndexRange::set_type IndexRange::set;
+index_range::set_type index_range::set;
 
-const IndexRange& IndexRange::find(const std::string& index)
+const index_range& index_range::find(const std::string& index)
 {
     auto it = set.find(index);
     if (it == set.end()) {
@@ -41,9 +41,9 @@ const IndexRange& IndexRange::find(const std::string& index)
     return it->second;
 }
 
-std::vector<IndexRange> IndexRange::find(const std::vector<std::string>& indices)
+std::vector<index_range> index_range::find(const std::vector<std::string>& indices)
 {
-    std::vector<IndexRange> v;
+    std::vector<index_range> v;
     for (auto& i : indices) {
         v.push_back(find(i));
     }
@@ -63,17 +63,17 @@ void declare_index_range(const std::string& name_,
 
     for (auto it = v.begin(); it != v.end(); ++it) {
         // Before adding make sure index does not already exist in set
-        if (IndexRange::set.find(*it) != IndexRange::set.end())
+        if (index_range::set.find(*it) != index_range::set.end())
             throw IndexAlreadyExistsError();
 
-        IndexRange r;
+        index_range r;
         r.name = name;
         r.start = start;
         r.end = end;
         // Unique value for this index range.
-        r.index_value = static_cast<char>(IndexRange::set.size());
+        r.index_value = static_cast<char>(index_range::set.size());
 
-        IndexRange::set[*it] = r;
+        index_range::set[*it] = r;
     }
 }
 
@@ -91,7 +91,7 @@ std::vector<std::string> split_indices(const std::string& indices)
     return v;
 }
 
-std::ostream& operator<< (std::ostream& o, IndexRange const& idx)
+std::ostream& operator<< (std::ostream& o, index_range const& idx)
 {
     o << idx.name << " start: " << idx.start << " end: " << idx.end;
     return o;

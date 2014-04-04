@@ -25,6 +25,8 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "aligned.h"
+
 namespace ambit {
 namespace util {
 
@@ -45,7 +47,7 @@ public:
     {}
 
     // dereference operator - return the current node's data
-    const std::shared_ptr<const property_tree> operator*();
+    const property_tree operator*();
 
     // prefix returns by reference
     property_tree_iterator& operator++() { ++current; return *this; }
@@ -71,7 +73,7 @@ public:
     {}
 
     // dereference operator - return the current node's data
-    const std::shared_ptr<const property_tree> operator*();
+    const property_tree operator*();
 
     // prefix returns by reference
     property_tree_reverse_iterator& operator++() { ++current; return *this; }
@@ -114,8 +116,8 @@ public:
 
     property_tree(const std::string& input);
 
-    std::shared_ptr<property_tree> get_child(const std::string& key) const {
-        return std::make_shared<property_tree>(data_.get_child(key), key);
+    property_tree get_child(const std::string& key) const {
+        return property_tree(data_.get_child(key), key);
     }
 
     std::shared_ptr<property_tree> get_child_optional(const std::string& key) const {
@@ -151,6 +153,8 @@ public:
     }
 
     template<typename T>
+    aligned_vector<T> get_aligned_vector(const std::string& key) const;
+    template<typename T>
     std::vector<T> get_vector(const std::string& s, const int nexpected = 0) const;
     template<typename T, int N>
     std::array<T,N> get_array(const std::string& s) const;
@@ -178,17 +182,28 @@ template<>
 void property_tree::push_back<std::shared_ptr<property_tree>>(const std::shared_ptr<property_tree>& pt);
 
 template<typename T>
+aligned_vector<T> property_tree::get_aligned_vector(const std::string& key) const
+{
+    auto tmp = get_child(key);
+    aligned_vector<T> out(tmp.size());
+    int count = 0;
+    for (auto& i : tmp)
+        out[count++] = boost::lexical_cast<T>(i.data());
+    return out;
+}
+
+template<typename T>
 std::vector<T> property_tree::get_vector(const std::string& key, const int nexpected) const
 {
     std::vector<T> out;
     auto tmp = get_child(key);
-    if ( (nexpected > 0) && (tmp->size() != nexpected) ) {
+    if ( (nexpected > 0) && (tmp.size() != nexpected) ) {
         std::stringstream err;
-        err << "Unexpected number of elements in vector " << key << ". Expected: " << nexpected << ", received: " << tmp->size();
+        err << "Unexpected number of elements in vector " << key << ". Expected: " << nexpected << ", received: " << tmp.size();
         throw std::runtime_error(err.str());
     }
-    for (auto& i : *tmp)
-        out.push_back(boost::lexical_cast<T>(i->data()));
+    for (auto& i : tmp)
+        out.push_back(boost::lexical_cast<T>(i.data()));
     return out;
 }
 
@@ -197,14 +212,14 @@ std::array<T,N> property_tree::get_array(const std::string& key) const
 {
     std::array<T,N> out;
     auto tmp = get_child(key);
-    if (tmp->size() != N) {
+    if (tmp.size() != N) {
         std::stringstream err;
-        err << "Unexpected number of elements in array " << key << ". Expected: " << N << ", received: " << tmp->size();
+        err << "Unexpected number of elements in array " << key << ". Expected: " << N << ", received: " << tmp.size();
         throw std::runtime_error(err.str());
     }
     int n = 0;
-    for (auto& i : *tmp)
-        out[n++] = boost::lexical_cast<T>(i->data());
+    for (auto& i : tmp)
+        out[n++] = boost::lexical_cast<T>(i.data());
     return out;
 }
 

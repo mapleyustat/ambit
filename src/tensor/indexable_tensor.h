@@ -29,28 +29,28 @@
 
 namespace ambit { namespace tensor {
 
-template <typename Derived, typename T> struct IndexableTensor;
-template <typename Derived, typename T> struct IndexedTensor;
-template <typename Derived, typename T> struct IndexedTensorMult;
+template <typename Derived, typename T> struct indexable_tensor;
+template <typename Derived, typename T> struct indexed_tensor;
+template <typename Derived, typename T> struct indexed_tensor_mult;
 
 #define INHERIT_FROM_INDEXABLE_TENSOR(Derived,T) \
     protected: \
-        using ambit::tensor::IndexableTensor< Derived, T >::ndim; \
+        using ambit::tensor::indexable_tensor< Derived, T >::ndim; \
     public: \
-        using ambit::tensor::IndexableTensor< Derived, T >::mult; \
-        using ambit::tensor::IndexableTensor< Derived, T >::sum; \
-        using ambit::tensor::IndexableTensor< Derived, T >::scale; \
-        using ambit::tensor::IndexableTensor< Derived, T >::dot; \
-        using ambit::tensor::IndexableTensor< Derived, T >::operator=; \
-        using ambit::tensor::IndexableTensor< Derived, T >::operator+=; \
-        using ambit::tensor::IndexableTensor< Derived, T >::operator-=; \
-        using ambit::tensor::IndexableTensor< Derived, T >::operator[]; \
-        using ambit::tensor::Tensor< Derived,T >::getDerived; \
-        using ambit::tensor::Tensor< Derived,T >::operator*=; \
-        using ambit::tensor::Tensor< Derived,T >::operator/=; \
-        using ambit::tensor::Tensor< Derived,T >::operator*; \
-        using ambit::tensor::Tensor< Derived,T >::operator/; \
-        using ambit::tensor::Tensor< Derived,T >::getName; \
+        using ambit::tensor::indexable_tensor< Derived, T >::mult; \
+        using ambit::tensor::indexable_tensor< Derived, T >::sum; \
+        using ambit::tensor::indexable_tensor< Derived, T >::scale; \
+        using ambit::tensor::indexable_tensor< Derived, T >::dot; \
+        using ambit::tensor::indexable_tensor< Derived, T >::operator=; \
+        using ambit::tensor::indexable_tensor< Derived, T >::operator+=; \
+        using ambit::tensor::indexable_tensor< Derived, T >::operator-=; \
+        using ambit::tensor::indexable_tensor< Derived, T >::operator[]; \
+        using ambit::tensor::tensor< Derived,T >::get_derived; \
+        using ambit::tensor::tensor< Derived,T >::operator*=; \
+        using ambit::tensor::tensor< Derived,T >::operator/=; \
+        using ambit::tensor::tensor< Derived,T >::operator*; \
+        using ambit::tensor::tensor< Derived,T >::operator/; \
+        using ambit::tensor::tensor< Derived,T >::get_name; \
         Derived & operator=(const Derived & other) \
         { \
             sum((T)1, other, (T)0); \
@@ -59,20 +59,20 @@ template <typename Derived, typename T> struct IndexedTensorMult;
     private:
 
 template <typename Derived, typename T>
-struct IndexableTensorBase
+struct indexable_tensor_base
 {
 protected:
     int ndim;
 
 public:
-    IndexableTensorBase(const int ndim=0) : ndim(ndim) {}
+    indexable_tensor_base(const int ndim=0) : ndim(ndim) {}
 
-    virtual ~IndexableTensorBase() {}
+    virtual ~indexable_tensor_base() {}
 
-    Derived& getDerived() { return static_cast<Derived&>(*this); }
-    const Derived& getDerived() const { return static_cast<const Derived&>(*this); }
+    Derived& get_derived() { return static_cast<Derived&>(*this); }
+    const Derived& get_derived() const { return static_cast<const Derived&>(*this); }
 
-    int getDimension() const { return ndim; }
+    int get_dimension() const { return ndim; }
 
     std::string implicit() const
     {
@@ -86,14 +86,14 @@ public:
      * Explicit indexing operations
      *
      *********************************************************************/
-    IndexedTensor<Derived,T> operator[](const std::string& idx)
+    indexed_tensor<Derived,T> operator[](const std::string& idx)
     {
-        return IndexedTensor<Derived,T>(getDerived(), idx);
+        return indexed_tensor<Derived,T>(get_derived(), idx);
     }
 
-    IndexedTensor<const Derived,T> operator[](const std::string& idx) const
+    indexed_tensor<const Derived,T> operator[](const std::string& idx) const
     {
-        return IndexedTensor<const Derived,T>(getDerived(), idx);
+        return indexed_tensor<const Derived,T>(get_derived(), idx);
     }
 
     /**********************************************************************
@@ -102,24 +102,24 @@ public:
      *
      *********************************************************************/
     template <typename cvDerived>
-    Derived& operator=(const IndexedTensorMult<cvDerived,T>& other)
+    Derived& operator=(const indexed_tensor_mult<cvDerived,T>& other)
     {
         (*this)[implicit()] = other;
-        return getDerived();
+        return get_derived();
     }
 
     template <typename cvDerived>
-    Derived& operator+=(const IndexedTensorMult<cvDerived,T>& other)
+    Derived& operator+=(const indexed_tensor_mult<cvDerived,T>& other)
     {
         (*this)[implicit()] += other;
-        return getDerived();
+        return get_derived();
     }
 
     template <typename cvDerived>
-    Derived& operator-=(const IndexedTensorMult<cvDerived,T>& other)
+    Derived& operator-=(const indexed_tensor_mult<cvDerived,T>& other)
     {
         (*this)[implicit()] -= other;
-        return getDerived();
+        return get_derived();
     }
 
     /**********************************************************************
@@ -128,24 +128,24 @@ public:
      *
      *********************************************************************/
     template <typename cvDerived>
-    Derived& operator=(const IndexedTensor<cvDerived,T>& other)
+    Derived& operator=(const indexed_tensor<cvDerived,T>& other)
     {
         (*this)[implicit()] = other;
-        return getDerived();
+        return get_derived();
     }
 
     template <typename cvDerived>
-    Derived& operator+=(const IndexedTensor<cvDerived,T>& other)
+    Derived& operator+=(const indexed_tensor<cvDerived,T>& other)
     {
         (*this)[implicit()] += other;
-        return getDerived();
+        return get_derived();
     }
 
     template <typename cvDerived>
-    Derived& operator-=(const IndexedTensor<cvDerived,T>& other)
+    Derived& operator-=(const indexed_tensor<cvDerived,T>& other)
     {
         (*this)[implicit()] -= other;
-        return getDerived();
+        return get_derived();
     }
 
     /**********************************************************************
@@ -179,23 +179,23 @@ public:
 };
 
 template <typename Derived, typename T>
-struct IndexableTensor : public IndexableTensorBase<Derived, T>, public Tensor<Derived, T>
+struct indexable_tensor : public indexable_tensor_base<Derived, T>, public tensor<Derived, T>
 {
     INHERIT_FROM_TENSOR(Derived, T)
 
 protected:
-    using IndexableTensorBase<Derived, T>::ndim;
+    using indexable_tensor_base<Derived, T>::ndim;
 
 public:
-    using IndexableTensorBase<Derived,T>::scale;
-    using IndexableTensorBase<Derived,T>::dot;
-    using IndexableTensorBase<Derived,T>::mult;
-    using IndexableTensorBase<Derived,T>::sum;
-    using IndexableTensorBase<Derived,T>::implicit;
+    using indexable_tensor_base<Derived,T>::scale;
+    using indexable_tensor_base<Derived,T>::dot;
+    using indexable_tensor_base<Derived,T>::mult;
+    using indexable_tensor_base<Derived,T>::sum;
+    using indexable_tensor_base<Derived,T>::implicit;
 
-    IndexableTensor(const std::string& name, const int ndim = 0)
-        : IndexableTensorBase<Derived, T>(ndim), Tensor<Derived,T>(name) {}
-    virtual ~IndexableTensor() {}
+    indexable_tensor(const std::string& name, const int ndim = 0)
+        : indexable_tensor_base<Derived, T>(ndim), tensor<Derived,T>(name) {}
+    virtual ~indexable_tensor() {}
 
     /**********************************************************************
      *
@@ -212,7 +212,7 @@ public:
               const T beta)
     {
 #ifdef VALIDATE_INPUTS
-        if (ndim != A.getDimension() || ndim != B_.getDimension()) throw invalid_ndim_error();
+        if (ndim != A.get_dimension() || ndim != B_.get_dimension()) throw invalid_ndim_error();
 #endif //VALIDATE_INPUTS
 
         mult(alpha, A, A.implicit(),
@@ -227,14 +227,14 @@ public:
      *********************************************************************/
     void sum(const T alpha, const T beta)
     {
-        Derived tensor("alpha", getDerived(), alpha);
+        Derived tensor("alpha", get_derived(), alpha);
         beta*(*this)[implicit()] = tensor[""];
     }
 
     void sum(const T alpha, const Derived& A, const T beta)
     {
 #ifdef VALIDATE_INPUTS
-        if (ndim != A.getDimension()) throw invalid_ndim_error();
+        if (ndim != A.get_dimension()) throw invalid_ndim_error();
 #endif //VALIDATE_INPUTS
 
         sum(alpha, A, A.implicit(),
@@ -254,7 +254,7 @@ public:
     T dot(const Derived& A) const
     {
 #ifdef VALIDATE_INPUTS
-        if (ndim != A.getDimension()) throw invalid_ndim_error();
+        if (ndim != A.get_dimension()) throw invalid_ndim_error();
 #endif //VALIDATE_INPUTS
 
         return dot(A, A.implicit(),
@@ -263,20 +263,20 @@ public:
 };
 
 template <typename Derived, typename T>
-struct IndexedTensor
+struct indexed_tensor
 {
     Derived& tensor_;
     std::string idx_;
     T factor_;
 
     template <typename cvDerived>
-    IndexedTensor(const IndexedTensor<cvDerived,T>& other)
+    indexed_tensor(const indexed_tensor<cvDerived,T>& other)
     : tensor_(other.tensor_), idx_(other.idx_), factor_(other.factor_) {}
 
-    IndexedTensor(Derived& tensor, const std::string& idx, const T factor=(T)1)
+    indexed_tensor(Derived& tensor, const std::string& idx, const T factor=(T)1)
     : tensor_(tensor), idx_(idx), factor_(factor)
     {
-        if (idx.size() != tensor.getDimension()) throw InvalidNdimError();
+        if (idx.size() != tensor.get_dimension()) throw InvalidNdimError();
     }
 
     /**********************************************************************
@@ -284,9 +284,9 @@ struct IndexedTensor
      * Unary negation
      *
      *********************************************************************/
-    IndexedTensor<Derived,T> operator-() const
+    indexed_tensor<Derived,T> operator-() const
     {
-        IndexedTensor<Derived,T> ret(*this);
+        indexed_tensor<Derived,T> ret(*this);
         ret.factor_ = -ret.factor_;
         return ret;
     }
@@ -296,28 +296,28 @@ struct IndexedTensor
      * Unary tensor operations (summation)
      *
      *********************************************************************/
-    IndexedTensor<Derived,T>& operator=(const IndexedTensor<Derived,T>& other)
+    indexed_tensor<Derived,T>& operator=(const indexed_tensor<Derived,T>& other)
     {
         tensor_.sum(other.factor_, other.tensor_, other.idx_, (T)0, idx_);
         return *this;
     }
 
     template <typename cvDerived>
-    IndexedTensor<Derived,T>& operator=(const IndexedTensor<cvDerived,T>& other)
+    indexed_tensor<Derived,T>& operator=(const indexed_tensor<cvDerived,T>& other)
     {
         tensor_.sum(other.factor_, other.tensor_, other.idx_, (T)0, idx_);
         return *this;
     }
 
     template <typename cvDerived>
-    IndexedTensor<Derived,T>& operator+=(const IndexedTensor<cvDerived,T>& other)
+    indexed_tensor<Derived,T>& operator+=(const indexed_tensor<cvDerived,T>& other)
     {
         tensor_.sum(other.factor_, other.tensor_, other.idx_, factor_, idx_);
         return *this;
     }
 
     template <typename cvDerived>
-    IndexedTensor<Derived,T>& operator-=(const IndexedTensor<cvDerived,T>& other)
+    indexed_tensor<Derived,T>& operator-=(const indexed_tensor<cvDerived,T>& other)
     {
         tensor_.sum(-other.factor_, other.tensor_, other.idx_, factor_, idx_);
         return *this;
@@ -329,7 +329,7 @@ struct IndexedTensor
      *
      *********************************************************************/
     template <typename cvDerived>
-    IndexedTensor<Derived,T>& operator=(const IndexedTensorMult<cvDerived,T>& other)
+    indexed_tensor<Derived,T>& operator=(const indexed_tensor_mult<cvDerived,T>& other)
     {
         tensor_.mult(other.factor_, other.A_.tensor_, other.A_.idx_,
                                     other.B_.tensor_, other.B_.idx_,
@@ -338,7 +338,7 @@ struct IndexedTensor
     }
 
     template <typename cvDerived>
-    IndexedTensor<Derived,T>& operator+=(const IndexedTensorMult<cvDerived,T>& other)
+    indexed_tensor<Derived,T>& operator+=(const indexed_tensor_mult<cvDerived,T>& other)
     {
         tensor_.mult(other.factor_, other.A_.tensor_, other.A_.idx_,
                                     other.B_.tensor_, other.B_.idx_,
@@ -347,7 +347,7 @@ struct IndexedTensor
     }
 
     template <typename cvDerived>
-    IndexedTensor<Derived,T>& operator-=(const IndexedTensorMult<cvDerived,T>& other)
+    indexed_tensor<Derived,T>& operator-=(const indexed_tensor_mult<cvDerived,T>& other)
     {
         tensor_.mult(-other.factor_, other.A_.tensor_, other.A_.idx_,
                                      other.B_.tensor_, other.B_.idx_,
@@ -356,23 +356,23 @@ struct IndexedTensor
     }
 
     template <typename cvDerived>
-    IndexedTensorMult<Derived,T> operator*(const IndexedTensor<cvDerived,T>& other) const
+    indexed_tensor_mult<Derived,T> operator*(const indexed_tensor<cvDerived,T>& other) const
     {
-        return IndexedTensorMult<Derived,T>(*this, other);
+        return indexed_tensor_mult<Derived,T>(*this, other);
     }
 
     template <typename cvDerived>
-    IndexedTensorMult<Derived,T> operator*(const ScaledTensor<cvDerived,T>& other) const
+    indexed_tensor_mult<Derived,T> operator*(const ScaledTensor<cvDerived,T>& other) const
     {
         cvDerived& B = other.tensor_.get_derived();
 
-        return IndexedTensorMult<Derived,T>(*this, B[B.implicit()]*other.factor_);
+        return indexed_tensor_mult<Derived,T>(*this, B[B.implicit()]*other.factor_);
     }
 
     template <typename cvDerived>
-    IndexedTensorMult<Derived,T> operator*(const IndexableTensor<cvDerived,T>& other) const
+    indexed_tensor_mult<Derived,T> operator*(const indexable_tensor<cvDerived,T>& other) const
     {
-        return IndexedTensorMult<Derived,T>(*this, other[other.implicit()]);
+        return indexed_tensor_mult<Derived,T>(*this, other[other.implicit()]);
     }
 
     /**********************************************************************
@@ -380,39 +380,39 @@ struct IndexedTensor
      * Operations with scalars
      *
      *********************************************************************/
-    IndexedTensor<Derived,T> operator*(const T factor) const
+    indexed_tensor<Derived,T> operator*(const T factor) const
     {
-        IndexedTensor<Derived,T> it(*this);
+        indexed_tensor<Derived,T> it(*this);
         it.factor_ *= factor;
         return it;
     }
 
-    friend IndexedTensor<Derived,T> operator*(const T factor, const IndexedTensor<Derived,T>& other)
+    friend indexed_tensor<Derived,T> operator*(const T factor, const indexed_tensor<Derived,T>& other)
     {
         return other*factor;
     }
 
-    IndexedTensor<Derived,T>& operator*=(const T factor)
+    indexed_tensor<Derived,T>& operator*=(const T factor)
     {
         tensor_.scale(factor, idx_);
         return *this;
     }
 
-    IndexedTensor<Derived,T>& operator=(const T val)
+    indexed_tensor<Derived,T>& operator=(const T val)
     {
         Derived tensor(tensor_, val);
         *this = tensor[""];
         return *this;
     }
 
-    IndexedTensor<Derived,T>& operator+=(const T val)
+    indexed_tensor<Derived,T>& operator+=(const T val)
     {
         Derived tensor(tensor_, val);
         *this += tensor[""];
         return *this;
     }
 
-    IndexedTensor<Derived,T>& operator-=(const T val)
+    indexed_tensor<Derived,T>& operator-=(const T val)
     {
         Derived tensor(tensor_, val);
         *this -= tensor[""];
@@ -422,35 +422,35 @@ struct IndexedTensor
 
 template <class Derived1, class Derived2, class T>
 //typename std::enable_if<std::is_same<const Derived1, const Derived2>::value,IndexedTensorMult<Derived1,T> >::type
-IndexedTensorMult<Derived1,T>
-operator*(const IndexableTensorBase<Derived1,T>& t1, const IndexedTensor<Derived2,T>& t2)
+indexed_tensor_mult<Derived1,T>
+operator*(const indexable_tensor_base<Derived1,T>& t1, const indexed_tensor<Derived2,T>& t2)
 {
-    return IndexedTensorMult<Derived1,T>(t1[t1.implicit()], t2);
+    return indexed_tensor_mult<Derived1,T>(t1[t1.implicit()], t2);
 }
 
 template <class Derived1, class Derived2, class T>
 //typename std::enable_if<std::is_same<const Derived1, const Derived2>::value,IndexedTensorMult<Derived1,T> >::type
-IndexedTensorMult<Derived1,T>
-operator*(const ScaledTensor<Derived1,T>& t1, const IndexedTensor<Derived2,T>& t2)
+indexed_tensor_mult<Derived1,T>
+operator*(const ScaledTensor<Derived1,T>& t1, const indexed_tensor<Derived2,T>& t2)
 {
     Derived1& A = t1.tensor_.get_derived();
 
-    return IndexedTensorMult<Derived1,T>(A[A.implicit()]*t1.factor_, t2);
+    return indexed_tensor_mult<Derived1,T>(A[A.implicit()]*t1.factor_, t2);
 }
 
 template <typename Derived, typename T>
-struct IndexedTensorMult
+struct indexed_tensor_mult
 {
 private:
-    const IndexedTensorMult& operator=(const IndexedTensorMult<Derived, T>& other);
+    const indexed_tensor_mult& operator=(const indexed_tensor_mult<Derived, T>& other);
 
 public:
-    IndexedTensor<const Derived,T> A_;
-    IndexedTensor<const Derived,T> B_;
+    indexed_tensor<const Derived,T> A_;
+    indexed_tensor<const Derived,T> B_;
     T factor_;
 
     template <class Derived1, class Derived2>
-    IndexedTensorMult(const IndexedTensor<Derived1,T>& A, const IndexedTensor<Derived2,T>& B)
+    indexed_tensor_mult(const indexed_tensor<Derived1,T>& A, const indexed_tensor<Derived2,T>& B)
         : A_(A), B_(B), factor_(A.factor_*B.factor_) {}
 
     /**********************************************************************
@@ -458,9 +458,9 @@ public:
      * Unary negation
      *
      *********************************************************************/
-    IndexedTensorMult<Derived,T> operator-() const
+    indexed_tensor_mult<Derived,T> operator-() const
     {
-        IndexedTensorMult<Derived,T> ret(*this);
+        indexed_tensor_mult<Derived,T> ret(*this);
         ret.factor_ = -ret.factor_;
         return ret;
     }
@@ -470,21 +470,21 @@ public:
      * Operations with scalars
      *
      *********************************************************************/
-    IndexedTensorMult<Derived,T> operator*(const T factor) const
+    indexed_tensor_mult<Derived,T> operator*(const T factor) const
     {
-        IndexedTensorMult<Derived,T> ret(*this);
+        indexed_tensor_mult<Derived,T> ret(*this);
         ret.factor_ *= factor;
         return ret;
     }
 
-    IndexedTensorMult<Derived,T> operator/(const T factor) const
+    indexed_tensor_mult<Derived,T> operator/(const T factor) const
     {
-        IndexedTensorMult<Derived,T> ret(*this);
+        indexed_tensor_mult<Derived,T> ret(*this);
         ret.factor_ /= factor;
         return ret;
     }
 
-    friend IndexedTensorMult<Derived,T> operator*(const T factor, const IndexedTensorMult<Derived,T>& other)
+    friend indexed_tensor_mult<Derived,T> operator*(const T factor, const indexed_tensor_mult<Derived,T>& other)
     {
         return other*factor;
     }
@@ -498,7 +498,7 @@ public:
  *
  *************************************************************************/
 template <class Derived, typename T>
-T scalar(const tensor::IndexedTensorMult<Derived,T>& itm)
+T scalar(const tensor::indexed_tensor_mult<Derived,T>& itm)
 {
     return itm.factor_*itm.B_.tensor_.dot(itm.A_.tensor_, itm.A_.idx_,
                                                           itm.B_.idx_);

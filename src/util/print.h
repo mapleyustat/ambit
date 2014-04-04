@@ -23,7 +23,26 @@
 
 namespace ambit { namespace util {
 
+/// Only the master process is allowed to print to the screen.
 void print0(const std::string format, ...);
+
+namespace print {
+
+/** Initialize the printing system.
+ *
+ * Will open a file for each MPI process. Only that process will be allowed to print to that
+ * file.
+ */
+bool initialize();
+
+/** Closes any open file handles in the printing system.
+ */
+void finalize();
+
+}
+
+/// Each process will print to their respective output file. (including the master process)
+void printn(const std::string format, ...);
 
 }}
 

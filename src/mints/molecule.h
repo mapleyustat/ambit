@@ -21,8 +21,18 @@
 
 #include <util/aligned.h>
 
+#include <string>
+
 namespace ambit {
 namespace mints {
+
+namespace atom {
+
+std::string symbol_from_Z(int Z);
+
+int Z_from_symbol(const std::string& symbol);
+
+}
 
 struct molecule
 {
@@ -30,18 +40,22 @@ struct molecule
 
     void print() const;
 
+    int natom() const { return natom_; }
+    std::string symbol(int atom) const { return atom_symbol_[atom]; }
+
     void set_atom_x(const std::vector<double>& x);
     void set_atom_y(const std::vector<double>& y);
     void set_atom_z(const std::vector<double>& z);
 
     double nuclear_repulsion_energy() const;
 
-
     bool load_xyz_file(const std::string& xyzfile, bool throw_on_error = true);
 
 private:
     /// The total number of atoms
     int natom_;
+    /// Actual atomic symbol (initially the one from the xyz file).
+    std::vector<std::string> atom_symbol_;
     /// Atomic charge of the atoms. Aligned memory.
     aligned_vector<double> atom_Z_;
     /// The x-coordinates of the atoms. Aligned memory.
@@ -50,6 +64,13 @@ private:
     aligned_vector<double> atom_y_;
     /// The z-coordinates of the atoms. Aligned memory.
     aligned_vector<double> atom_z_;
+
+    /** Name of the molecule.
+     *
+     * When a molecule is constructed with load_xyz_file then the name
+     * comes from the comment line in the file.
+     */
+    std::string name_;
 };
 
 }

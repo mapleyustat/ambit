@@ -63,7 +63,7 @@ endif()
 
 find_package(LAPACK REQUIRED)
 find_package(PythonLibs REQUIRED)
-find_package(Boost 1.49 COMPONENTS python regex REQUIRED)
+find_package(Boost 1.49 COMPONENTS filesystem python regex system REQUIRED)
 
 find_package(MPI)
 if (MPI_CXX_FOUND)
@@ -76,7 +76,8 @@ if (MPI_CXX_FOUND)
     if (DEFINED CTF_DIR)
         message("CTF_DIR = ${CTF_DIR}")
     else()
-        message(FATAL_ERROR "CTF_DIR not defined. Unable to continue.")
+        #message(FATAL_ERROR "CTF_DIR not defined. Unable to continue.")
+        set(CTF_DIR /Users/jturney/Code/ctf)
     endif()
 
     set(CTF_INCLUDE_DIRS ${CTF_DIR}/include)

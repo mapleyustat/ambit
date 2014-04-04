@@ -17,6 +17,8 @@
  */
 
 #include "molecule.h"
+
+#include <tensor/cyclops/world.h>
 #include <util/print.h>
 
 #include <cmath>
@@ -32,6 +34,46 @@
 namespace ambit {
 namespace mints {
 
+namespace atom {
+
+namespace {
+
+const std::vector<std::string> symbols = {{
+                                              "Gh",
+                                              "H",
+                                              "He",
+                                              "Li",
+                                              "Be",
+                                              "B",
+                                              "C",
+                                              "N",
+                                              "O",
+                                              "F",
+                                              "Ne"
+                                          }};
+
+}
+
+std::string symbol_from_Z(int Z)
+{
+    assert(Z >= 0 && Z < symbols.size());
+    return symbols[Z];
+}
+
+int Z_from_symbol(const std::string& symbol)
+{
+    assert(!symbol.empty());
+
+    std::vector<std::string>::const_iterator found = std::find_if(symbols.begin(), symbols.end(), [=] (const std::string& s) { return boost::iequals(s, symbol); } );
+
+    if (found == symbols.end())
+        return -1;
+
+    return std::distance(symbols.begin(), found);
+}
+
+}
+
 molecule::molecule(const std::string& xyzfile)
     : natom_(0)
 {
@@ -42,27 +84,40 @@ void molecule::print() const
 {
     util::print0("molecule object\n");
     util::print0("=================\n");
-    util::print0("natom_ = %d\n", natom_);
-//    printf("&atom_Z_ = %X\n", atom_Z_.data());
-//    printf("&atom_x_ = %X\n", atom_x_.data());
-//    printf("&atom_y_ = %X\n", atom_y_.data());
-//    printf("&atom_z_ = %X\n", atom_z_.data());
+    if (name_.length())
+        util::print0("name = %s\n", name_.c_str());
+    util::print0("repulsion = %20.15lf\n\n", nuclear_repulsion_energy());
+    util::print0("       Center              X                  Y                   Z       \n");
+    util::print0("    ------------   -----------------  -----------------  -----------------\n");
+    for (int i=0; i<natom_; ++i) {
+        util::print0("    %8s%4s   %17.12f  %17.12f  %17.12f\n",atom_symbol_[i].c_str(), "", atom_x_[i], atom_y_[i], atom_z_[i]);
+    }
+
+#if defined(DEBUG)
+    util::printn("molecule object\n");
+    util::printn("=================\n");
+    util::printn("natom = %d\n", natom_);
+    if (name_.length())
+        util::printn("name = %s\n", name_.c_str());
+    util::printn("repulsion = %20.15lf\n\n", nuclear_repulsion_energy());
+    util::printn("       Center              X                  Y                   Z       \n");
+    util::printn("    ------------   -----------------  -----------------  -----------------\n");
+    for (int i=0; i<natom_; ++i) {
+        util::printn("    %8s%4s   %17.12f  %17.12f  %17.12f\n",atom_symbol_[i].c_str(), "", atom_x_[i], atom_y_[i], atom_z_[i]);
+    }
+#endif
 }
 
 double molecule::nuclear_repulsion_energy() const
 {
     double e = 0.0;
 
-    //double *x = (double*)__builtin_assume_aligned(atom_x_.data(), 16);
-    //double *y = (double*)__builtin_assume_aligned(atom_y_.data(), 16);
-    //double *z = (double*)__builtin_assume_aligned(atom_z_.data(), 16);
-
     const double *x = atom_x_.data();
     const double *y = atom_y_.data();
     const double *z = atom_z_.data();
 
     for (int i=1; i<natom_; ++i) {
-        ALIGNED_LOOP(int j=0; j<i; ++j) {
+        for (int j=0; j<i; ++j) {
             double xdist = pow(x[i] - x[j], 2.0);
             double ydist = pow(y[i] - y[j], 2.0);
             double zdist = pow(z[i] - z[j], 2.0);
@@ -78,79 +133,96 @@ double molecule::nuclear_repulsion_energy() const
 
 bool molecule::load_xyz_file(const std::string& xyzfile, bool throw_on_error)
 {
-    if (xyzfile.empty()) {
-        if (throw_on_error)
-            throw std::runtime_error("Molecule::load_xyz_file: empty file name.");
-        else
-            return false;
-    }
+    // TODO: Abstract away tensor/cyclops/world.h from here.
+    ambit::tensor::cyclops::world& world = ambit::tensor::cyclops::world::shared();
 
-    std::ifstream infile(xyzfile.c_str());
-    std::string line;
-    const std::string bohr("bohr"), au("au");
-    bool angstrom_in_file = true;
-
-    if (!infile) {
-        if (throw_on_error)
-            throw std::runtime_error("Molecule::load_xyz_file: Unable to open " + xyzfile);
-        else
-            return false;
-    }
-
-    // read in first line.
-    std::getline(infile, line);
-
-    // this is what we expect to find on the first line
-    boost::regex rx("(\\d+)\\s*(bohr|au)?", boost::regbase::normal | boost::regbase::icase);
-    boost::smatch what;
-
-    // try to match the first line
-    if (boost::regex_match(line, what, rx)) {
-        // matched
-        natom_ = boost::lexical_cast<int>(what[1]);
-
-        if (what.size() == 3) {
-            std::string s(what[2].first, what[2].second);
-            if (boost::iequals(bohr, s) || boost::iequals(au, s))
-                angstrom_in_file = false;
+    if (world.rank == 0) {
+        if (xyzfile.empty()) {
+            if (throw_on_error)
+                throw std::runtime_error("Molecule::load_xyz_file: empty file name.");
+            else
+                return false;
         }
-    }
-    else {
-        if (throw_on_error)
-            throw std::runtime_error("Molecule::load_xyz_file: Malformed first line.");
-        else
-            return false;
-    }
 
-    // since we know the number of atoms, let's resize our data arrays
-    atom_Z_.resize(natom_);
-    atom_x_.resize(natom_);
-    atom_y_.resize(natom_);
-    atom_z_.resize(natom_);
+        std::ifstream infile(xyzfile.c_str());
+        std::string line;
+        const std::string bohr("bohr"), au("au");
+        bool angstrom_in_file = true;
 
-    // the next line is a comment line, ignore it
-    std::getline(infile, line);
+        if (!infile) {
+            if (throw_on_error)
+                throw std::runtime_error("Molecule::load_xyz_file: Unable to open " + xyzfile);
+            else
+                return false;
+        }
 
-    // now begins the useful information
-    // here is the regex for matching the remaining lines
-    rx.assign("(?:\\s*)([A-Z](?:[a-z])?)(?:\\s+)(-?\\d+\\.\\d+)(?:\\s+)(-?\\d+\\.\\d+)(?:\\s+)(-?\\d+\\.\\d+)(?:\\s*)", boost::regbase::normal | boost::regbase::icase);
-
-    for (int i=0; i<natom_; ++i) {
-        // get an atom info line
+        // read in first line.
         std::getline(infile, line);
 
-        // attempt to match it
-        if (boost::regex_match(line, what, rx)) {
-            // first is a string
-            std::string atom_sym(what[1].first, what[1].second);
-            atom_Z_[i] = 1.0;
+        // this is what we expect to find on the first line
+        boost::regex rx("(\\d+)\\s*(bohr|au)?", boost::regbase::normal | boost::regbase::icase);
+        boost::smatch what;
 
-            // then the coordinates
-            atom_x_[i] = boost::lexical_cast<double>(what[2]);
-            atom_y_[i] = boost::lexical_cast<double>(what[3]);
-            atom_z_[i] = boost::lexical_cast<double>(what[4]);
+        // try to match the first line
+        if (boost::regex_match(line, what, rx)) {
+            // matched
+            natom_ = boost::lexical_cast<int>(what[1]);
+
+            if (what.size() == 3) {
+                std::string s(what[2].first, what[2].second);
+                if (boost::iequals(bohr, s) || boost::iequals(au, s))
+                    angstrom_in_file = false;
+            }
+        }
+        else {
+            if (throw_on_error)
+                throw std::runtime_error("Molecule::load_xyz_file: Malformed first line.");
+            else
+                return false;
+        }
+
+        // since we know the number of atoms, let's resize our data arrays
+        atom_Z_.resize(natom_);
+        atom_symbol_.resize(natom_);
+        atom_x_.resize(natom_);
+        atom_y_.resize(natom_);
+        atom_z_.resize(natom_);
+
+        // the next line is a comment line, ignore it
+        std::getline(infile, name_);
+
+        // now begins the useful information
+        // here is the regex for matching the remaining lines
+        rx.assign("(?:\\s*)([A-Z](?:[a-z])?)(?:\\s+)(-?\\d+\\.\\d+)(?:\\s+)(-?\\d+\\.\\d+)(?:\\s+)(-?\\d+\\.\\d+)(?:\\s*)", boost::regbase::normal | boost::regbase::icase);
+
+        for (int i=0; i<natom_; ++i) {
+            // get an atom info line
+            std::getline(infile, line);
+
+            // attempt to match it
+            if (boost::regex_match(line, what, rx)) {
+                // first is a string of the atomic symbol
+                std::string symbol(what[1].first, what[1].second);
+                atom_symbol_[i] = symbol;
+                atom_Z_[i] = atom::Z_from_symbol(symbol);
+
+                // then the coordinates
+                atom_x_[i] = boost::lexical_cast<double>(what[2]);
+                atom_y_[i] = boost::lexical_cast<double>(what[3]);
+                atom_z_[i] = boost::lexical_cast<double>(what[4]);
+            }
         }
     }
+
+    // broadcast results to all nodes.
+    world.bcast(natom_, 0);
+    world.bcast(name_, 0);
+    world.bcast(atom_Z_, 0);
+    world.bcast(atom_symbol_, 0);
+    world.bcast(atom_x_, 0);
+    world.bcast(atom_y_, 0);
+    world.bcast(atom_z_, 0);
+
     return true;
 }
 

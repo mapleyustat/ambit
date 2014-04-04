@@ -16,33 +16,19 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-set(TENSOR_SOURCE_FILES
-    dense_tensor.cc
-    indices.cc
-    local_tensor.cc
-    tensor_mult_dense.cc
-    tensor_print_dense.cc
-    tensor_scale_dense.cc
-    tensor_size_dense.cc
-    tensor_slice_dense.cc
-    tensor_sum_dense.cc
-    util.cc
+set(IO_SOURCE_FILES
+    file.cc
+    manager.cc
 )
 
-set(TENSOR_HEADER_FILES
-    composite_tensor.h
-    dense_tensor.h
-    local_tensor.h
-    indices.h
-    indexable_tensor.h
-    tensor.h
-    util.h
+set(IO_HEADER_FILES
+    file.h
+    io.h
+    manager.h
 )
 
 if (MPI_CXX_FOUND)
-    list(APPEND TENSOR_SOURCE_FILES cyclops/tensor.cc cyclops/world.cc)
-    list(APPEND TENSOR_HEADER_FILES cyclops/tensor.h cyclops/world.h)
 endif()
 
-add_library(tensor ${TENSOR_SOURCE_FILES} ${TENSOR_HEADER_FILES})
+add_library(io ${IO_SOURCE_FILES} ${IO_HEADER_FILES})
 

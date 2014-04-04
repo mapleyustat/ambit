@@ -19,11 +19,35 @@
 #include "basisset.h"
 #include "molecule.h"
 
+#include <util/property_tree.h>
+#include <tensor/cyclops/world.h>
+
+#include <boost/property_tree/json_parser.hpp>
+
 namespace ambit { namespace mints {
 
 basisset::basisset(const std::string& name, const molecule& m)
     : name_(name), molecule_(m)
 {
+    // load in the basis set.
+    // TODO: abstract cyclops world out
+    ambit::tensor::cyclops::world& world = ambit::tensor::cyclops::world::shared();
+
+    if (world.rank == 0) {
+        ambit::util::property_tree basis_file(std::string(ROOT_SRC_DIR) + "/basis/" + name + ".json");
+
+        for (int i = 0; i < m.natom(); ++i) {
+            std::string a = m.symbol(i);
+            std::transform(a.begin(), a.end(), a.begin(), ::tolower);
+            a[0] = ::toupper(a[0]);
+
+            ambit::util::property_tree atom_basis = basis_file.get_child(a);
+            for (auto& ibasis : atom_basis) {
+//                ibasis.print();
+                exponents_.push_back(ibasis.get_aligned_vector<double>("prim"));
+            }
+        }
+    }
 }
 
 }}

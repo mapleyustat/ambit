@@ -26,48 +26,46 @@
 #define AMBIT_LIB_TENSOR_CYCLOPS_TENSOR
 
 #if !defined(HAVE_MPI)
-#   error MPI is not defined and is required for compiling CyclopsTensor.
+#   error MPI is not defined and is required for compiling tensor.
 #endif
 
 #include <ctf.hpp>
-#include "indexable_tensor.h"
-#include <util/world.h>
+#include <tensor/indexable_tensor.h>
+#include "world.h"
 
 #include <vector>
 
-namespace ambit {
-
-namespace tensor {
+namespace ambit { namespace tensor { namespace cyclops {
 
 template <typename T>
-struct CyclopsTensor : public IndexableTensor< CyclopsTensor<T>, T>
+struct tensor : public indexable_tensor< tensor<T>, T>
 {
-    INHERIT_FROM_INDEXABLE_TENSOR(CyclopsTensor<T>,T)
+    INHERIT_FROM_INDEXABLE_TENSOR(tensor<T>,T)
 
 protected:
-    tCTF_Tensor<T> *dt;
-    util::World& world;
-    std::vector<int> len;
-    std::vector<int> sym;
+    tCTF_Tensor<T> *dt_;
+    world& world_;
+    std::vector<int> len_;
+    std::vector<int> sym_;
 
     void allocate();
     void free();
 
 public:
-    CyclopsTensor(const std::string& name, util::World& arena, T scalar = (T)0);
-    CyclopsTensor(const std::string& name, const CyclopsTensor<T>& A, T scalar);
+    tensor(const std::string& name, world& arena, T scalar = (T)0);
+    tensor(const std::string& name, const tensor<T>& A, T scalar);
 
-    CyclopsTensor(const CyclopsTensor<T>& A, bool copy=true, bool zero=false);
+    tensor(const tensor<T>& A, bool copy=true, bool zero=false);
 
-    CyclopsTensor(const std::string& name, util::World& arena, const std::vector<int>& len, const std::vector<int>& sym,
+    tensor(const std::string& name, world& arena, const std::vector<int>& len, const std::vector<int>& sym,
                 bool zero=true);
 
-    ~CyclopsTensor();
+    ~tensor();
 
     void resize(int ndim, const std::vector<int>& len, const std::vector<int>& sym, bool zero);
 
-    const std::vector<int>& get_lengths() const { return len; }
-    const std::vector<int>& get_symmetry() const { return sym; }
+    const std::vector<int>& get_lengths() const { return len_; }
+    const std::vector<int>& get_symmetry() const { return sym_; }
 
     void fill_with_random_data();
 
@@ -88,37 +86,35 @@ public:
     void get_all_data(std::vector<T>& vals) const;
     void get_all_data(std::vector<T> &vals, int rank) const;
 
-    void div(T alpha, const CyclopsTensor<T>& A,
-                      const CyclopsTensor<T>& B, T beta);
+    void div(T alpha, const tensor<T>& A,
+                      const tensor<T>& B, T beta);
 
-    void invert(T alpha, const CyclopsTensor<T>& A, T beta);
+    void invert(T alpha, const tensor<T>& A, T beta);
 
     void weight(const std::vector<const std::vector<T>*>& d);
 
     void print() const;
 
-    void compare(const CyclopsTensor<T>& other, double cutoff = 0.0) const;
+    void compare(const tensor<T>& other, double cutoff = 0.0) const;
 
     typename real_type<T>::type norm(int p) const;
 
-    void mult(T alpha, const CyclopsTensor<T>& A, const std::string& idx_A,
-                       const CyclopsTensor<T>& B, const std::string& idx_B,
-              T  beta,                                const std::string& idx_C);
+    void mult(T alpha, const tensor<T>& A, const std::string& idx_A,
+                       const tensor<T>& B, const std::string& idx_B,
+              T  beta,                     const std::string& idx_C);
 
-    void sum(T alpha, const CyclopsTensor<T>& A, const std::string& idx_A,
-             T beta,                                 const std::string& idx_B);
+    void sum(T alpha, const tensor<T>& A, const std::string& idx_A,
+             T beta,                      const std::string& idx_B);
 
     void scale(T alpha, const std::string& idx_A);
 
-    T dot(const CyclopsTensor<T>& A, const std::string& idx_A,
-                                         const std::string& idx_B) const;
+    T dot(const tensor<T>& A, const std::string& idx_A,
+                              const std::string& idx_B) const;
 
     /// Performs this[idx_B] = factor * A[idx_A]
-    void sort(T alpha, const CyclopsTensor<T>& A, const std::string& idx_A, const std::string& idx_B);
+    void sort(T alpha, const tensor<T>& A, const std::string& idx_A, const std::string& idx_B);
 };
 
-}
-
-}
+} } }
 
 #endif

@@ -30,7 +30,7 @@ int main(int /*argc*/, char** /*argv*/)
     ambit::tensor::declare_index_range("occupied", "i,j,k,l", {0}, {5});
     ambit::tensor::declare_index_range("virtual", "a,b,c,d", {3}, {4});
 
-    for (auto iter = ambit::tensor::IndexRange::set.begin(); iter != ambit::tensor::IndexRange::set.end(); ++iter) {
+    for (auto iter = ambit::tensor::index_range::set.begin(); iter != ambit::tensor::index_range::set.end(); ++iter) {
         std::cout << "name " << iter->first
                   << " index " << iter->second.name
                   << " start " << iter->second.start
@@ -39,9 +39,9 @@ int main(int /*argc*/, char** /*argv*/)
                   << std::endl;
     }
 
-    std::cout << "found " << ambit::tensor::IndexRange::find("i").start << std::endl;
+    std::cout << "found " << ambit::tensor::index_range::find("i").start << std::endl;
 
-    std::vector<ambit::tensor::IndexRange> range = ambit::tensor::IndexRange::find(ambit::tensor::split_indices("i,j,a"));
+    std::vector<ambit::tensor::index_range> range = ambit::tensor::index_range::find(ambit::tensor::split_indices("i,j,a"));
     for (auto& i : range) {
         std::cout << " index " << i.name
                   << " start " << i.start
@@ -50,9 +50,9 @@ int main(int /*argc*/, char** /*argv*/)
                   << std::endl;
     }
 
-    ambit::tensor::DenseTensor<double> A("A", "i,j");
-    ambit::tensor::DenseTensor<double> B("B", "i,a");
-    ambit::tensor::DenseTensor<double> C("C", "j,a");
+    ambit::tensor::dense_tensor<double> A("A", "i,j");
+    ambit::tensor::dense_tensor<double> B("B", "i,a");
+    ambit::tensor::dense_tensor<double> C("C", "j,a");
 
     A.fill_with_random_data();
     B.fill_with_random_data();

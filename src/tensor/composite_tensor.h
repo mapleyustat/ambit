@@ -39,380 +39,380 @@ namespace tensor
 
 #define INHERIT_FROM_COMPOSITE_TENSOR(Derived,Base,T) \
     protected: \
-        using ambit::tensor::CompositeTensor< Derived, Base, T >::tensors; \
-        using ambit::tensor::CompositeTensor< Derived, Base, T >::addTensor; \
+    using ambit::tensor::composite_tensor< Derived, Base, T >::tensors; \
+    using ambit::tensor::composite_tensor< Derived, Base, T >::add_tensor; \
     public: \
-        using ambit::tensor::CompositeTensor< Derived, Base, T >::mult; \
-        using ambit::tensor::CompositeTensor< Derived, Base, T >::div; \
-        using ambit::tensor::CompositeTensor< Derived, Base, T >::sum; \
-        using ambit::tensor::CompositeTensor< Derived, Base, T >::invert; \
-        using ambit::tensor::CompositeTensor< Derived, Base, T >::dot; \
-        using ambit::tensor::CompositeTensor< Derived, Base, T >::exists; \
-        using ambit::tensor::CompositeTensor< Derived, Base, T >::operator(); \
-        using ambit::tensor::Tensor< Derived,T >::getDerived; \
-        using ambit::tensor::Tensor< Derived,T >::operator=; \
-        using ambit::tensor::Tensor< Derived,T >::operator+=; \
-        using ambit::tensor::Tensor< Derived,T >::operator-=; \
-        using ambit::tensor::Tensor< Derived,T >::operator*=; \
-        using ambit::tensor::Tensor< Derived,T >::operator/=; \
-        using ambit::tensor::Tensor< Derived,T >::operator*; \
-        using ambit::tensor::Tensor< Derived,T >::operator/; \
-        Derived & operator=(const Derived & other) \
-        { \
-            sum((T)1, false, other, (T)0); \
-            return *this; \
-        } \
+    using ambit::tensor::composite_tensor< Derived, Base, T >::mult; \
+    using ambit::tensor::composite_tensor< Derived, Base, T >::div; \
+    using ambit::tensor::composite_tensor< Derived, Base, T >::sum; \
+    using ambit::tensor::composite_tensor< Derived, Base, T >::invert; \
+    using ambit::tensor::composite_tensor< Derived, Base, T >::dot; \
+    using ambit::tensor::composite_tensor< Derived, Base, T >::exists; \
+    using ambit::tensor::composite_tensor< Derived, Base, T >::operator(); \
+    using ambit::tensor::tensor< Derived,T >::get_derived; \
+    using ambit::tensor::tensor< Derived,T >::operator=; \
+    using ambit::tensor::tensor< Derived,T >::operator+=; \
+    using ambit::tensor::tensor< Derived,T >::operator-=; \
+    using ambit::tensor::tensor< Derived,T >::operator*=; \
+    using ambit::tensor::tensor< Derived,T >::operator/=; \
+    using ambit::tensor::tensor< Derived,T >::operator*; \
+    using ambit::tensor::tensor< Derived,T >::operator/; \
+    Derived & operator=(const Derived & other) \
+{ \
+    sum((T)1, false, other, (T)0); \
+    return *this; \
+} \
     private:
 
 #define INHERIT_FROM_INDEXABLE_COMPOSITE_TENSOR(Derived,Base,T) \
     protected: \
-        using ambit::tensor::CompositeTensor< Derived, Base, T >::tensors; \
-        using ambit::tensor::CompositeTensor< Derived, Base, T >::addTensor; \
-        using ambit::tensor::IndexableTensorBase< Derived, T >::ndim; \
+    using ambit::tensor::composite_tensor< Derived, Base, T >::tensors; \
+    using ambit::tensor::composite_tensor< Derived, Base, T >::add_tensor; \
+    using ambit::tensor::indexable_tensor_base< Derived, T >::ndim; \
     public: \
-        using ambit::tensor::IndexableCompositeTensor< Derived, Base, T >::mult; \
-        using ambit::tensor::IndexableCompositeTensor< Derived, Base, T >::sum; \
-        using ambit::tensor::IndexableCompositeTensor< Derived, Base, T >::div; \
-        using ambit::tensor::IndexableCompositeTensor< Derived, Base, T >::invert; \
-        using ambit::tensor::IndexableCompositeTensor< Derived, Base, T >::scale; \
-        using ambit::tensor::IndexableCompositeTensor< Derived, Base, T >::dot; \
-        using ambit::tensor::IndexableCompositeTensor< Derived, Base, T >::operator=; \
-        using ambit::tensor::IndexableCompositeTensor< Derived, Base, T >::operator+=; \
-        using ambit::tensor::IndexableCompositeTensor< Derived, Base, T >::operator-=; \
-        using ambit::tensor::IndexableTensorBase< Derived, T >::operator[]; \
-        using ambit::tensor::CompositeTensor< Derived, Base, T >::operator(); \
-        using ambit::tensor::CompositeTensor< Derived, Base, T >::exists; \
-        using ambit::tensor::Tensor< Derived,T >::getDerived; \
-        using ambit::tensor::Tensor< Derived,T >::operator*=; \
-        using ambit::tensor::Tensor< Derived,T >::operator/=; \
-        using ambit::tensor::Tensor< Derived,T >::operator*; \
-        using ambit::tensor::Tensor< Derived,T >::operator/; \
-        Derived & operator=(const Derived & other) \
-        { \
-            sum((T)1, false, other, (T)0); \
-            return *this; \
-        } \
+    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::mult; \
+    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::sum; \
+    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::div; \
+    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::invert; \
+    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::scale; \
+    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::dot; \
+    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::operator=; \
+    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::operator+=; \
+    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::operator-=; \
+    using ambit::tensor::indexable_tensor_base< Derived, T >::operator[]; \
+    using ambit::tensor::composite_tensor< Derived, Base, T >::operator(); \
+    using ambit::tensor::composite_tensor< Derived, Base, T >::exists; \
+    using ambit::tensor::tensor< Derived,T >::get_derived; \
+    using ambit::tensor::tensor< Derived,T >::operator*=; \
+    using ambit::tensor::tensor< Derived,T >::operator/=; \
+    using ambit::tensor::tensor< Derived,T >::operator*; \
+    using ambit::tensor::tensor< Derived,T >::operator/; \
+    Derived & operator=(const Derived & other) \
+{ \
+    sum((T)1, false, other, (T)0); \
+    return *this; \
+} \
     private:
 
 template <class Derived, class Base, class T>
-class CompositeTensor : public Tensor<Derived,T>
+class composite_tensor : public tensor<Derived,T>
 {
-    protected:
-        struct TensorRef
-        {
-            Base* tensor;
-            bool isAlloced;
-            int ref;
-            TensorRef(Base* tensor_=NULL, bool isAlloced=false, int ref=-1)
+protected:
+    struct TensorRef
+    {
+        Base* tensor;
+        bool isAlloced;
+        int ref;
+        TensorRef(Base* tensor_=NULL, bool isAlloced=false, int ref=-1)
             : tensor(tensor_), isAlloced(isAlloced), ref(ref) {}
-            bool operator==(const Base* other) const { return tensor == other; }
-            bool operator!=(const Base* other) const { return tensor != other; }
-        };
+        bool operator==(const Base* other) const { return tensor == other; }
+        bool operator!=(const Base* other) const { return tensor != other; }
+    };
 
-        std::vector<TensorRef> tensors;
+    std::vector<TensorRef> tensors;
 
-        Base& addTensor(Base* new_tensor, bool isAlloced=true)
+    Base& add_tensor(Base* new_tensor, bool isAlloced=true)
+    {
+        tensors.push_back(TensorRef(new_tensor, isAlloced));
+        return *new_tensor;
+    }
+
+    Base& add_tensor(Base& new_tensor, bool isAlloced=false)
+    {
+        tensors.push_back(TensorRef(&new_tensor, isAlloced));
+        return new_tensor;
+    }
+
+    Base& add_tensor(int ref)
+    {
+        assert(ref >= -1 && ref < tensors.size());
+        tensors.push_back(TensorRef(tensors[ref].tensor, false, ref));
+        return *tensors[ref].tensor;
+    }
+
+public:
+    composite_tensor(const composite_tensor<Derived,Base,T>& other)
+        : tensor<Derived,T>(other.name), tensors(other.tensors)
+    {
+        for (int i = 0;i < tensors.size();i++)
         {
-            tensors.push_back(TensorRef(new_tensor, isAlloced));
-            return *new_tensor;
-        }
-
-        Base& addTensor(Base& new_tensor, bool isAlloced=false)
-        {
-            tensors.push_back(TensorRef(&new_tensor, isAlloced));
-            return new_tensor;
-        }
-
-        Base& addTensor(int ref)
-        {
-            assert(ref >= -1 && ref < tensors.size());
-            tensors.push_back(TensorRef(tensors[ref].tensor, false, ref));
-            return *tensors[ref].tensor;
-        }
-
-    public:
-        CompositeTensor(const CompositeTensor<Derived,Base,T>& other)
-        : Tensor<Derived,T>(other.name), tensors(other.tensors)
-        {
-            for (int i = 0;i < tensors.size();i++)
+            if (tensors[i] != NULL && tensors[i].ref == -1)
             {
-                if (tensors[i] != NULL && tensors[i].ref == -1)
-                {
-                    tensors[i].tensor = new Base(*tensors[i].tensor);
-                }
-            }
-            for (int i = 0;i < tensors.size();i++)
-            {
-                if (tensors[i].ref != -1)
-                {
-                    tensors[i].tensor = tensors[tensors[i].ref].tensor;
-                }
+                tensors[i].tensor = new Base(*tensors[i].tensor);
             }
         }
-
-        CompositeTensor(const std::string& name, const CompositeTensor<Derived,Base,T>& other)
-        : Tensor<Derived,T>(name), tensors(other.tensors)
+        for (int i = 0;i < tensors.size();i++)
         {
-            for (int i = 0;i < tensors.size();i++)
+            if (tensors[i].ref != -1)
             {
-                if (tensors[i] != NULL && tensors[i].ref == -1)
-                {
-                    tensors[i].tensor = new Base(name, *tensors[i].tensor);
-                }
-            }
-            for (int i = 0;i < tensors.size();i++)
-            {
-                if (tensors[i].ref != -1)
-                {
-                    tensors[i].tensor = tensors[tensors[i].ref].tensor;
-                }
+                tensors[i].tensor = tensors[tensors[i].ref].tensor;
             }
         }
+    }
 
-        CompositeTensor(const std::string& name, int ntensors = 0)
-        : Tensor<Derived,T>(name), tensors(ntensors) {}
-
-        virtual ~CompositeTensor()
+    composite_tensor(const std::string& name, const composite_tensor<Derived,Base,T>& other)
+        : tensor<Derived,T>(name), tensors(other.tensors)
+    {
+        for (int i = 0;i < tensors.size();i++)
         {
-            for (int i = tensors.size()-1;i >= 0;i--)
+            if (tensors[i] != NULL && tensors[i].ref == -1)
             {
-                if (tensors[i].isAlloced)
-                {
-                    delete tensors[i].tensor;
-                }
+                tensors[i].tensor = new Base(name, *tensors[i].tensor);
             }
         }
-
-        int getNumTensors() const { return tensors.size(); }
-
-        bool exists(int idx) const
+        for (int i = 0;i < tensors.size();i++)
         {
-            return tensors[idx] != NULL;
+            if (tensors[i].ref != -1)
+            {
+                tensors[i].tensor = tensors[tensors[i].ref].tensor;
+            }
         }
+    }
 
-        /**********************************************************************
+    composite_tensor(const std::string& name, int ntensors = 0)
+        : tensor<Derived,T>(name), tensors(ntensors) {}
+
+    virtual ~composite_tensor()
+    {
+        for (int i = tensors.size()-1;i >= 0;i--)
+        {
+            if (tensors[i].isAlloced)
+            {
+                delete tensors[i].tensor;
+            }
+        }
+    }
+
+    int getNumTensors() const { return tensors.size(); }
+
+    bool exists(int idx) const
+    {
+        return tensors[idx] != NULL;
+    }
+
+    /**********************************************************************
          *
          * Subtensor indexing
          *
          *********************************************************************/
-        Base& operator()(int idx)
-        {
-            if (tensors[idx] == NULL)
-                throw std::logic_error("tensor component does not exist");
-            return *tensors[idx].tensor;
-        }
+    Base& operator()(int idx)
+    {
+        if (tensors[idx] == NULL)
+            throw std::logic_error("tensor component does not exist");
+        return *tensors[idx].tensor;
+    }
 
-        const Base& operator()(int idx) const
-        {
-            if (tensors[idx] == NULL)
-                throw std::logic_error("tensor component does not exist");
-            return *tensors[idx].tensor;
-        }
+    const Base& operator()(int idx) const
+    {
+        if (tensors[idx] == NULL)
+            throw std::logic_error("tensor component does not exist");
+        return *tensors[idx].tensor;
+    }
 
-        /**********************************************************************
+    /**********************************************************************
          *
          * Implementation of Tensor stubs
          *
          *********************************************************************/
-        void mult(const T alpha)
+    void mult(const T alpha)
+    {
+        for (int i = 0;i < tensors.size();i++)
         {
-            for (int i = 0;i < tensors.size();i++)
+            if (tensors[i] != NULL && tensors[i].ref == -1)
             {
-                if (tensors[i] != NULL && tensors[i].ref == -1)
-                {
-                    *tensors[i].tensor *= alpha;
-                }
+                *tensors[i].tensor *= alpha;
             }
         }
+    }
 
-        void mult(const T alpha, const Derived& A,
-                                 const Derived& B, const T beta)
-        {
-            #ifdef VALIDATE_INPUTS
-            if (tensors.size() != A.tensors.size() ||
+    void mult(const T alpha, const Derived& A,
+              const Derived& B, const T beta)
+    {
+#ifdef VALIDATE_INPUTS
+        if (tensors.size() != A.tensors.size() ||
                 tensors.size() != B.tensors.size()) throw LengthMismatchError();
-            #endif //VALIDATE_INPUTS
+#endif //VALIDATE_INPUTS
 
-            for (int i = 0;i < tensors.size();i++)
+        for (int i = 0;i < tensors.size();i++)
+        {
+            if (tensors[i] != NULL && tensors[i].ref == -1 && A.exists(i) && B.exists(i))
             {
-                if (tensors[i] != NULL && tensors[i].ref == -1 && A.exists(i) && B.exists(i))
-                {
-                    beta*(*tensors[i].tensor) += alpha*A(i)*B(i);
-                }
+                beta*(*tensors[i].tensor) += alpha*A(i)*B(i);
             }
         }
+    }
 
-        void div(const T alpha, const Derived& A,
-                                const Derived& B, const T beta)
-        {
-            #ifdef VALIDATE_INPUTS
-            if (tensors.size() != A.tensors.size() ||
+    void div(const T alpha, const Derived& A,
+             const Derived& B, const T beta)
+    {
+#ifdef VALIDATE_INPUTS
+        if (tensors.size() != A.tensors.size() ||
                 tensors.size() != B.tensors.size()) throw LengthMismatchError();
-            #endif //VALIDATE_INPUTS
+#endif //VALIDATE_INPUTS
 
-            for (int i = 0;i < tensors.size();i++)
-            {
-                if (tensors[i] != NULL && tensors[i].ref == -1 && A.exists(i) && B.exists(i))
-                {
-                    beta*(*tensors[i].tensor) += alpha*A(i)/B(i);
-                }
-            }
-        }
-
-        void sum(const T alpha, const T beta)
+        for (int i = 0;i < tensors.size();i++)
         {
-            for (int i = 0;i < tensors.size();i++)
+            if (tensors[i] != NULL && tensors[i].ref == -1 && A.exists(i) && B.exists(i))
             {
-                if (tensors[i] != NULL && tensors[i].ref == -1)
-                {
-                    beta*(*tensors[i].tensor) += alpha;
-                }
+                beta*(*tensors[i].tensor) += alpha*A(i)/B(i);
             }
         }
+    }
 
-        void sum(const T alpha, const Derived& A, const T beta)
+    void sum(const T alpha, const T beta)
+    {
+        for (int i = 0;i < tensors.size();i++)
         {
-            #ifdef VALIDATE_INPUTS
-            if (tensors.size() != A.tensors.size()) throw LengthMismatchError();
-            #endif //VALIDATE_INPUTS
-
-            for (int i = 0;i < tensors.size();i++)
+            if (tensors[i] != NULL && tensors[i].ref == -1)
             {
-                if (tensors[i] != NULL && tensors[i].ref == -1 && A.exists(i))
-                {
-                    beta*(*tensors[i].tensor) += alpha*A(i);
-                }
+                beta*(*tensors[i].tensor) += alpha;
             }
         }
+    }
 
-        void invert(const T alpha, const Derived& A, const T beta)
+    void sum(const T alpha, const Derived& A, const T beta)
+    {
+#ifdef VALIDATE_INPUTS
+        if (tensors.size() != A.tensors.size()) throw LengthMismatchError();
+#endif //VALIDATE_INPUTS
+
+        for (int i = 0;i < tensors.size();i++)
         {
-            #ifdef VALIDATE_INPUTS
-            if (tensors.size() != A.tensors.size()) throw LengthMismatchError();
-            #endif //VALIDATE_INPUTS
-
-            for (int i = 0;i < tensors.size();i++)
+            if (tensors[i] != NULL && tensors[i].ref == -1 && A.exists(i))
             {
-                if (tensors[i] != NULL && tensors[i].ref == -1 && A.exists(i))
-                {
-                    beta*(*tensors[i].tensor) += alpha/A(i);
-                }
+                beta*(*tensors[i].tensor) += alpha*A(i);
             }
         }
+    }
 
-        T dot(const Derived& A, bool conjb) const
+    void invert(const T alpha, const Derived& A, const T beta)
+    {
+#ifdef VALIDATE_INPUTS
+        if (tensors.size() != A.tensors.size()) throw LengthMismatchError();
+#endif //VALIDATE_INPUTS
+
+        for (int i = 0;i < tensors.size();i++)
         {
-            #ifdef VALIDATE_INPUTS
-            if (tensors.size() != A.tensors.size()) throw LengthMismatchError();
-            #endif //VALIDATE_INPUTS
-
-            T s = (T)0;
-
-            for (int i = 0;i < tensors.size();i++)
+            if (tensors[i] != NULL && tensors[i].ref == -1 && A.exists(i))
             {
-                if (tensors[i] != NULL && tensors[i].ref == -1 && A.exists(i))
-                {
-                    s += tensors[i].tensor->dot(A(i), conjb);
-                }
+                beta*(*tensors[i].tensor) += alpha/A(i);
             }
-
-            return s;
         }
+    }
+
+    T dot(const Derived& A, bool conjb) const
+    {
+#ifdef VALIDATE_INPUTS
+        if (tensors.size() != A.tensors.size()) throw LengthMismatchError();
+#endif //VALIDATE_INPUTS
+
+        T s = (T)0;
+
+        for (int i = 0;i < tensors.size();i++)
+        {
+            if (tensors[i] != NULL && tensors[i].ref == -1 && A.exists(i))
+            {
+                s += tensors[i].tensor->dot(A(i), conjb);
+            }
+        }
+
+        return s;
+    }
 };
 
 template <class Derived, class Base, class T>
-class IndexableCompositeTensor : public IndexableTensorBase<Derived,T>, public CompositeTensor<Derived,Base,T>
+class indexable_composite_tensor : public indexable_tensor_base<Derived,T>, public composite_tensor<Derived,Base,T>
 {
     INHERIT_FROM_TENSOR(Derived,T)
 
     protected:
-        using IndexableTensorBase<Derived,T>::ndim;
+        using indexable_tensor_base<Derived,T>::ndim;
 
-    public:
-        using IndexableTensorBase< Derived, T >::operator=;
-        using IndexableTensorBase< Derived, T >::operator+=;
-        using IndexableTensorBase< Derived, T >::operator-=;
-        //using CompositeTensor<Derived,Base,T>::div;
-        //using CompositeTensor<Derived,Base,T>::invert;
-        using IndexableTensorBase<Derived,T>::scale;
-        using IndexableTensorBase<Derived,T>::dot;
-        using IndexableTensorBase<Derived,T>::mult;
-        using IndexableTensorBase<Derived,T>::sum;
-        using IndexableTensorBase<Derived,T>::implicit;
+public:
+    using indexable_tensor_base< Derived, T >::operator=;
+    using indexable_tensor_base< Derived, T >::operator+=;
+    using indexable_tensor_base< Derived, T >::operator-=;
+    //using composite_tensor<Derived,Base,T>::div;
+    //using composite_tensor<Derived,Base,T>::invert;
+    using indexable_tensor_base<Derived,T>::scale;
+    using indexable_tensor_base<Derived,T>::dot;
+    using indexable_tensor_base<Derived,T>::mult;
+    using indexable_tensor_base<Derived,T>::sum;
+    using indexable_tensor_base<Derived,T>::implicit;
 
-    public:
-        IndexableCompositeTensor(const Derived& other)
-        : IndexableTensorBase<Derived,T>(other), CompositeTensor<Derived,Base,T>(other) {}
+public:
+    indexable_composite_tensor(const Derived& other)
+        : indexable_tensor_base<Derived,T>(other), composite_tensor<Derived,Base,T>(other) {}
 
-        IndexableCompositeTensor(const std::string& name, const Derived& other)
-        : IndexableTensorBase<Derived,T>(other), CompositeTensor<Derived,Base,T>(name, other) {}
+    indexable_composite_tensor(const std::string& name, const Derived& other)
+        : indexable_tensor_base<Derived,T>(other), composite_tensor<Derived,Base,T>(name, other) {}
 
-        IndexableCompositeTensor(const std::string& name, int ndim=0, int ntensors=0)
+    indexable_composite_tensor(const std::string& name, int ndim=0, int ntensors=0)
 
-        : IndexableTensorBase<Derived,T>(ndim), CompositeTensor<Derived,Base,T>(name, ntensors) {}
+        : indexable_tensor_base<Derived,T>(ndim), composite_tensor<Derived,Base,T>(name, ntensors) {}
 
-        virtual ~IndexableCompositeTensor() {}
+    virtual ~indexable_composite_tensor() {}
 
-        void mult(const T alpha)
-        {
-            scale(alpha);
-        }
+    void mult(const T alpha)
+    {
+        scale(alpha);
+    }
 
-        void mult(const T alpha, const Derived& A,
-                                 const Derived& B,
-                  const T beta)
-        {
-            #ifdef VALIDATE_INPUTS
-            if (ndim != A.ndim || ndim != B_.ndim) throw InvalidNdimError();
-            #endif //VALIDATE_INPUTS
+    void mult(const T alpha, const Derived& A,
+              const Derived& B,
+              const T beta)
+    {
+#ifdef VALIDATE_INPUTS
+        if (ndim != A.ndim || ndim != B_.ndim) throw InvalidNdimError();
+#endif //VALIDATE_INPUTS
 
-            mult(alpha, A, A.implicit(),
-                        B, B.implicit(),
-                  beta,      implicit());
-        }
+        mult(alpha, A, A.implicit(),
+             B, B.implicit(),
+             beta,      implicit());
+    }
 
-        virtual Derived& scalar() const = 0;
+    virtual Derived& scalar() const = 0;
 
-        void sum(const T alpha, const T beta)
-        {
-            CompositeTensor<Derived,Base,T>::sum(alpha, beta);
-        }
+    void sum(const T alpha, const T beta)
+    {
+        composite_tensor<Derived,Base,T>::sum(alpha, beta);
+    }
 
-        void sum(const T alpha, const Derived& A, const T beta)
-        {
-            #ifdef VALIDATE_INPUTS
-            if (ndim != A.ndim) throw InvalidNdimError();
-            #endif //VALIDATE_INPUTS
+    void sum(const T alpha, const Derived& A, const T beta)
+    {
+#ifdef VALIDATE_INPUTS
+        if (ndim != A.ndim) throw InvalidNdimError();
+#endif //VALIDATE_INPUTS
 
-            sum(alpha, A, A.implicit(),
-                 beta,      implicit());
-        }
+        sum(alpha, A, A.implicit(),
+            beta,      implicit());
+    }
 
-        void div(const T alpha, const Derived& A,
-                                const Derived& B, const T beta)
-        {
-            CompositeTensor<Derived,Base,T>::div(alpha, A, B, beta);
-        }
+    void div(const T alpha, const Derived& A,
+             const Derived& B, const T beta)
+    {
+        composite_tensor<Derived,Base,T>::div(alpha, A, B, beta);
+    }
 
-        void invert(const T alpha, const Derived& A, const T beta)
-        {
-            CompositeTensor<Derived,Base,T>::invert(alpha, A, beta);
-        }
+    void invert(const T alpha, const Derived& A, const T beta)
+    {
+        composite_tensor<Derived,Base,T>::invert(alpha, A, beta);
+    }
 
-        void scale(const T alpha)
-        {
-            scale(alpha, implicit());
-        }
+    void scale(const T alpha)
+    {
+        scale(alpha, implicit());
+    }
 
-        T dot(const Derived& A, bool conjb) const
-        {
-            #ifdef VALIDATE_INPUTS
-            if (ndim != A.ndim) throw InvalidNdimError();
-            #endif //VALIDATE_INPUTS
+    T dot(const Derived& A, bool conjb) const
+    {
+#ifdef VALIDATE_INPUTS
+        if (ndim != A.ndim) throw InvalidNdimError();
+#endif //VALIDATE_INPUTS
 
-            return dot(A, A.implicit(),
-                            implicit());
-        }
+        return dot(A, A.implicit(),
+                   implicit());
+    }
 };
 
 }

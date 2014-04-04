@@ -21,6 +21,8 @@
 #include <cstdio>
 #include <cstdarg>
 
+#include <boost/lexical_cast.hpp>
+
 #if defined(HAVE_MPI)
 #include <mpi.h>
 #endif
@@ -30,8 +32,11 @@ namespace ambit { namespace util {
 void print0(const std::string format, ...)
 {
 #if defined(HAVE_MPI)
-    int rank;
-    MPI_Comm_size(MPI_COMM_WORLD, &rank);
+    int rank = 0, flag;
+    MPI_Initialized(&flag);
+    if (flag)
+        rank = MPI::COMM_WORLD.Get_rank();
+
     if (rank == 0) {
 #endif
         va_list args;
@@ -41,6 +46,66 @@ void print0(const std::string format, ...)
 #if defined(HAVE_MPI)
     }
 #endif
+}
+
+namespace print {
+
+namespace {
+FILE *process_file_handle = nullptr;
+
+void banner()
+{
+    fprintf(process_file_handle,
+            "********************************************************************\n"
+            "*                          New run started.                        *\n"
+            "********************************************************************\n");
+}
+
+}
+
+bool initialize()
+{
+    int rank = 0;
+#if defined(HAVE_MPI)
+    int flag = 0;
+    MPI_Initialized(&flag);
+
+    if (flag)
+        rank = MPI::COMM_WORLD.Get_rank();
+    else
+        rank = 0;
+#endif
+
+    std::string srank = boost::lexical_cast<std::string>(rank) + ".pout";
+
+    process_file_handle = fopen(srank.c_str(), "a");
+
+    if (process_file_handle == NULL)
+        return false;
+
+    // turn off buffering
+    setvbuf(process_file_handle, NULL, _IONBF, 0);
+
+    banner();
+
+    return true;
+}
+
+void finalize()
+{
+    fclose(process_file_handle);
+    process_file_handle = nullptr;
+}
+
+}
+
+void printn(const std::string format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    vfprintf(print::process_file_handle, format.c_str(), args);
+    va_end(args);
+    fflush(print::process_file_handle);
 }
 
 }}

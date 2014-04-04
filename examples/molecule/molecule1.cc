@@ -16,20 +16,38 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-151 USA.
  */
 
+#if defined(HAVE_MPI)
+#include <mpi.h>
+#endif
+
 #include <mints/molecule.h>
 #include <mints/basisset.h>
 #include <util/property_tree.h>
-
+#include <util/print.h>
 #include <util/prettyprint.h>
 #include <util/string.h>
 
 #include <iostream>
 
-int main(int /*argc*/, char** /*argv*/)
+int main(int argc, char** argv)
 {
+#if defined(HAVE_MPI)
+    MPI::Init(argc, argv);
+#endif // defined(MPI)
+
+    if (!ambit::util::print::initialize())
+        printf("Unable to initialize print system.\n");
+
     ambit::mints::molecule molecule("water.xyz");
     molecule.print();
 
     ambit::mints::basisset basis("sto-3g", molecule);
+
+    ambit::util::print::finalize();
+
+#if defined(HAVE_MPI)
+    MPI::Finalize();
+#endif // defined MPI
+
     return 0;
 }

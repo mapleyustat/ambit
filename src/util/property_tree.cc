@@ -27,14 +27,14 @@ namespace ambit { namespace util {
 
 namespace detail {
 
-const std::shared_ptr<const property_tree> property_tree_iterator::operator*()
+const property_tree property_tree_iterator::operator*()
 {
-    return std::make_shared<const property_tree>(current->second, current->first);
+    return property_tree(current->second, current->first);
 }
 
-const std::shared_ptr<const property_tree> property_tree_reverse_iterator::operator*()
+const property_tree property_tree_reverse_iterator::operator*()
 {
-    return std::make_shared<const property_tree>(current->second, current->first);
+    return property_tree(current->second, current->first);
 }
 
 } // namespace detail

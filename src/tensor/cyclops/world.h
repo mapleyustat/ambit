@@ -22,8 +22,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#if !defined(AMBIT_LIB_UTIL_WORLD)
-#define AMBIT_LIB_UTIL_WORLD
+#if !defined(AMBIT_LIB_TENSOR_CYCLOPS_WORLD)
+#define AMBIT_LIB_TENSOR_CYCLOPS_WORLD
 
 #if defined(OPENMP_FOUND)
 #include <omp.h>
@@ -37,10 +37,9 @@
 #include <boost/shared_ptr.hpp>
 #include <vector>
 
-#include "aligned.h"
+#include <util/aligned.h>
 
-namespace ambit {
-namespace util {
+namespace ambit { namespace tensor { namespace cyclops {
 
 template<typename T>
 struct MPI_TYPE_ {};
@@ -133,10 +132,9 @@ public:
     const int rank;
     const int nproc;
 
-    World()
-        : comm(MPI::COMM_WORLD), rank(comm.Get_rank()), nproc(comm.Get_size()) {}
+    world();
 
-    World(MPI::Intracomm& comm)
+    world(MPI::Intracomm& comm)
         : comm(comm), rank(comm.Get_rank()), nproc(comm.Get_size()) {}
 
     void free()
@@ -150,7 +148,7 @@ public:
     template <typename T>
     const tCTF_World<T>& ctf() const
     {
-        return const_cast<const tCTF_World<T>&>(const_cast<World&>(*this).ctf<T>());
+        return const_cast<const tCTF_World<T>&>(const_cast<world&>(*this).ctf<T>());
     }
 
     template<typename T>
@@ -161,10 +159,21 @@ public:
     }
 
     template<typename T>
-    void bcast(T val, int root) const
+    void bcast(T& val, int root) const
     {
         const MPI::Datatype& type = MPI_TYPE_<T>::value();
         comm.Bcast(&val, 1, type, root);
+    }
+
+    template<typename T>
+    void bcast(aligned_vector<T>& buffer, int root) const
+    {
+        size_t size = buffer.size();
+        bcast(size, root);
+        if (rank != root)
+            buffer.resize(size);
+        const MPI::Datatype& type = MPI_TYPE_<T>::value();
+        comm.Bcast(buffer.data(), buffer.size(), type, root);
     }
 
     template<typename T>
@@ -207,10 +216,22 @@ public:
         buffer.resize(len);
         comm.Bcast((void*)&(buffer[0]), len, MPI_TYPE_<char>::value(), root);
     }
+
+    void bcast(std::vector<std::string>& buffer, int root) const
+    {
+        int len = buffer.size();
+        bcast(len, root);
+
+        buffer.resize(len);
+        for (auto& entry : buffer)
+            bcast(entry, root);
+    }
+
+    static world& shared();
 };
 
 template <>
-inline tCTF_World<double>& World::ctf<double>()
+inline tCTF_World<double>& world::ctf<double>()
 {
     if (!ctfd) ctfd.reset(new tCTF_World<double>(comm));
     return *ctfd;
@@ -338,8 +359,7 @@ template<typename T> std::vector<T> vec(const T& a, const T& b, const T& c, cons
 }
 
 
-}
-}
+} } }
 
 #endif
 

@@ -17,13 +17,11 @@
 #
 
 set(MINTS_SOURCE_FILES
-    atom.cc
     basisset.cc
     molecule.cc
 )
 
 set(MINTS_HEADER_FILES
-    atom.h
     basisset.h
     molecule.h
 )

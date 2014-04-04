@@ -22,120 +22,120 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "cyclops_tensor.h"
-#include "indices.h"
-#include "util.h"
+#include "tensor.h"
+#include <tensor/indices.h>
+#include <tensor/util.h>
 
 #include <cfloat>
 
-namespace ambit { namespace tensor {
+namespace ambit { namespace tensor { namespace cyclops {
 
 template<typename T>
-CyclopsTensor<T>::CyclopsTensor(const std::string& name, util::World& arena, T scalar)
-    : IndexableTensor<CyclopsTensor<T>, T>(name), world(arena), len(0), sym(0)
+tensor<T>::tensor(const std::string& name, world& arena, T scalar)
+    : indexable_tensor<tensor<T>, T>(name), world_(arena), len_(0), sym_(0)
 {
     allocate();
-    *dt = scalar;
+    *dt_ = scalar;
 }
 
 template<typename T>
-CyclopsTensor<T>::CyclopsTensor(const std::string& name, const CyclopsTensor<T>& A, T scalar)
-    : IndexableTensor<CyclopsTensor<T>, T>(name), world(A.world), len(0), sym(0)
+tensor<T>::tensor(const std::string& name, const tensor<T>& A, T scalar)
+    : indexable_tensor<tensor<T>, T>(name), world_(A.world_), len_(0), sym_(0)
 {
     allocate();
-    *dt = scalar;
+    *dt_ = scalar;
 }
 
 template<typename T>
-CyclopsTensor<T>::CyclopsTensor(const CyclopsTensor<T>& A, bool copy, bool zero)
-    : IndexableTensor<CyclopsTensor<T>, T>(A.name, A.ndim), world(A.world), len(A.len), sym(A.sym)
+tensor<T>::tensor(const tensor<T>& A, bool copy, bool zero)
+    : indexable_tensor<tensor<T>, T>(A.name, A.ndim), world_(A.world_), len_(A.len_), sym_(A.sym_)
 {
     allocate();
 
     if (copy)
         *this = A;
     else if (zero)
-        *dt = (T)0;
+        *dt_ = (T)0;
 }
 
 template <typename T>
-CyclopsTensor<T>::CyclopsTensor(const std::string& name, util::World& arena, const std::vector<int> &len, const std::vector<int> &sym, bool zero)
-    : IndexableTensor<CyclopsTensor<T>, T>(name, len.size()), world(arena), len(len), sym(sym)
+tensor<T>::tensor(const std::string& name, world& arena, const std::vector<int> &len, const std::vector<int> &sym, bool zero)
+    : indexable_tensor<tensor<T>, T>(name, len.size()), world_(arena), len_(len), sym_(sym)
 {
     assert(len.size() == sym.size());
 
     allocate();
     if (zero)
-        *dt = (T)0;
+        *dt_ = (T)0;
 }
 
 template<typename T>
-CyclopsTensor<T>::~CyclopsTensor()
+tensor<T>::~tensor()
 {
     free();
 }
 
 template<typename T>
-void CyclopsTensor<T>::allocate()
+void tensor<T>::allocate()
 {
-    dt = new tCTF_Tensor<T>(ndim, len.data(), sym.data(), world.ctf<T>(), "NAME", 1);
+    dt_ = new tCTF_Tensor<T>(ndim, len_.data(), sym_.data(), world_.ctf<T>(), "NAME", 1);
 }
 
 template<typename T>
-void CyclopsTensor<T>::free()
+void tensor<T>::free()
 {
-    delete dt;
+    delete dt_;
 }
 
 template<typename T>
-void CyclopsTensor<T>::resize(int _ndim, const std::vector<int> &_len, const std::vector<int> &_sym, bool zero)
+void tensor<T>::resize(int _ndim, const std::vector<int> &_len, const std::vector<int> &_sym, bool zero)
 {
     assert(_len.size() == ndim);
     assert(_sym.size() == ndim);
 
     ndim = _ndim;
-    len = _len;
-    sym = _sym;
+    len_ = _len;
+    sym_ = _sym;
 
     free();
     allocate();
     if (zero)
-        *dt = (T)0;
+        *dt_ = (T)0;
 }
 
 template<typename T>
-T* CyclopsTensor<T>::get_raw_data(int64_t& size)
+T* tensor<T>::get_raw_data(int64_t& size)
 {
-    return const_cast<T*>(const_cast<const CyclopsTensor<T>&>(*this).get_raw_data(size));
+    return const_cast<T*>(const_cast<const tensor<T>&>(*this).get_raw_data(size));
 }
 
 template<typename T>
-const T* CyclopsTensor<T>::get_raw_data(int64_t& size) const
+const T* tensor<T>::get_raw_data(int64_t& size) const
 {
     long_int size_;
-    T* data = dt->get_raw_data(&size_);
+    T* data = dt_->get_raw_data(&size_);
     size = size_;
     return data;
 }
 
 template<typename T>
-void CyclopsTensor<T>::read_local(std::vector<tkv_pair<T> >& pairs) const
+void tensor<T>::read_local(std::vector<tkv_pair<T> >& pairs) const
 {
     int64_t npair;
     tkv_pair<T> *data;
-    dt->read_local(&npair, &data);
+    dt_->read_local(&npair, &data);
     pairs.assign(data, data+npair);
     if (npair > 0)
         ::free(data);
 }
 
 template<typename T>
-std::vector<tkv_pair<T> > CyclopsTensor<T>::read_local() const
+std::vector<tkv_pair<T> > tensor<T>::read_local() const
 {
     std::vector<tkv_pair<T> > pairs;
     int64_t npair;
     tkv_pair<T> *data;
-    dt->read_local(&npair, &data);
+    dt_->read_local(&npair, &data);
     pairs.assign(data, data+npair);
     if (npair > 0)
         ::free(data);
@@ -143,74 +143,74 @@ std::vector<tkv_pair<T> > CyclopsTensor<T>::read_local() const
 }
 
 template<typename T>
-void CyclopsTensor<T>::read(std::vector<tkv_pair<T> >& pairs) const
+void tensor<T>::read(std::vector<tkv_pair<T> >& pairs) const
 {
-    dt->read(pairs.size(), pairs.data());
+    dt_->read(pairs.size(), pairs.data());
 }
 
 template<typename T>
-void CyclopsTensor<T>::read() const
+void tensor<T>::read() const
 {
-    dt->read(0, NULL);
+    dt_->read(0, NULL);
 }
 
 template<typename T>
-void CyclopsTensor<T>::write(const std::vector<tkv_pair<T> >& pairs)
+void tensor<T>::write(const std::vector<tkv_pair<T> >& pairs)
 {
-    dt->write(pairs.size(), pairs.data());
+    dt_->write(pairs.size(), pairs.data());
 }
 
 template<typename T>
-void CyclopsTensor<T>::write()
+void tensor<T>::write()
 {
-    dt->write(0, NULL);
+    dt_->write(0, NULL);
 }
 
 //template <typename T>
-//void CyclopsTensor<T>::write_remote_data(double alpha, double beta, const std::vector<tkv_pair<T> >& pairs)
+//void tensor<T>::write_remote_data(double alpha, double beta, const std::vector<tkv_pair<T> >& pairs)
 //{
-//    dt->add_remote_data(pairs.size(), alpha, beta, pairs.data());
+//    dt_->add_remote_data(pairs.size(), alpha, beta, pairs.data());
 //}
 
 //template <typename T>
-//void CyclopsTensor<T>::write_remote_data(double alpha, double beta)
+//void tensor<T>::write_remote_data(double alpha, double beta)
 //{
-//    dt->add_remote_data(0, alpha, beta, NULL);
+//    dt_->add_remote_data(0, alpha, beta, NULL);
 //}
 
 template <typename T>
-void CyclopsTensor<T>::get_all_data(std::vector<T>& vals) const
+void tensor<T>::get_all_data(std::vector<T>& vals) const
 {
     get_all_data(vals, 0);
     int64_t npair = vals.size();
 
-    world.bcast(&npair, 1, 0);
-    if (world.rank != 0) vals.resize(npair);
+    world_.bcast(&npair, 1, 0);
+    if (world_.rank != 0) vals.resize(npair);
 
-    world.bcast(vals, 0);
+    world_.bcast(vals, 0);
 }
 
 template <typename T>
-void CyclopsTensor<T>::get_all_data(std::vector<T>& vals, int rank) const
+void tensor<T>::get_all_data(std::vector<T>& vals, int rank) const
 {
-    if (world.rank == rank)
+    if (world_.rank == rank)
     {
         std::vector<tkv_pair<T> > pairs;
         std::vector<int> idx(ndim, 0);
 
-        first_packed_indices(ndim, len.data(), sym.data(), idx.data());
+        first_packed_indices(ndim, len_.data(), sym_.data(), idx.data());
 
         do {
             int64_t key = 0, stride = 1;
             for (int i = 0;i < ndim;i++) {
                 key += idx[i]*stride;
-                stride *= len[i];
+                stride *= len_[i];
             }
             pairs.push_back(tkv_pair<T>(key, (T)0));
         }
-        while (next_packed_indices(ndim, len.data(), sym.data(), idx.data()));
+        while (next_packed_indices(ndim, len_.data(), sym_.data(), idx.data()));
 
-        dt->read(pairs.size(), pairs.data());
+        dt_->read(pairs.size(), pairs.data());
 
         std::sort(pairs.begin(), pairs.end());
         size_t npair = pairs.size();
@@ -220,16 +220,16 @@ void CyclopsTensor<T>::get_all_data(std::vector<T>& vals, int rank) const
             vals[i] = pairs[i].d;
     }
     else {
-        dt->read(0, NULL);
+        dt_->read(0, NULL);
     }
 }
 
 template <typename T>
-void CyclopsTensor<T>::div(T alpha, const CyclopsTensor<T>& A,
-                                        const CyclopsTensor<T>& B, T beta)
+void tensor<T>::div(T alpha, const tensor<T>& A,
+                             const tensor<T>& B, T beta)
 {
-    const_cast<tCTF_Tensor<T>*>(A.dt)->align(*dt);
-    const_cast<tCTF_Tensor<T>*>(B.dt)->align(*dt);
+    const_cast<tCTF_Tensor<T>*>(A.dt_)->align(*dt_);
+    const_cast<tCTF_Tensor<T>*>(B.dt_)->align(*dt_);
     int64_t size, size_A, size_B;
     T* raw_data = get_raw_data(size);
     const T* raw_data_A = A.get_raw_data(size_A);
@@ -244,9 +244,9 @@ void CyclopsTensor<T>::div(T alpha, const CyclopsTensor<T>& A,
 }
 
 template <typename T>
-void CyclopsTensor<T>::invert(T alpha, const CyclopsTensor<T>& A, T beta)
+void tensor<T>::invert(T alpha, const tensor<T>& A, T beta)
 {
-    dt->align(*A.dt);
+    dt_->align(*A.dt_);
     int64_t size, size_A;
     T* raw_data = get_raw_data(size);
     const T* raw_data_A = A.get_raw_data(size_A);
@@ -258,59 +258,59 @@ void CyclopsTensor<T>::invert(T alpha, const CyclopsTensor<T>& A, T beta)
 }
 
 template <typename T>
-void CyclopsTensor<T>::print() const
+void tensor<T>::print() const
 {
-    dt->print(stdout, 1.0e-10);
+    dt_->print(stdout, 1.0e-10);
 }
 
 template <typename T>
-void CyclopsTensor<T>::compare(const CyclopsTensor<T>& other, double cutoff) const
+void tensor<T>::compare(const tensor<T>& other, double cutoff) const
 {
-    dt->compare(*other.dt, stdout, cutoff);
+    dt_->compare(*other.dt_, stdout, cutoff);
 }
 
 template <typename T>
-typename real_type<T>::type CyclopsTensor<T>::norm(int p) const
+typename real_type<T>::type tensor<T>::norm(int p) const
 {
     T ans = (T)0;
     if (p == 0)
-        ans = dt->reduce(CTF_OP_NORM_INFTY);
+        ans = dt_->reduce(CTF_OP_NORM_INFTY);
     else if (p == 1)
-        ans = dt->reduce(CTF_OP_NORM1);
+        ans = dt_->reduce(CTF_OP_NORM1);
     else if (p == 2)
-        ans = dt->reduce(CTF_OP_NORM2);
+        ans = dt_->reduce(CTF_OP_NORM2);
     return abs(ans);
 }
 
 template <typename T>
-void CyclopsTensor<T>::mult(T alpha, const CyclopsTensor<T>& A, const std::string& idx_A,
-                                     const CyclopsTensor<T>& B, const std::string& idx_B,
+void tensor<T>::mult(T alpha, const tensor<T>& A, const std::string& idx_A,
+                                     const tensor<T>& B, const std::string& idx_B,
                             T  beta,                            const std::string& idx_C)
 {
-    dt->contract(alpha, *A.dt, idx_A.c_str(),
-                        *B.dt, idx_B.c_str(),
-                  beta,        idx_C.c_str());
+    dt_->contract(alpha, *A.dt_, idx_A.c_str(),
+                         *B.dt_, idx_B.c_str(),
+                  beta,          idx_C.c_str());
 }
 
 template <typename T>
-void CyclopsTensor<T>::sum(T alpha, const CyclopsTensor<T>& A, const std::string& idx_A,
+void tensor<T>::sum(T alpha, const tensor<T>& A, const std::string& idx_A,
                            T  beta,                            const std::string& idx_B)
 {
-    dt->sum(alpha, *A.dt, idx_A.c_str(),
-             beta,        idx_B.c_str());
+    dt_->sum(alpha, *A.dt_, idx_A.c_str(),
+             beta,          idx_B.c_str());
 }
 
 template <typename T>
-void CyclopsTensor<T>::scale(T alpha, const std::string& idx_A)
+void tensor<T>::scale(T alpha, const std::string& idx_A)
 {
-    dt->scale(alpha, idx_A.c_str());
+    dt_->scale(alpha, idx_A.c_str());
 }
 
 template <typename T>
-T CyclopsTensor<T>::dot(const CyclopsTensor<T>& A, const std::string& idx_A,
+T tensor<T>::dot(const tensor<T>& A, const std::string& idx_A,
                                                    const std::string& idx_B) const
 {
-    CyclopsTensor<T> dt(A.name, A.world);
+    tensor<T> dt(A.name, A.world_);
     std::vector<T> val;
     dt.mult(1,     A, idx_A,
                *this, idx_B,
@@ -321,10 +321,10 @@ T CyclopsTensor<T>::dot(const CyclopsTensor<T>& A, const std::string& idx_A,
 }
 
 template <typename T>
-void CyclopsTensor<T>::weight(const std::vector<const std::vector<T>*>& d)
+void tensor<T>::weight(const std::vector<const std::vector<T>*>& d)
 {
     assert(d.size() == ndim);
-    for (int i = 0;i < d.size();i++) assert(d[i]->size() == len[i]);
+    for (int i = 0;i < d.size();i++) assert(d[i]->size() == len_[i]);
 
     std::vector<tkv_pair<T> > pairs;
     read_local(pairs);
@@ -334,8 +334,8 @@ void CyclopsTensor<T>::weight(const std::vector<const std::vector<T>*>& d)
 
         T den = 0;
         for (int j = 0; j < ndim; ++j) {
-            int o = k%len[j];
-            k = k/len[j];
+            int o = k%len_[j];
+            k = k/len_[j];
             den += (*d[j])[o];
         }
 
@@ -346,7 +346,7 @@ void CyclopsTensor<T>::weight(const std::vector<const std::vector<T>*>& d)
 }
 
 template <typename T>
-void CyclopsTensor<T>::fill_with_random_data()
+void tensor<T>::fill_with_random_data()
 {
     std::vector<tkv_pair<T> > pairs;
 
@@ -363,11 +363,11 @@ void CyclopsTensor<T>::fill_with_random_data()
 }
 
 template <typename T>
-void CyclopsTensor<T>::sort(T alpha, const CyclopsTensor<T>& A, const std::string& idx_A, const std::string& idx_B)
+void tensor<T>::sort(T alpha, const tensor<T>& A, const std::string& idx_A, const std::string& idx_B)
 {
-    (*dt)[idx_B.c_str()] = alpha * (*A.dt)[idx_A.c_str()];
+    (*dt_)[idx_B.c_str()] = alpha * (*A.dt_)[idx_A.c_str()];
 }
 
-INSTANTIATE_SPECIALIZATIONS(CyclopsTensor)
+INSTANTIATE_SPECIALIZATIONS(tensor)
 
-}}
+}}}

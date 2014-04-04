@@ -18,8 +18,8 @@
 
 #if defined(HAVE_MPI)
 #include <mpi.h>
-#include <tensor/cyclops_tensor.h>
-#include <util/world.h>
+#include <tensor/cyclops/tensor.h>
+#include <tensor/cyclops/world.h>
 #endif
 
 #include <mints/molecule.h>
@@ -111,7 +111,7 @@ struct iterable_converter
 };
 
 #if defined(HAVE_MPI)
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(dt_compare, ambit::tensor::template CyclopsTensor<double>::compare, 1, 2);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(dt_compare, ambit::tensor::cyclops::template tensor<double>::compare, 1, 2);
 #endif // defined(MPI)
 
 BOOST_PYTHON_MODULE(ambit)
@@ -142,48 +142,48 @@ BOOST_PYTHON_MODULE(ambit)
         .def(vector_indexing_suite<std::vector<tkv_pair<double> > >())
     ;
 
-    class_<ambit::util::World>("World", "World communicator")
-        .def_readonly("rank", &ambit::util::World::rank)
-        .def_readonly("nproc", &ambit::util::World::nproc)
+    class_<ambit::tensor::cyclops::world>("World", "World communicator")
+        .def_readonly("rank", &ambit::tensor::cyclops::world::rank)
+        .def_readonly("nproc", &ambit::tensor::cyclops::world::nproc)
     ;
 
-    typedef void   (ambit::tensor::CyclopsTensor<double>::*dt_mult)(double, const ambit::tensor::CyclopsTensor<double>&, const std::string&, const ambit::tensor::CyclopsTensor<double>&, const std::string&, double, const std::string&);
-    typedef void   (ambit::tensor::CyclopsTensor<double>::*dt_sum)(double, const ambit::tensor::CyclopsTensor<double>&, const std::string&, double, const std::string&);
-    typedef void   (ambit::tensor::CyclopsTensor<double>::*dt_scale)(double, const std::string&);
-    typedef double (ambit::tensor::CyclopsTensor<double>::*dt_dot)(const ambit::tensor::CyclopsTensor<double>&, const std::string&, const std::string&) const;
-    typedef void   (ambit::tensor::CyclopsTensor<double>::*dt_invert)(double, const ambit::tensor::CyclopsTensor<double>&, double);
-    typedef void   (ambit::tensor::CyclopsTensor<double>::*dt_div)(double, const ambit::tensor::CyclopsTensor<double>&, const ambit::tensor::CyclopsTensor<double>&, double);
-    typedef std::vector<tkv_pair<double> > (ambit::tensor::CyclopsTensor<double>::*dt_get_local_data)() const;
-    typedef void   (ambit::tensor::CyclopsTensor<double>::*dt_write0)();
-    typedef void   (ambit::tensor::CyclopsTensor<double>::*dt_write1)(const std::vector<tkv_pair<double> >&);
-//    typedef void   (ambit::tensor::CyclopsTensor<double>::*dt_write2)(double, double, const std::vector<tkv_pair<double> >&);
+    typedef void   (ambit::tensor::cyclops::tensor<double>::*dt_mult)(double, const ambit::tensor::cyclops::tensor<double>&, const std::string&, const ambit::tensor::cyclops::tensor<double>&, const std::string&, double, const std::string&);
+    typedef void   (ambit::tensor::cyclops::tensor<double>::*dt_sum)(double, const ambit::tensor::cyclops::tensor<double>&, const std::string&, double, const std::string&);
+    typedef void   (ambit::tensor::cyclops::tensor<double>::*dt_scale)(double, const std::string&);
+    typedef double (ambit::tensor::cyclops::tensor<double>::*dt_dot)(const ambit::tensor::cyclops::tensor<double>&, const std::string&, const std::string&) const;
+    typedef void   (ambit::tensor::cyclops::tensor<double>::*dt_invert)(double, const ambit::tensor::cyclops::tensor<double>&, double);
+    typedef void   (ambit::tensor::cyclops::tensor<double>::*dt_div)(double, const ambit::tensor::cyclops::tensor<double>&, const ambit::tensor::cyclops::tensor<double>&, double);
+    typedef std::vector<tkv_pair<double> > (ambit::tensor::cyclops::tensor<double>::*dt_get_local_data)() const;
+    typedef void   (ambit::tensor::cyclops::tensor<double>::*dt_write0)();
+    typedef void   (ambit::tensor::cyclops::tensor<double>::*dt_write1)(const std::vector<tkv_pair<double> >&);
+//    typedef void   (ambit::tensor::cyclops::tensor<double>::*dt_write2)(double, double, const std::vector<tkv_pair<double> >&);
 
-    class_<ambit::tensor::CyclopsTensor<double> >("Tensor", "Distributed tensor", no_init)
-        .def(init<const std::string&, ambit::util::World&, const std::vector<int>&, const std::vector<int>&>())
-        .def(init<const std::string&, ambit::util::World&, const std::vector<int>&, const std::vector<int>&, bool>())
-        .def(init<const ambit::tensor::CyclopsTensor<double>&>())
-        .def("print_out", &ambit::tensor::CyclopsTensor<double>::print, "Print out the tensor")
-        .def("fill_with_random_data", &ambit::tensor::CyclopsTensor<double>::fill_with_random_data, "Fills tensor with random data")
-        .def("get_lengths", &ambit::tensor::CyclopsTensor<double>::get_lengths, return_value_policy<copy_const_reference>(), "Returns the lengths of the tensor")
-        .def("get_symmetry", &ambit::tensor::CyclopsTensor<double>::get_symmetry, return_value_policy<copy_const_reference>(), "Returns the symmetries of the tensors")
-        .def("contract", dt_mult(&ambit::tensor::CyclopsTensor<double>::mult), "Performs tensor contraction")
-        .def("sort", &ambit::tensor::CyclopsTensor<double>::sort, "Sort tensor")
-        .def("sum", dt_sum(&ambit::tensor::CyclopsTensor<double>::sum), "Performs tensor summation")
-        .def("scale", dt_scale(&ambit::tensor::CyclopsTensor<double>::scale), "Performs tensor scaling")
-        .def("dot", dt_dot(&ambit::tensor::CyclopsTensor<double>::dot), "Dots a tensor with this")
-        .def("compare", &ambit::tensor::CyclopsTensor<double>::compare, dt_compare("Compares two tensors"))
-        .def("invert", dt_invert(&ambit::tensor::CyclopsTensor<double>::invert), "Inverts the tensor")
-        .def("div", dt_div(&ambit::tensor::CyclopsTensor<double>::div), "Divides one tensor by another")
-        .def("resize", &ambit::tensor::CyclopsTensor<double>::resize, "Resize the tensor")
-        .def("read_local", dt_get_local_data(&ambit::tensor::CyclopsTensor<double>::read_local), "Retrieve node tensor data")
-        .def("write", dt_write0(&ambit::tensor::CyclopsTensor<double>::write), "Writes tensor data, remotely, if needed")
-        .def("write", dt_write1(&ambit::tensor::CyclopsTensor<double>::write), "Writes tensor data, remotely, if needed")
-//        .def("write", dt_write2(&ambit::tensor::CyclopsTensor<double>::write), "Writes tensor data, remotely, if needed")
+    class_<ambit::tensor::cyclops::tensor<double> >("Tensor", "Distributed tensor", no_init)
+        .def(init<const std::string&, ambit::tensor::cyclops::world&, const std::vector<int>&, const std::vector<int>&>())
+        .def(init<const std::string&, ambit::tensor::cyclops::world&, const std::vector<int>&, const std::vector<int>&, bool>())
+        .def(init<const ambit::tensor::cyclops::tensor<double>&>())
+        .def("print_out", &ambit::tensor::cyclops::tensor<double>::print, "Print out the tensor")
+        .def("fill_with_random_data", &ambit::tensor::cyclops::tensor<double>::fill_with_random_data, "Fills tensor with random data")
+        .def("get_lengths", &ambit::tensor::cyclops::tensor<double>::get_lengths, return_value_policy<copy_const_reference>(), "Returns the lengths of the tensor")
+        .def("get_symmetry", &ambit::tensor::cyclops::tensor<double>::get_symmetry, return_value_policy<copy_const_reference>(), "Returns the symmetries of the tensors")
+        .def("contract", dt_mult(&ambit::tensor::cyclops::tensor<double>::mult), "Performs tensor contraction")
+        .def("sort", &ambit::tensor::cyclops::tensor<double>::sort, "Sort tensor")
+        .def("sum", dt_sum(&ambit::tensor::cyclops::tensor<double>::sum), "Performs tensor summation")
+        .def("scale", dt_scale(&ambit::tensor::cyclops::tensor<double>::scale), "Performs tensor scaling")
+        .def("dot", dt_dot(&ambit::tensor::cyclops::tensor<double>::dot), "Dots a tensor with this")
+        .def("compare", &ambit::tensor::cyclops::tensor<double>::compare, dt_compare("Compares two tensors"))
+        .def("invert", dt_invert(&ambit::tensor::cyclops::tensor<double>::invert), "Inverts the tensor")
+        .def("div", dt_div(&ambit::tensor::cyclops::tensor<double>::div), "Divides one tensor by another")
+        .def("resize", &ambit::tensor::cyclops::tensor<double>::resize, "Resize the tensor")
+        .def("read_local", dt_get_local_data(&ambit::tensor::cyclops::tensor<double>::read_local), "Retrieve node tensor data")
+        .def("write", dt_write0(&ambit::tensor::cyclops::tensor<double>::write), "Writes tensor data, remotely, if needed")
+        .def("write", dt_write1(&ambit::tensor::cyclops::tensor<double>::write), "Writes tensor data, remotely, if needed")
+//        .def("write", dt_write2(&ambit::tensor::cyclops::tensor<double>::write), "Writes tensor data, remotely, if needed")
     ;
 #endif // defined(MPI)
 
     class_<ambit::mints::molecule>("Molecule", "Molecule", no_init)
-        .def(init<int>())
+        //.def(init<int>())
         .def("print_out", &ambit::mints::molecule::print, "Prints the molecule out")
     ;
 }

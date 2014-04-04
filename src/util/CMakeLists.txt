@@ -30,7 +30,6 @@ set(UTIL_HEADER_FILES
     property_tree.h
     string.h
     timer.h
-    world.h
 )
 
 add_library(util ${UTIL_SOURCE_FILES} ${UTIL_HEADER_FILES})

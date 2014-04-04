@@ -44,17 +44,17 @@ namespace tensor {
 
 #define INHERIT_FROM_LOCAL_TENSOR(Derived, T) \
     protected: \
-        using ambit::tensor::LocalTensor< Derived, T >::len; \
-        using ambit::tensor::LocalTensor< Derived, T >::ld; \
-        using ambit::tensor::LocalTensor< Derived, T >::size; \
-        using ambit::tensor::LocalTensor< Derived, T >::data; \
+        using ambit::tensor::local_tensor< Derived, T >::len; \
+        using ambit::tensor::local_tensor< Derived, T >::ld; \
+        using ambit::tensor::local_tensor< Derived, T >::size; \
+        using ambit::tensor::local_tensor< Derived, T >::data; \
     public: \
-        using ambit::tensor::LocalTensor< Derived, T >::CLONE; \
-        using ambit::tensor::LocalTensor< Derived, T >::REFERENCE; \
-        using ambit::tensor::LocalTensor< Derived, T >::REPLACE; \
-        using ambit::tensor::LocalTensor< Derived, T >::getSize; \
+        using ambit::tensor::local_tensor< Derived, T >::CLONE; \
+        using ambit::tensor::local_tensor< Derived, T >::REFERENCE; \
+        using ambit::tensor::local_tensor< Derived, T >::REPLACE; \
+        using ambit::tensor::local_tensor< Derived, T >::get_size; \
     INHERIT_FROM_INDEXABLE_TENSOR(Derived, T) \
-    friend class ambit::tensor::LocalTensor< Derived, T >;
+    friend class ambit::tensor::local_tensor< Derived, T >;
 
 #define CHECK_RETURN_VALUE(ret) \
     switch (ret) \
@@ -96,7 +96,7 @@ namespace tensor {
 #define VALIDATE_TENSOR_THROW(ndim,len,ld,sym) CHECK_RETURN_VALUE(validate_tensor(ndim,len,ld,sym))
 
 template <class Derived, typename T>
-struct LocalTensor : public IndexableTensor< Derived, T>
+struct local_tensor : public indexable_tensor< Derived, T>
 {
     INHERIT_FROM_INDEXABLE_TENSOR(Derived,T)
 
@@ -110,32 +110,32 @@ protected:
 public:
     enum CopyType { CLONE, REFERENCE, REPLACE };
 
-    LocalTensor(const std::string& name, const T& val = (T)0)
-        : IndexableTensor<Derived,T>(name, 0), len(0), ld(0), size(1)
+    local_tensor(const std::string& name, const T& val = (T)0)
+        : indexable_tensor<Derived,T>(name, 0), len(0), ld(0), size(1)
     {
         data = SAFE_MALLOC(T, 1);
         isAlloced = true;
         data[0] = val;
     }
 
-    LocalTensor(const Derived& A)
-        : IndexableTensor<Derived,T>(A.name, A.ndim), len(A.len), ld(A.ld), size(A.size)
+    local_tensor(const Derived& A)
+        : indexable_tensor<Derived,T>(A.name, A.ndim), len(A.len), ld(A.ld), size(A.size)
     {
         data = SAFE_MALLOC(T, size);
         std::copy(A.data, A.data+size, data);
         isAlloced = true;
     }
 
-    LocalTensor(const std::string& name, const Derived& A)
-        : IndexableTensor<Derived,T>(name, A.ndim), len(A.len), ld(A.ld), size(A.size)
+    local_tensor(const std::string& name, const Derived& A)
+        : indexable_tensor<Derived,T>(name, A.ndim), len(A.len), ld(A.ld), size(A.size)
     {
         data = SAFE_MALLOC(T, size);
         std::copy(A.data, A.data+size, data);
         isAlloced = true;
     }
 
-    LocalTensor(const std::string& name, Derived& A, const CopyType type=CLONE)
-        : IndexableTensor<Derived,T>(name, A.ndim), len(A.len), ld(A.ld), size(A.size)
+    local_tensor(const std::string& name, Derived& A, const CopyType type=CLONE)
+        : indexable_tensor<Derived,T>(name, A.ndim), len(A.len), ld(A.ld), size(A.size)
     {
         switch(type)
         {
@@ -156,8 +156,8 @@ public:
         }
     }
 
-    LocalTensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld_, uint64_t size, T* data_, bool zero=false)
-        : IndexableTensor<Derived,T>(name, len.size()), len(len), ld(ld_), size(size)
+    local_tensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld_, uint64_t size, T* data_, bool zero=false)
+        : indexable_tensor<Derived,T>(name, len.size()), len(len), ld(ld_), size(size)
     {
         size_t ndim = len.size();
         if (ld.size() != ndim) {
@@ -178,11 +178,11 @@ public:
             std::fill(data, data+size, (T)0);
     }
 
-    LocalTensor(const std::string& name, const std::string& indices, bool zero=false)
-        : IndexableTensor<Derived,T>(name), size(0)
+    local_tensor(const std::string& name, const std::string& indices, bool zero=false)
+        : indexable_tensor<Derived,T>(name), size(0)
     {
         // Make sure the indices are known.
-        std::vector<IndexRange> ind = IndexRange::find(split_indices(indices));
+        std::vector<index_range> ind = index_range::find(split_indices(indices));
 
         // Check rank of the indices
 #ifdef DEBUG
@@ -218,8 +218,8 @@ public:
             std::fill(data, data+size, (T)0);
     }
 
-    LocalTensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld_, uint64_t size_, bool zero=true)
-        : IndexableTensor<Derived,T>(name, len.size()), len(len), ld(ld_), size(size_)
+    local_tensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld_, uint64_t size_, bool zero=true)
+        : indexable_tensor<Derived,T>(name, len.size()), len(len), ld(ld_), size(size_)
     {
         size_t ndim = len.size();
 
@@ -241,7 +241,7 @@ public:
             std::fill(data, data+size, (T)0);
     }
 
-    ~LocalTensor()
+    ~local_tensor()
     {
         if (isAlloced)
             FREE(data);
@@ -249,7 +249,7 @@ public:
 
     const std::vector<int>& getLengths() const { return len; }
     const std::vector<int>& getLeadingDims() const { return ld; }
-    uint64_t getSize() const { return size; }
+    uint64_t get_size() const { return size; }
 
     void div(const T alpha, const Derived& A,
                             const Derived& B, const T beta)
@@ -290,7 +290,7 @@ public:
     {
         Derived dt("scalar");
         dt.mult(1, A,            idx_A,
-                   getDerived(), idx_B,
+                   get_derived(), idx_B,
                 0,               "");
         return dt.get_data()[0];
     }

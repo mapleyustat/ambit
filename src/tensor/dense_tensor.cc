@@ -28,47 +28,47 @@
 namespace ambit { namespace tensor {
 
 template <typename T>
-DenseTensor<T>::DenseTensor(const std::string& name, T val)
-    : LocalTensor<DenseTensor<T>,T>(name, val) {}
+dense_tensor<T>::dense_tensor(const std::string& name, T val)
+    : local_tensor<dense_tensor<T>,T>(name, val) {}
 
 template <typename T>
-DenseTensor<T>::DenseTensor(const std::string& name, const DenseTensor<T>& A, T val)
-    : LocalTensor< DenseTensor<T>,T >(name, val) {}
+dense_tensor<T>::dense_tensor(const std::string& name, const dense_tensor<T>& A, T val)
+    : local_tensor< dense_tensor<T>,T >(name, val) {}
 
 template <typename T>
-DenseTensor<T>::DenseTensor(const DenseTensor<T>& A)
-    : LocalTensor< DenseTensor<T>,T >(A) {}
+dense_tensor<T>::dense_tensor(const dense_tensor<T>& A)
+    : local_tensor< dense_tensor<T>,T >(A) {}
 
 template <typename T>
-DenseTensor<T>::DenseTensor(const std::string& name, const DenseTensor<T>& A)
-    : LocalTensor< DenseTensor<T>,T >(name, A) {}
+dense_tensor<T>::dense_tensor(const std::string& name, const dense_tensor<T>& A)
+    : local_tensor< dense_tensor<T>,T >(name, A) {}
 
 template <typename T>
-DenseTensor<T>::DenseTensor(const std::string& name, DenseTensor<T>& A, typename LocalTensor<DenseTensor<T>,T>::CopyType type)
-    : LocalTensor< DenseTensor<T>,T >(name, A, type) {}
+dense_tensor<T>::dense_tensor(const std::string& name, dense_tensor<T>& A, typename local_tensor<dense_tensor<T>,T>::CopyType type)
+    : local_tensor< dense_tensor<T>,T >(name, A, type) {}
 
 template <typename T>
-DenseTensor<T>::DenseTensor(const std::string& name, const std::vector<int>& len, T* data, bool zero)
-    : LocalTensor< DenseTensor<T>,T >(name, len, std::vector<int>(), getSize(ndim, len, std::vector<int>()), data, zero) {}
+dense_tensor<T>::dense_tensor(const std::string& name, const std::vector<int>& len, T* data, bool zero)
+    : local_tensor< dense_tensor<T>,T >(name, len, std::vector<int>(), get_size(ndim, len, std::vector<int>()), data, zero) {}
 
 template <typename T>
-DenseTensor<T>::DenseTensor(const std::string& name, const std::vector<int>& len, bool zero)
-    : LocalTensor< DenseTensor<T>,T >(name, len, std::vector<int>(), getSize(ndim, len, std::vector<int>()), zero) {}
+dense_tensor<T>::dense_tensor(const std::string& name, const std::vector<int>& len, bool zero)
+    : local_tensor< dense_tensor<T>,T >(name, len, std::vector<int>(), get_size(ndim, len, std::vector<int>()), zero) {}
 
 template <typename T>
-DenseTensor<T>::DenseTensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld, T* data, bool zero)
-    : LocalTensor< DenseTensor<T>,T >(name, len, ld, getSize(ndim, len, ld), data, zero) {}
+dense_tensor<T>::dense_tensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld, T* data, bool zero)
+    : local_tensor< dense_tensor<T>,T >(name, len, ld, get_size(ndim, len, ld), data, zero) {}
 
 template <typename T>
-DenseTensor<T>::DenseTensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld, bool zero)
-    : LocalTensor< DenseTensor<T>,T >(name, len, ld, getSize(ndim, len, ld), zero) {}
+dense_tensor<T>::dense_tensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld, bool zero)
+    : local_tensor< dense_tensor<T>,T >(name, len, ld, get_size(ndim, len, ld), zero) {}
 
 template <typename T>
-DenseTensor<T>::DenseTensor(const std::string& name, const std::string& indices)
-    : LocalTensor<DenseTensor<T>, T>(name, indices) {}
+dense_tensor<T>::dense_tensor(const std::string& name, const std::string& indices)
+    : local_tensor<dense_tensor<T>, T>(name, indices) {}
 
 template <typename T>
-uint64_t DenseTensor<T>::getSize(int ndim, const std::vector<int>& len, const std::vector<int>& ld)
+uint64_t dense_tensor<T>::get_size(int ndim, const std::vector<int>& len, const std::vector<int>& ld)
 {
     int64_t r = tensor_size_dense(ndim, len.data(), (ld.size() == 0 ? NULL : ld.data()));
 
@@ -80,17 +80,17 @@ uint64_t DenseTensor<T>::getSize(int ndim, const std::vector<int>& len, const st
 }
 
 template <typename T>
-void DenseTensor<T>::print() const
+void dense_tensor<T>::print() const
 {
-    printf("Name: %s\n", getName().c_str());
+    printf("Name: %s\n", get_name().c_str());
     CHECK_RETURN_VALUE(
     tensor_print_dense(data, ndim, len.data(), ld.data()));
 }
 
 template <typename T>
-void DenseTensor<T>::mult(const T alpha, const DenseTensor<T>& A, const std::string& idx_A,
-                                         const DenseTensor<T>& B, const std::string& idx_B,
-                          const T beta,                           const std::string& idx_C)
+void dense_tensor<T>::mult(const T alpha, const dense_tensor<T>& A, const std::string& idx_A,
+                                          const dense_tensor<T>& B, const std::string& idx_B,
+                          const T beta,                             const std::string& idx_C)
 {
     std::vector<int> idx_A_(    A.ndim);
     std::vector<int> idx_B_(    B.ndim);
@@ -107,7 +107,7 @@ void DenseTensor<T>::mult(const T alpha, const DenseTensor<T>& A, const std::str
 }
 
 template <typename T>
-void DenseTensor<T>::sum(const T alpha, const DenseTensor<T>& A, const std::string& idx_A,
+void dense_tensor<T>::sum(const T alpha, const dense_tensor<T>& A, const std::string& idx_A,
                          const T beta,                           const std::string& idx_B)
 {
     std::vector<int> idx_A_(    A.ndim);
@@ -122,7 +122,7 @@ void DenseTensor<T>::sum(const T alpha, const DenseTensor<T>& A, const std::stri
 }
 
 template <typename T>
-void DenseTensor<T>::scale(const T alpha, const std::string& idx_A)
+void dense_tensor<T>::scale(const T alpha, const std::string& idx_A)
 {
     std::vector<int> idx_A_(this->ndim);
 
@@ -132,7 +132,7 @@ void DenseTensor<T>::scale(const T alpha, const std::string& idx_A)
     tensor_scale_dense_(alpha, data, ndim, len.data(), ld.data(), idx_A_.data()));
 }
 
-INSTANTIATE_SPECIALIZATIONS(DenseTensor);
+INSTANTIATE_SPECIALIZATIONS(dense_tensor);
 
 }
 }

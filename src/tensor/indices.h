@@ -27,9 +27,9 @@
 namespace ambit {
 namespace tensor {
 
-struct IndexRange
+struct index_range
 {
-    typedef std::map<std::string, IndexRange> set_type;
+    typedef std::map<std::string, index_range> set_type;
     typedef set_type::iterator set_iterator;
     typedef set_type::const_iterator set_const_iterator;
 
@@ -40,13 +40,13 @@ struct IndexRange
     std::vector<uint64_t> end;
     char index_value;
 
-    static const IndexRange& find(const std::string& index);
-    static std::vector<IndexRange> find(const std::vector<std::string>& indices);
+    static const index_range& find(const std::string& index);
+    static std::vector<index_range> find(const std::vector<std::string>& indices);
 
-    friend std::ostream& operator<< (std::ostream& o, IndexRange const& idx);
+    friend std::ostream& operator<< (std::ostream& o, index_range const& idx);
 };
 
-std::ostream& operator<< (std::ostream& o, IndexRange const& idx);
+std::ostream& operator<< (std::ostream& o, index_range const& idx);
 
 void declare_index_range(const std::string& name,
                          const std::string& indices,
