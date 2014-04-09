@@ -18,7 +18,7 @@
 
 #include "molecule.h"
 
-#include <tensor/cyclops/world.h>
+#include <tensor/world.h>
 #include <util/print.h>
 
 #include <cmath>
@@ -82,30 +82,14 @@ molecule::molecule(const std::string& xyzfile)
 
 void molecule::print() const
 {
-    util::print0("molecule object\n");
-    util::print0("=================\n");
-    if (name_.length())
-        util::print0("name = %s\n", name_.c_str());
-    util::print0("repulsion = %20.15lf\n\n", nuclear_repulsion_energy());
-    util::print0("       Center              X                  Y                   Z       \n");
-    util::print0("    ------------   -----------------  -----------------  -----------------\n");
-    for (int i=0; i<natom_; ++i) {
-        util::print0("    %8s%4s   %17.12f  %17.12f  %17.12f\n",atom_symbol_[i].c_str(), "", atom_x_[i], atom_y_[i], atom_z_[i]);
-    }
-
-#if defined(DEBUG)
-    util::printn("molecule object\n");
-    util::printn("=================\n");
-    util::printn("natom = %d\n", natom_);
     if (name_.length())
         util::printn("name = %s\n", name_.c_str());
     util::printn("repulsion = %20.15lf\n\n", nuclear_repulsion_energy());
-    util::printn("       Center              X                  Y                   Z       \n");
-    util::printn("    ------------   -----------------  -----------------  -----------------\n");
+    util::printn("   Center              X                  Y                   Z       \n");
+    util::printn("------------   -----------------  -----------------  -----------------\n");
     for (int i=0; i<natom_; ++i) {
-        util::printn("    %8s%4s   %17.12f  %17.12f  %17.12f\n",atom_symbol_[i].c_str(), "", atom_x_[i], atom_y_[i], atom_z_[i]);
+        util::printn("%8s%4s   %17.12f  %17.12f  %17.12f\n",atom_symbol_[i].c_str(), "", atom_x_[i], atom_y_[i], atom_z_[i]);
     }
-#endif
 }
 
 double molecule::nuclear_repulsion_energy() const
@@ -134,7 +118,7 @@ double molecule::nuclear_repulsion_energy() const
 bool molecule::load_xyz_file(const std::string& xyzfile, bool throw_on_error)
 {
     // TODO: Abstract away tensor/cyclops/world.h from here.
-    ambit::tensor::cyclops::world& world = ambit::tensor::cyclops::world::shared();
+    ambit::tensor::world& world = ambit::tensor::world::shared();
 
     if (world.rank == 0) {
         if (xyzfile.empty()) {

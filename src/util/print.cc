@@ -29,29 +29,16 @@
 
 namespace ambit { namespace util {
 
-void print0(const std::string format, ...)
-{
-#if defined(HAVE_MPI)
-    int rank = 0, flag;
-    MPI_Initialized(&flag);
-    if (flag)
-        rank = MPI::COMM_WORLD.Get_rank();
-
-    if (rank == 0) {
-#endif
-        va_list args;
-        va_start(args, format);
-        vprintf(format.c_str(), args);
-        va_end(args);
-#if defined(HAVE_MPI)
-    }
-#endif
-}
-
 namespace print {
 
 namespace {
 FILE *process_file_handle = nullptr;
+int indent_size = 0;
+
+void print_indentation(FILE *out)
+{
+    fprintf(out, "%*s", indent_size, "");
+}
 
 void banner()
 {
@@ -61,6 +48,30 @@ void banner()
             "********************************************************************\n");
 }
 
+int get_comm_rank()
+{
+    int rank = 0;
+#if defined(HAVE_MPI)
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag)
+        rank = MPI::COMM_WORLD.Get_rank();
+#endif
+    return rank;
+}
+
+} // namespace anonymous
+
+void indent(int increment)
+{
+    indent_size += increment;
+}
+
+void unindent(int decrement)
+{
+    indent_size -= decrement;
+    if (indent_size < 0)
+        indent_size = 0;
 }
 
 bool initialize()
@@ -97,15 +108,63 @@ void finalize()
     process_file_handle = nullptr;
 }
 
+void banner(const std::string format, ...)
+{
+    fprintf(process_file_handle, "%*s ==> ", indent_size, "");
+    va_list args;
+    va_start(args, format);
+    vfprintf(process_file_handle, format.c_str(), args);
+    va_end(args);
+    fprintf(process_file_handle, " <==\n");
+
+    if (print::get_comm_rank() == 0) {
+        printf("%*s ==> ", indent_size, "");
+        va_list args;
+        va_start(args, format);
+        vprintf(format.c_str(), args);
+        va_end(args);
+        printf(" <==\n");
+    }
+}
+
+}
+
+void print0(const std::string format, ...)
+{
+#if defined(HAVE_MPI)
+    int rank = 0, flag;
+    MPI_Initialized(&flag);
+    if (flag)
+        rank = MPI::COMM_WORLD.Get_rank();
+
+    if (rank == 0) {
+#endif
+        va_list args;
+        va_start(args, format);
+        print::print_indentation(stdout);
+        vprintf(format.c_str(), args);
+        va_end(args);
+#if defined(HAVE_MPI)
+    }
+#endif
 }
 
 void printn(const std::string format, ...)
 {
     va_list args;
     va_start(args, format);
+    print::print_indentation(print::process_file_handle);
     vfprintf(print::process_file_handle, format.c_str(), args);
     va_end(args);
     fflush(print::process_file_handle);
+
+    static int rank = print::get_comm_rank();
+    if (rank == 0) {
+        print::print_indentation(stdout);
+        va_start(args, format);
+        vprintf(format.c_str(), args);
+        va_end(args);
+    }
 }
 
 }}

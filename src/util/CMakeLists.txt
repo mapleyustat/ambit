@@ -25,6 +25,8 @@ set(UTIL_SOURCE_FILES
 
 set(UTIL_HEADER_FILES
     aligned.h
+    constants.h
+    exception.h
     memory.h
     print.h
     property_tree.h

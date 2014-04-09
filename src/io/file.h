@@ -59,6 +59,11 @@ enum OpenMode {
     kOpenModeOpenExisting
 };
 
+enum DeleteMode {
+    kDeleteModeKeepOnClose,
+    kDeleteModeDeleteOnClose
+};
+
 struct address
 {
     uint64_t page;
@@ -169,8 +174,7 @@ private:
 
 struct file
 {
-    file(const std::string& full_pathname, enum OpenMode om);
-//    file(file && other);
+    file(const std::string& full_pathname, enum OpenMode om, enum DeleteMode dm = kDeleteModeKeepOnClose);
 
     virtual ~file();
 
@@ -182,6 +186,9 @@ struct file
 
     /// Access the internal handle
     int handle() const { return handle_; }
+
+    /// Set delete mode
+    void set_delete_mode(DeleteMode dm) { delete_mode_ = dm; }
 
     /// Access the internal TOC manager
     toc::manager& toc() { return toc_; }
@@ -309,13 +316,12 @@ struct file
     }
 
     /** Performs a streaming read of the data for an entry.
-     * In practice, the end_address is the start of the write.
      * \param buffer Memory location to read into.
      * \param add Address to read from.
      * \param count Number of T's to read in.
      */
     template <typename T>
-    void read_stream(const toc::entry& entry, address& next, const T* buffer, uint64_t count) {
+    void read_stream(const toc::entry& entry, address& next, T* buffer, uint64_t count) {
         if (next.page == 0 && next.offset == 0)
             next = util::get_address(entry.start_address, sizeof(toc::entry));
 
@@ -330,6 +336,34 @@ struct file
             throw std::runtime_error("read_stream: read beyond the extend of the entry.");
     }
 
+    /** Performs a streaming read of the data for the entry.
+     * \param label Entry to read.
+     * \param next Address to read from.
+     * \param buffer Where to place the data.
+     * \param count How many units of the buffer to read.
+     */
+    template <typename T>
+    void read_entry_stream(const std::string& label, address& next, T* buffer, uint64_t count) {
+        // ensure the label exists
+        if (toc_.exists(label) == false)
+            throw std::runtime_error("entry does not exist in the file: " + label);
+        // obtain the entry (if we get here it is guarenteed to exist
+        toc::entry& entry = toc_.entry(label);
+        // our first time in the call, initialize next
+        if (next.page == 0 && next.offset == 0) {
+
+            // compute location where to start the write
+            next = util::get_address(entry.start_address, sizeof(toc::entry));
+        }
+
+        // perform read
+        read(buffer, next, count);
+        // shift next over
+        next = util::get_address(next, sizeof(T) * count);
+        if (next > entry.end_address)
+            throw std::runtime_error("read past the end address of this entry: " + label);
+    }
+
 //    file& operator=(file&& other)
 //    {
 //        handle_ = std::move(other.handle_);
@@ -341,7 +375,7 @@ struct file
 //    }
 
     file(file&& other)
-        : handle_(other.handle_), name_(other.name_), read_stat_(other.read_stat_), write_stat_(other.write_stat_), toc_(std::move(other.toc_))
+        : handle_(other.handle_), name_(other.name_), read_stat_(other.read_stat_), write_stat_(other.write_stat_), toc_(std::move(other.toc_)), delete_mode_(std::move(other.delete_mode_))
     {
         other.handle_ = -1;
     }
@@ -370,6 +404,8 @@ protected:
     uint64_t write_stat_;
 
     toc::manager toc_;
+
+    DeleteMode delete_mode_;
 
     friend struct toc::manager;
 };

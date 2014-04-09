@@ -65,23 +65,28 @@ find_package(LAPACK REQUIRED)
 find_package(PythonLibs REQUIRED)
 find_package(Boost 1.49 COMPONENTS filesystem python regex system REQUIRED)
 
-find_package(MPI)
-if (MPI_CXX_FOUND)
-    set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-    set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+# perform conditional compile with MPI
+if (USE_MPI)
+    find_package(MPI)
+    if (MPI_CXX_FOUND)
+        set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+        set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
 
-    add_definitions("-DHAVE_MPI")
+        add_definitions("-DHAVE_MPI")
 
-    # CTF stuff
-    if (DEFINED CTF_DIR)
-        message("CTF_DIR = ${CTF_DIR}")
-    else()
-        #message(FATAL_ERROR "CTF_DIR not defined. Unable to continue.")
-        set(CTF_DIR /Users/jturney/Code/ctf)
+        # CTF stuff
+        if (DEFINED CTF_DIR)
+            message("CTF_DIR = ${CTF_DIR}")
+        else()
+            #message(FATAL_ERROR "CTF_DIR not defined. Unable to continue.")
+            set(CTF_DIR /Users/jturney/Code/ctf)
+        endif()
+
+        set(CTF_INCLUDE_DIRS ${CTF_DIR}/include)
+        set(CTF_LIBRARIES ${CTF_DIR}/lib/libctf.a)
+
+        message("Using MPI compiler: ${MPI_CXX_COMPILER}")
     endif()
-
-    set(CTF_INCLUDE_DIRS ${CTF_DIR}/include)
-    set(CTF_LIBRARIES ${CTF_DIR}/lib/libctf.a)
 endif()
 
 # Check for restrict keyword

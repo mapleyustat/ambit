@@ -42,6 +42,7 @@ int main(int argc, char** argv)
     molecule.print();
 
     ambit::mints::basisset basis("sto-3g", molecule);
+    basis.print();
 
     ambit::util::print::finalize();
 

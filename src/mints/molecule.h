@@ -41,7 +41,7 @@ struct molecule
     void print() const;
 
     int natom() const { return natom_; }
-    std::string symbol(int atom) const { return atom_symbol_[atom]; }
+    const std::string& symbol(int atom) const { return atom_symbol_[atom]; }
 
     void set_atom_x(const std::vector<double>& x);
     void set_atom_y(const std::vector<double>& y);

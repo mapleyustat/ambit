@@ -27,6 +27,8 @@ set(TENSOR_SOURCE_FILES
     tensor_slice_dense.cc
     tensor_sum_dense.cc
     util.cc
+
+    local/world.cc
 )
 
 set(TENSOR_HEADER_FILES
@@ -37,6 +39,9 @@ set(TENSOR_HEADER_FILES
     indexable_tensor.h
     tensor.h
     util.h
+    world.h
+
+    local/world.h
 )
 
 if (MPI_CXX_FOUND)

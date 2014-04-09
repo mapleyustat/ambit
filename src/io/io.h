@@ -21,5 +21,6 @@
 
 #include "manager.h"
 #include "file.h"
+#include "iwl.h"
 
 #endif

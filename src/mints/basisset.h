@@ -31,15 +31,21 @@ struct basisset
 {
     basisset(const std::string& name, const molecule& m);
 
+    void print() const;
+
 private:
     std::string name_;
 
     // Molecule this refers basis set refers to.
     const molecule& molecule_;
 
-    // Exponents of the basis set blocked by shell.
+    /// The atom the shell is centered on.
+    aligned_vector<int> atom_center_;
+    /// The angular momentum component of the basis set
+    aligned_vector<int> angular_momentum_;
+    /// Exponents of the basis set blocked by shell.
     std::vector<aligned_vector<double>> exponents_;
-    // The coefficients of the basis set blocked by shell.
+    /// The coefficients of the basis set blocked by shell.
     std::vector<aligned_vector<double>> coefficients_;
 };
 

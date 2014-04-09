@@ -220,8 +220,8 @@ void manager::print() const
 
 } // namespace toc
 
-file::file(const std::string& full_pathname, enum OpenMode om)
-    : handle_(-1), name_(full_pathname), read_stat_(0), write_stat_(0), toc_(*this)
+file::file(const std::string& full_pathname, enum OpenMode om, enum DeleteMode dm)
+    : handle_(-1), name_(full_pathname), read_stat_(0), write_stat_(0), toc_(*this), delete_mode_(dm)
 {
     if (open(full_pathname, om) == false)
         throw std::runtime_error("file: Unable to open file " + name_);
@@ -261,6 +261,9 @@ void file::close()
     if (handle_ != -1) {
         toc_.finalize();
         ::close(handle_);
+
+        if (delete_mode_ == kDeleteModeDeleteOnClose)
+            ::unlink(name_.c_str());
     }
     handle_ = -1;
 }

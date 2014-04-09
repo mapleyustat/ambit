@@ -39,9 +39,34 @@ bool initialize();
  */
 void finalize();
 
-}
+/** Print a nice banner to the printn output stream. Do not include \n at the end of the line.
+ */
+void banner(const std::string format, ...);
 
-/// Each process will print to their respective output file. (including the master process)
+/** Increases printing offset by increment.
+ * \param increment the amount to increase indentation.
+ */
+void indent(int increment = 4);
+
+/** Decreases printing offset by increment.
+ * \param decrement the amount to decrease indentation.
+ */
+void unindent(int decrement = 4);
+
+struct indenter
+{
+    indenter(int increment = 4) : size(increment) { indent(size); }
+    ~indenter() { unindent(size); }
+
+private:
+    int size;
+};
+
+} // namespace print
+
+/** Each process will print to their respective output file.
+ * The master process will print to both the screen and its output file.
+ */
 void printn(const std::string format, ...);
 
 }}

@@ -120,10 +120,11 @@ public:
         return property_tree(data_.get_child(key), key);
     }
 
-    std::shared_ptr<property_tree> get_child_optional(const std::string& key) const {
-        auto out = data_.get_child_optional(key);
-        return out ? std::make_shared<property_tree>(*out, key) : nullptr;
-    }
+//    std::shared_ptr<property_tree> get_child_optional(const std::string& key) const {
+//        auto out = data_.get_child_optional(key);
+
+//        return out ? std::make_shared<property_tree>(*out, key) : nullptr;
+//    }
 
     template<typename T>
     T get(const std::string& s) const {

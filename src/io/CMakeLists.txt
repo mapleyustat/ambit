@@ -18,12 +18,14 @@
 
 set(IO_SOURCE_FILES
     file.cc
+    iwl.cc
     manager.cc
 )
 
 set(IO_HEADER_FILES
     file.h
     io.h
+    iwl.h
     manager.h
 )
 
