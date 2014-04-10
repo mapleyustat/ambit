@@ -82,23 +82,23 @@ struct real_type<std::complex<T> >
 
 namespace tensor {
 
-template <class Derived, typename T> struct tensor;
-template <class Derived, typename T> struct ScaledTensor;
-template <class Derived, typename T> struct InvertedTensor;
-template <class Derived, typename T> struct TensorMult;
-template <class Derived, typename T> struct TensorDiv;
+template <class derived, typename T> struct tensor;
+template <class derived, typename T> struct ScaledTensor;
+template <class derived, typename T> struct InvertedTensor;
+template <class derived, typename T> struct TensorMult;
+template <class derived, typename T> struct TensorDiv;
 
-class TensorError;
-class OutOfBoundsError;
-class LengthMismatchError;
-class IndexMismatchError;
-class InvalidNdimError;
-class InvalidLengthError;
-class InvalidLdError;
-class LdTooSmallError;
-class SymmetryMismatchError;
-class InvalidSymmetryError;
-class InvalidStartError;
+class tensor_error;
+class out_of_bounds_error;
+class length_mismatch_error;
+class index_mismatch_error;
+class invalid_ndim_error;
+class invalid_length_error;
+class invalid_ld_error;
+class ld_too_small_error;
+class symmetry_mismatch_error;
+class invalid_symmetry_error;
+class invalid_start_error;
 
 #define INSTANTIATE_SPECIALIZATIONS(name) \
 template class name<double>;
@@ -109,27 +109,27 @@ template class name<double,extra1>;
 #define INSTANTIATE_SPECIALIZATIONS_3(name,extra1,extra2) \
 template class name<double,extra1,extra2>;
 
-#define INHERIT_FROM_TENSOR(Derived,T) \
+#define INHERIT_FROM_TENSOR(derived,T) \
     public: \
-    using ambit::tensor::tensor< Derived, T >::get_derived; \
-    using ambit::tensor::tensor< Derived, T >::operator=; \
-    using ambit::tensor::tensor< Derived,T >::operator+=; \
-    using ambit::tensor::tensor< Derived,T >::operator-=; \
-    using ambit::tensor::tensor< Derived,T >::operator*=; \
-    using ambit::tensor::tensor< Derived,T >::operator/=; \
-    using ambit::tensor::tensor< Derived,T >::operator*; \
-    using ambit::tensor::tensor< Derived,T >::operator/; \
-    Derived & operator=(const Derived & other) \
+    using ambit::tensor::tensor< derived, T >::get_derived; \
+    using ambit::tensor::tensor< derived, T >::operator=; \
+    using ambit::tensor::tensor< derived,T >::operator+=; \
+    using ambit::tensor::tensor< derived,T >::operator-=; \
+    using ambit::tensor::tensor< derived,T >::operator*=; \
+    using ambit::tensor::tensor< derived,T >::operator/=; \
+    using ambit::tensor::tensor< derived,T >::operator*; \
+    using ambit::tensor::tensor< derived,T >::operator/; \
+    derived & operator=(const derived & other) \
     { \
         sum((T)1, false, other, (T)0); \
         return *this; \
     } \
     private:
 
-template<class Derived, typename T>
+template<class derived, typename T>
 struct tensor
 {
-    typedef T dtype;
+    typedef T data_type;
     std::string name;
 
     tensor(const std::string& name) : name(name) {}
@@ -137,33 +137,33 @@ struct tensor
 
     const std::string& get_name() const { return name; }
 
-    Derived& get_derived() { return static_cast<Derived&>(*this); }
-    const Derived& get_derived() const { return static_cast<const Derived&>(*this); }
+    derived& get_derived() { return static_cast<derived&>(*this); }
+    const derived& get_derived() const { return static_cast<const derived&>(*this); }
 
     /**********************************************************************
      *
      * Operators with scalars
      *
      *********************************************************************/
-    Derived& operator=(const T val)
+    derived& operator=(const T val)
     {
         sum(val, (T)0);
         return get_derived();
     }
 
-    Derived& operator+=(const T val)
+    derived& operator+=(const T val)
     {
         sum(val, (T)1);
         return get_derived();
     }
 
-    Derived& operator*=(const T val)
+    derived& operator*=(const T val)
     {
         mul(val);
         return get_derived();
     }
 
-    Derived& operator/=(const T val)
+    derived& operator/=(const T val)
     {
         mult(1.0/val);
         return get_derived();
@@ -174,48 +174,48 @@ struct tensor
      * Binary operations (multiplication and division)
      *
      *********************************************************************/
-    template<typename cvDerived>
-    Derived& operator=(const TensorMult<cvDerived,T>& other)
+    template<typename cvderived>
+    derived& operator=(const TensorMult<cvderived,T>& other)
     {
         mult(other.factor_, other.A_.tensor_,
                             other.B_.tensor_, (T)0);
         return get_derived();
     }
 
-    template<typename cvDerived>
-    Derived& operator+=(const TensorMult<cvDerived,T>& other)
+    template<typename cvderived>
+    derived& operator+=(const TensorMult<cvderived,T>& other)
     {
         mult(other.factor_, other.A_.tensor_,
                             other.B_.tensor_, (T)1);
         return get_derived();
     }
 
-    template<typename cvDerived>
-    Derived& operator-=(const TensorMult<cvDerived,T>& other)
+    template<typename cvderived>
+    derived& operator-=(const TensorMult<cvderived,T>& other)
     {
         mult(-other.factor_, other.A_.tensor_,
                              other.B_.tensor_, (T)1);
         return get_derived();
     }
 
-    template<typename cvDerived>
-    Derived& operator=(const TensorDiv<cvDerived,T>& other)
+    template<typename cvderived>
+    derived& operator=(const TensorDiv<cvderived,T>& other)
     {
         div(other.factor_, other.A_.tensor_,
                            other.B_.tensor_, (T)0);
         return get_derived();
     }
 
-    template<typename cvDerived>
-    Derived& operator+=(const TensorDiv<cvDerived,T>& other)
+    template<typename cvderived>
+    derived& operator+=(const TensorDiv<cvderived,T>& other)
     {
         div(other.factor_, other.A_.tensor_,
                            other.B_.tensor_, (T)1);
         return get_derived();
     }
 
-    template<typename cvDerived>
-    Derived& operator-=(const TensorDiv<cvDerived,T>& other)
+    template<typename cvderived>
+    derived& operator-=(const TensorDiv<cvderived,T>& other)
     {
         div(-other.factor_, other.A_.tensor_,
                             other.B_.tensor_, (T)1);
@@ -227,112 +227,112 @@ struct tensor
      * Unary operations (assignment, summation, multiplication, and division)
      *
      *********************************************************************/
-    Derived& operator=(const Derived& other)
+    derived& operator=(const derived& other)
     {
         sum((T)1, false, other, (T)0);
         return get_derived();
     }
 
-    template <typename cvDerived>
-    Derived& operator=(cvDerived& other)
+    template <typename cvderived>
+    derived& operator=(cvderived& other)
     {
         sum((T)1, false, other, (T)0);
         return get_derived();
     }
 
-    template <typename cvDerived>
-    Derived& operator+=(cvDerived& other)
+    template <typename cvderived>
+    derived& operator+=(cvderived& other)
     {
         sum((T)1, false, other, (T)1);
         return get_derived();
     }
 
-    template <typename cvDerived>
-    Derived& operator-=(cvDerived& other)
+    template <typename cvderived>
+    derived& operator-=(cvderived& other)
     {
         sum((T)(-1), false, other, (T)1);
         return get_derived();
     }
 
-    template <typename cvDerived>
-    Derived& operator*=(cvDerived& other)
+    template <typename cvderived>
+    derived& operator*=(cvderived& other)
     {
         mult((T)1, get_derived(), other, (T)0);
         return get_derived();
     }
 
-    template <typename cvDerived>
-    Derived& operator/=(cvDerived& other)
+    template <typename cvderived>
+    derived& operator/=(cvderived& other)
     {
         div((T)1, get_derived(), other, (T)0);
         return get_derived();
     }
 
-    template <typename cvDerived>
-    Derived& operator=(const ScaledTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    derived& operator=(const ScaledTensor<cvderived,T>& other)
     {
         sum(other.factor_, other.tensor_, (T)0);
         return get_derived();
     }
 
-    template <typename cvDerived>
-    Derived& operator+=(const ScaledTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    derived& operator+=(const ScaledTensor<cvderived,T>& other)
     {
         sum(other.factor_, other.tensor_, (T)1);
         return get_derived();
     }
 
-    template <typename cvDerived>
-    Derived& operator-=(const ScaledTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    derived& operator-=(const ScaledTensor<cvderived,T>& other)
     {
         sum(-other.factor_, other.tensor_, (T)1);
         return get_derived();
     }
 
-    template <typename cvDerived>
-    Derived& operator*=(const ScaledTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    derived& operator*=(const ScaledTensor<cvderived,T>& other)
     {
         mult(other.factor_, get_derived(), other.tensor_, (T)0);
         return get_derived();
     }
 
-    template <typename cvDerived>
-    Derived& operator/=(const ScaledTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    derived& operator/=(const ScaledTensor<cvderived,T>& other)
     {
         div((T)1/other.factor_, get_derived(), other.tensor_, (T)0);
         return get_derived();
     }
 
-    template <typename cvDerived>
-    Derived& operator=(const InvertedTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    derived& operator=(const InvertedTensor<cvderived,T>& other)
     {
         invert(other.factor_, other.tensor_, (T)0);
         return get_derived();
     }
 
-    template <typename cvDerived>
-    Derived& operator+=(const InvertedTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    derived& operator+=(const InvertedTensor<cvderived,T>& other)
     {
         invert(other.factor_, other.tensor_, (T)1);
         return get_derived();
     }
 
-    template <typename cvDerived>
-    Derived& operator-=(const InvertedTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    derived& operator-=(const InvertedTensor<cvderived,T>& other)
     {
         invert(-other.factor_, other.tensor_, (T)0);
         return get_derived();
     }
 
-    template <typename cvDerived>
-    Derived& operator*=(const InvertedTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    derived& operator*=(const InvertedTensor<cvderived,T>& other)
     {
         div(other.factor_, get_derived(), other.tensor_, (T)0);
         return get_derived();
     }
 
-    template <typename cvDerived>
-    Derived& operator/=(const InvertedTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    derived& operator/=(const InvertedTensor<cvderived,T>& other)
     {
         mult((T)1/other.factor_, get_derived(), other.tensor_, (T)0);
         return get_derived();
@@ -343,63 +343,63 @@ struct tensor
      * Intermediate operations
      *
      *********************************************************************/
-    friend ScaledTensor<Derived,T> operator*(const T factor, Derived& other)
+    friend ScaledTensor<derived,T> operator*(const T factor, derived& other)
     {
-        return ScaledTensor<Derived,T>(other.get_derived(), factor);
+        return ScaledTensor<derived,T>(other.get_derived(), factor);
     }
 
-    friend ScaledTensor<const Derived,T> operator*(const T factor, const Derived& other)
+    friend ScaledTensor<const derived,T> operator*(const T factor, const derived& other)
     {
-        return ScaledTensor<const Derived,T>(other.get_derived(), factor);
+        return ScaledTensor<const derived,T>(other.get_derived(), factor);
     }
 
-    ScaledTensor<Derived,T> operator*(const T factor)
+    ScaledTensor<derived,T> operator*(const T factor)
     {
-        return ScaledTensor<Derived,T>(get_derived(), factor);
+        return ScaledTensor<derived,T>(get_derived(), factor);
     }
 
-    ScaledTensor<const Derived,T> operator*(const T factor) const
+    ScaledTensor<const derived,T> operator*(const T factor) const
     {
-        return ScaledTensor<const Derived,T>(get_derived(), factor);
+        return ScaledTensor<const derived,T>(get_derived(), factor);
     }
 
-    friend InvertedTensor<const Derived,T> operator/(const T factor, const Derived& other)
+    friend InvertedTensor<const derived,T> operator/(const T factor, const derived& other)
     {
-        return InvertedTensor<const Derived,T>(other.get_derived(), factor);
+        return InvertedTensor<const derived,T>(other.get_derived(), factor);
     }
 
-    ScaledTensor<Derived,T> operator/(const T factor)
+    ScaledTensor<derived,T> operator/(const T factor)
     {
-        return ScaledTensor<Derived,T>(get_derived(), (T)1/factor);
+        return ScaledTensor<derived,T>(get_derived(), (T)1/factor);
     }
 
-    ScaledTensor<const Derived,T> operator/(const T factor) const
+    ScaledTensor<const derived,T> operator/(const T factor) const
     {
-        return ScaledTensor<const Derived,T>(get_derived(), (T)1/factor);
+        return ScaledTensor<const derived,T>(get_derived(), (T)1/factor);
     }
 
-    ScaledTensor<Derived,T> operator-()
+    ScaledTensor<derived,T> operator-()
     {
-        return ScaledTensor<Derived,T>(get_derived(), (T)(-1));
+        return ScaledTensor<derived,T>(get_derived(), (T)(-1));
     }
 
-    ScaledTensor<const Derived,T> operator-() const
+    ScaledTensor<const derived,T> operator-() const
     {
-        return ScaledTensor<const Derived,T>(get_derived(), (T)(-1));
+        return ScaledTensor<const derived,T>(get_derived(), (T)(-1));
     }
 
-    template <typename cvDerived>
-    TensorMult<Derived,T> operator*(const cvDerived& other) const
+    template <typename cvderived>
+    TensorMult<derived,T> operator*(const cvderived& other) const
     {
-        return TensorMult<Derived,T>(ScaledTensor<const Derived,T>(get_derived(), (T)1),
-                                      ScaledTensor<const Derived,T>(other.get_derived(), (T)1));
+        return TensorMult<derived,T>(ScaledTensor<const derived,T>(get_derived(), (T)1),
+                                      ScaledTensor<const derived,T>(other.get_derived(), (T)1));
     }
 
-    template <typename cvDerived>
-    TensorDiv<Derived,T> operator/(const cvDerived& other) const
+    template <typename cvderived>
+    TensorDiv<derived,T> operator/(const cvderived& other) const
     {
-        return TensorDiv<Derived,T>(ScaledTensor<const Derived,T>(get_derived(), (T)1),
-                                     ScaledTensor<const Derived,T>(other.get_derived(), (T)1));
+        return TensorDiv<derived,T>(ScaledTensor<const derived,T>(get_derived(), (T)1),
+                                     ScaledTensor<const derived,T>(other.get_derived(), (T)1));
     }
 
     /**********************************************************************
@@ -411,8 +411,8 @@ struct tensor
     /*
      * this = alpha*this + beta*A*B
      */
-    virtual void mult(const T alpha, const Derived& A,
-                                     const Derived& B, const T beta) = 0;
+    virtual void mult(const T alpha, const derived& A,
+                                     const derived& B, const T beta) = 0;
 
     /*
      * this = alpha*this
@@ -422,13 +422,13 @@ struct tensor
     /*
      * this = alpha*this + beta*A/B
      */
-    virtual void div(const T alpha, const Derived& A,
-                                    const Derived& B, const T beta) = 0;
+    virtual void div(const T alpha, const derived& A,
+                                    const derived& B, const T beta) = 0;
 
     /*
      * this = alpha*this + beta*A
      */
-    virtual void sum(const T alpha, const Derived& A, const T beta) = 0;
+    virtual void sum(const T alpha, const derived& A, const T beta) = 0;
 
     /*
      * this = alpha*this + beta
@@ -438,25 +438,25 @@ struct tensor
     /*
      * this = alpha*this + beta/A
      */
-    virtual void invert(const T alpha, const Derived& A, const T beta) = 0;
+    virtual void invert(const T alpha, const derived& A, const T beta) = 0;
 
     /*
      * scalar = A*this
      */
-    virtual T dot(const Derived& A) const = 0;
+    virtual T dot(const derived& A) const = 0;
 };
 
-template <class Derived, typename T>
+template <class derived, typename T>
 struct ScaledTensor
 {
-    Derived& tensor_;
+    derived& tensor_;
     T factor_;
 
-    template <typename cvDerived>
-    ScaledTensor(const ScaledTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor(const ScaledTensor<cvderived,T>& other)
         : tensor_(other.tensor_), factor_(other.factor_) {}
 
-    ScaledTensor(Derived& tensor, const T factor)
+    ScaledTensor(derived& tensor, const T factor)
         : tensor_(tensor), factor_(factor) {}
 
     /**********************************************************************
@@ -464,9 +464,9 @@ struct ScaledTensor
      * Unary negation
      *
      *********************************************************************/
-    ScaledTensor<Derived,T> operator-() const
+    ScaledTensor<derived,T> operator-() const
     {
-        ScaledTensor<Derived,T> ret(*this);
+        ScaledTensor<derived,T> ret(*this);
         ret.factor_ = -ret.factor_;
         return ret;
     }
@@ -476,112 +476,112 @@ struct ScaledTensor
      * Unary tensor operations
      *
      *********************************************************************/
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator=(const cvDerived& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator=(const cvderived& other)
     {
         tensor_.sum((T)1, other, (T)0);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator+=(const cvDerived& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator+=(const cvderived& other)
     {
         tensor_.sum((T)1, other, factor_);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator-=(const cvDerived& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator-=(const cvderived& other)
     {
         tensor_.sum((T)(-1), other, factor_);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator*=(const cvDerived& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator*=(const cvderived& other)
     {
         tensor_.mult(factor_, tensor_, other, (T)0);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator/=(const cvDerived& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator/=(const cvderived& other)
     {
         tensor_.div(factor_, tensor_, other, (T)0);
         return *this;
     }
 
-    ScaledTensor<Derived,T>& operator=(const ScaledTensor<Derived,T>& other)
+    ScaledTensor<derived,T>& operator=(const ScaledTensor<derived,T>& other)
     {
         tensor_.sum(other.factor_, other.tensor_, (T)0);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator=(const ScaledTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator=(const ScaledTensor<cvderived,T>& other)
     {
         tensor_.sum(other.factor_, other.tensor_, (T)0);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator+=(const ScaledTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator+=(const ScaledTensor<cvderived,T>& other)
     {
         tensor_.sum(other.factor_, other.tensor_, factor_);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator-=(const ScaledTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator-=(const ScaledTensor<cvderived,T>& other)
     {
         tensor_.sum(-other.factor_, other.tensor_, factor_);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator*=(const ScaledTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator*=(const ScaledTensor<cvderived,T>& other)
     {
         tensor_.mult(factor_*other.factor_, tensor_, other.tensor_, (T)0);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator/=(const ScaledTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator/=(const ScaledTensor<cvderived,T>& other)
     {
         tensor_.div(factor_/other.factor_, tensor_, other.tensor_, (T)0);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator=(const InvertedTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator=(const InvertedTensor<cvderived,T>& other)
     {
         tensor_.invert(other.factor_, other.tensor_, (T)0);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator+=(const InvertedTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator+=(const InvertedTensor<cvderived,T>& other)
     {
         tensor_.invert(other.factor_, other.tensor_, factor_);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator-=(const InvertedTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator-=(const InvertedTensor<cvderived,T>& other)
     {
         tensor_.invert(-other.factor_, other.tensor_, factor_);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator*=(const InvertedTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator*=(const InvertedTensor<cvderived,T>& other)
     {
         tensor_.div(factor_*other.factor_, tensor_, other.tensor_, (T)0);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator/=(const InvertedTensor<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator/=(const InvertedTensor<cvderived,T>& other)
     {
         tensor_.mult(factor_/other.factor_, tensor_, other.tensor_, (T)0);
         return *this;
@@ -592,70 +592,70 @@ struct ScaledTensor
      * Binary tensor operations
      *
      *********************************************************************/
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator=(const TensorMult<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator=(const TensorMult<cvderived,T>& other)
     {
         tensor_.mult(other.factor_, other.A_.tensor_, other.B_.tensor_, (T)0);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator+=(const TensorMult<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator+=(const TensorMult<cvderived,T>& other)
     {
         tensor_.mult(other.factor_, other.A_.tensor_, other.B_.tensor_, factor_);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator-=(const TensorMult<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator-=(const TensorMult<cvderived,T>& other)
     {
         tensor_.mult(-other.factor_, other.A_.tensor_, other.B_.tensor_, factor_);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator=(const TensorDiv<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator=(const TensorDiv<cvderived,T>& other)
     {
         tensor_.div(other.factor_, other.A_.tensor_, other.B_.tensor_, (T)0);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator+=(const TensorDiv<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator+=(const TensorDiv<cvderived,T>& other)
     {
         tensor_.div(other.factor_, other.A_.tensor_, other.B_.tensor_, factor_);
         return *this;
     }
 
-    template <typename cvDerived>
-    ScaledTensor<Derived,T>& operator-=(const TensorDiv<cvDerived,T>& other)
+    template <typename cvderived>
+    ScaledTensor<derived,T>& operator-=(const TensorDiv<cvderived,T>& other)
     {
         tensor_.div(-other.factor_, other.A_.tensor_, other.B_.tensor_, factor_);
         return *this;
     }
 
-    template <typename cvDerived>
-    TensorMult<Derived,T> operator*(const ScaledTensor<cvDerived,T>& other) const
+    template <typename cvderived>
+    TensorMult<derived,T> operator*(const ScaledTensor<cvderived,T>& other) const
     {
-        return TensorMult<Derived,T>(*this, other);
+        return TensorMult<derived,T>(*this, other);
     }
 
-    template <typename cvDerived>
-    TensorMult<Derived,T> operator*(const cvDerived& other) const
+    template <typename cvderived>
+    TensorMult<derived,T> operator*(const cvderived& other) const
     {
-        return TensorMult<Derived,T>(*this, ScaledTensor<const Derived,T>(other.get_derived(), (T)1));
+        return TensorMult<derived,T>(*this, ScaledTensor<const derived,T>(other.get_derived(), (T)1));
     }
 
-    template <typename cvDerived>
-    TensorDiv<Derived,T> operator/(const ScaledTensor<cvDerived,T>& other) const
+    template <typename cvderived>
+    TensorDiv<derived,T> operator/(const ScaledTensor<cvderived,T>& other) const
     {
-        return TensorDiv<Derived,T>(*this, other);
+        return TensorDiv<derived,T>(*this, other);
     }
 
-    template <typename cvDerived>
-    TensorDiv<Derived,T> operator/(const cvDerived& other) const
+    template <typename cvderived>
+    TensorDiv<derived,T> operator/(const cvderived& other) const
     {
-        return TensorDiv<Derived,T>(*this, ScaledTensor<const Derived,T>(other.get_derived(), (T)1));
+        return TensorDiv<derived,T>(*this, ScaledTensor<const derived,T>(other.get_derived(), (T)1));
     }
 
     /**********************************************************************
@@ -663,84 +663,84 @@ struct ScaledTensor
      * Operations with scalars
      *
      *********************************************************************/
-    ScaledTensor<Derived,T> operator*(const T factor) const
+    ScaledTensor<derived,T> operator*(const T factor) const
     {
-        ScaledTensor<Derived,T> it(*this);
+        ScaledTensor<derived,T> it(*this);
         it.factor_ *= factor;
         return it;
     }
 
-    friend ScaledTensor<Derived,T> operator*(const T factor, const ScaledTensor<Derived,T>& other)
+    friend ScaledTensor<derived,T> operator*(const T factor, const ScaledTensor<derived,T>& other)
     {
         return other*factor;
     }
 
-    ScaledTensor<Derived,T> operator/(const T factor) const
+    ScaledTensor<derived,T> operator/(const T factor) const
     {
-        ScaledTensor<Derived,T> it(*this);
+        ScaledTensor<derived,T> it(*this);
         it.factor_ /= factor;
         return it;
     }
 
-    friend InvertedTensor<Derived,T> operator/(const T factor, const ScaledTensor<Derived,T>& other)
+    friend InvertedTensor<derived,T> operator/(const T factor, const ScaledTensor<derived,T>& other)
     {
-        return InvertedTensor<Derived,T>(other.tensor_, factor/other.factor_);
+        return InvertedTensor<derived,T>(other.tensor_, factor/other.factor_);
     }
 
-    ScaledTensor<Derived,T>& operator=(const T val)
+    ScaledTensor<derived,T>& operator=(const T val)
     {
         tensor_.sum(val, (T)0);
         return *this;
     }
 
-    ScaledTensor<Derived,T>& operator+=(const T val)
+    ScaledTensor<derived,T>& operator+=(const T val)
     {
         tensor_.sum(val, factor_);
         return *this;
     }
 
-    ScaledTensor<Derived,T>& operator-=(const T val)
+    ScaledTensor<derived,T>& operator-=(const T val)
     {
         tensor_.sum(-val, factor_);
         return *this;
     }
 
-    ScaledTensor<Derived,T>& operator*=(const T val)
+    ScaledTensor<derived,T>& operator*=(const T val)
     {
         tensor_.mult(val);
         return *this;
     }
 
-    ScaledTensor<Derived,T>& operator/=(const T val)
+    ScaledTensor<derived,T>& operator/=(const T val)
     {
         tensor_.mult((T)1/val);
         return *this;
     }
 };
 
-template <class Derived1, class Derived2, class T>
-TensorMult<Derived1,T> operator*(const Derived1& t1, const ScaledTensor<Derived2,T>& t2)
+template <class derived1, class derived2, class T>
+TensorMult<derived1,T> operator*(const derived1& t1, const ScaledTensor<derived2,T>& t2)
 {
-    return TensorMult<Derived1,T>(ScaledTensor<const Derived1,T>(t1.get_derived(), (T)1), t2);
+    return TensorMult<derived1,T>(ScaledTensor<const derived1,T>(t1.get_derived(), (T)1), t2);
 }
 
-template <class Derived1, class Derived2, class T>
-TensorDiv<Derived1,T> operator/(const Derived1& t1, const ScaledTensor<Derived2,T>& t2)
+template <class derived1, class derived2, class T>
+TensorDiv<derived1,T> operator/(const derived1& t1, const ScaledTensor<derived2,T>& t2)
 {
-    return TensorDiv<Derived1,T>(ScaledTensor<const Derived1,T>(t1.get_derived(), (T)1), t2);
+    return TensorDiv<derived1,T>(ScaledTensor<const derived1,T>(t1.get_derived(), (T)1), t2);
 }
 
-template <class Derived, typename T>
+template <class derived, typename T>
 class InvertedTensor
 {
 private:
-    const InvertedTensor& operator=(const InvertedTensor<Derived,T>& other);
+    const InvertedTensor& operator=(const InvertedTensor<derived,T>& other);
 
 public:
-    Derived& tensor_;
+    derived& tensor_;
     T factor_;
 
-    InvertedTensor(Derived& tensor, const T factor)
+    InvertedTensor(derived& tensor, const T factor)
         : tensor_(tensor), factor_(factor) {}
 
     /**********************************************************************
@@ -748,9 +748,9 @@ public:
      * Unary negation
      *
      *********************************************************************/
-    InvertedTensor<Derived,T> operator-() const
+    InvertedTensor<derived,T> operator-() const
     {
-        InvertedTensor<Derived,T> ret(*this);
+        InvertedTensor<derived,T> ret(*this);
         ret.factor_ = -ret.factor_;
         return *this;
     }
@@ -760,39 +760,39 @@ public:
          * Operations with scalars
          *
          *********************************************************************/
-    InvertedTensor<Derived,T> operator*(const T factor) const
+    InvertedTensor<derived,T> operator*(const T factor) const
     {
-        InvertedTensor<Derived,T> ret(*this);
+        InvertedTensor<derived,T> ret(*this);
         ret.factor_ *= factor;
         return ret;
     }
 
-    InvertedTensor<Derived,T> operator/(const T factor) const
+    InvertedTensor<derived,T> operator/(const T factor) const
     {
-        InvertedTensor<Derived,T> ret(*this);
+        InvertedTensor<derived,T> ret(*this);
         ret.factor_ /= factor;
         return ret;
     }
 
-    friend InvertedTensor<Derived,T> operator*(const T factor, const InvertedTensor<Derived,T>& other)
+    friend InvertedTensor<derived,T> operator*(const T factor, const InvertedTensor<derived,T>& other)
     {
         return other*factor;
     }
 };
 
-template <class Derived, typename T>
+template <class derived, typename T>
 class TensorMult
 {
 private:
-    const TensorMult& operator=(const TensorMult<Derived,T>& other);
+    const TensorMult& operator=(const TensorMult<derived,T>& other);
 
 public:
-    ScaledTensor<const Derived,T> A_;
-    ScaledTensor<const Derived,T> B_;
+    ScaledTensor<const derived,T> A_;
+    ScaledTensor<const derived,T> B_;
     T factor_;
 
-    template <class Derived1, class Derived2>
-    TensorMult(const ScaledTensor<Derived1,T>& A, const ScaledTensor<Derived2,T>& B)
+    template <class derived1, class derived2>
+    TensorMult(const ScaledTensor<derived1,T>& A, const ScaledTensor<derived2,T>& B)
         : A_(A), B_(B), factor_(A.factor_*B.factor_) {}
 
     /**********************************************************************
@@ -800,9 +800,9 @@ public:
      * Unary negation
      *
      *********************************************************************/
-    TensorMult<Derived,T> operator-() const
+    TensorMult<derived,T> operator-() const
     {
-        TensorMult<Derived,T> ret(*this);
+        TensorMult<derived,T> ret(*this);
         ret.factor_ = -ret.factor_;
         return ret;
     }
@@ -812,39 +812,39 @@ public:
      * Operations with scalars
      *
      *********************************************************************/
-    TensorMult<Derived,T> operator*(const T factor) const
+    TensorMult<derived,T> operator*(const T factor) const
     {
-        TensorMult<Derived,T> ret(*this);
+        TensorMult<derived,T> ret(*this);
         ret.factor_ *= factor;
         return ret;
     }
 
-    TensorMult<Derived,T> operator/(const T factor) const
+    TensorMult<derived,T> operator/(const T factor) const
     {
-        TensorMult<Derived,T> ret(*this);
+        TensorMult<derived,T> ret(*this);
         ret.factor_ /= factor;
         return ret;
     }
 
-    friend TensorMult<Derived,T> operator*(const T factor, const TensorMult<Derived,T>& other)
+    friend TensorMult<derived,T> operator*(const T factor, const TensorMult<derived,T>& other)
     {
         return other*factor;
     }
 };
 
-template <class Derived, typename T>
+template <class derived, typename T>
 class TensorDiv
 {
 private:
-    const TensorDiv& operator=(const TensorDiv<Derived,T>& other);
+    const TensorDiv& operator=(const TensorDiv<derived,T>& other);
 
 public:
-    ScaledTensor<const Derived,T> A_;
-    ScaledTensor<const Derived,T> B_;
+    ScaledTensor<const derived,T> A_;
+    ScaledTensor<const derived,T> B_;
     T factor_;
 
-    template <class Derived1, class Derived2>
-    TensorDiv(const ScaledTensor<Derived1,T>& A, const ScaledTensor<Derived2,T>& B)
+    template <class derived1, class derived2>
+    TensorDiv(const ScaledTensor<derived1,T>& A, const ScaledTensor<derived2,T>& B)
         : A_(A), B_(B), factor_(A.factor_/B.factor_) {}
 
     /**********************************************************************
@@ -852,9 +852,9 @@ public:
      * Unary negation
      *
      *********************************************************************/
-    TensorDiv<Derived,T> operator-() const
+    TensorDiv<derived,T> operator-() const
     {
-        TensorDiv<Derived,T> ret(*this);
+        TensorDiv<derived,T> ret(*this);
         ret.factor_ = -ret.factor_;
         return ret;
     }
@@ -864,87 +864,87 @@ public:
      * Operations with scalars
      *
      *********************************************************************/
-    TensorDiv<Derived,T> operator*(const T factor) const
+    TensorDiv<derived,T> operator*(const T factor) const
     {
-        TensorDiv<Derived,T> ret(*this);
+        TensorDiv<derived,T> ret(*this);
         ret.factor_ *= factor;
         return ret;
     }
 
-    TensorDiv<Derived,T> operator/(const T factor) const
+    TensorDiv<derived,T> operator/(const T factor) const
     {
-        TensorDiv<Derived,T> ret(*this);
+        TensorDiv<derived,T> ret(*this);
         ret.factor_ /= factor;
         return ret;
     }
 
-    friend TensorDiv<Derived,T> operator*(const T factor, const TensorDiv<Derived,T>& other)
+    friend TensorDiv<derived,T> operator*(const T factor, const TensorDiv<derived,T>& other)
     {
         return other*factor;
     }
 };
 
-class TensorError : public std::exception
+class tensor_error : public std::exception
 {
 public:
     virtual const char* what() const throw() = 0;
 };
-class OutOfBoundsError : public TensorError
+class out_of_bounds_error : public tensor_error
 {
 public:
     virtual const char* what() const throw() { return "out-of-bounds read or write"; }
 };
-class LengthMismatchError : public TensorError
+class length_mismatch_error : public tensor_error
 {
 public:
     virtual const char* what() const throw() { return "length mismatch error"; }
 };
-class IndexNotFoundError : public TensorError
+class index_not_found_error : public tensor_error
 {
 public:
     virtual const char* what() const throw() { return "index not found."; }
 };
-class IndexAlreadyExistsError : public TensorError
+class index_already_exists_error : public tensor_error
 {
 public:
     virtual const char *what() const throw() { return "index already exists in global set."; }
 };
-class IndexMismatchError : public TensorError
+class index_mismatch_error : public tensor_error
 {
 public:
     virtual const char* what() const throw() { return "index mismatch error"; }
 };
-class InvalidNdimError : public TensorError
+class invalid_ndim_error : public tensor_error
 {
 public:
     virtual const char* what() const throw() { return "invalid number of dimensions"; }
 };
-class InvalidLengthError : public TensorError
+class invalid_length_error : public tensor_error
 {
 public:
     virtual const char* what() const throw() { return "invalid length"; }
 };
-class InvalidLdError : public TensorError
+class invalid_ld_error : public tensor_error
 {
 public:
     virtual const char* what() const throw() { return "invalid leading dimension"; }
 };
-class LdTooSmallError : public TensorError
+class ld_too_small_error : public tensor_error
 {
 public:
     virtual const char* what() const throw() { return "leading dimension is too small"; }
 };
-class SymmetryMismatchError : public TensorError
+class symmetry_mismatch_error : public tensor_error
 {
 public:
     virtual const char* what() const throw() { return "symmetry mismatch error"; }
 };
-class InvalidSymmetryError : public TensorError
+class invalid_symmetry_error : public tensor_error
 {
 public:
     virtual const char* what() const throw() { return "invalid symmetry value"; }
 };
-class InvalidStartError : public TensorError
+class invalid_start_error : public tensor_error
 {
 public:
     virtual const char* what() const throw() { return "invalid start value"; }
@@ -1196,8 +1196,8 @@ int tensor_symmetrize(const double* A, double* B, const int ndim_A, const int* l
 
 } // namespace tensor
 
-template <class Derived, typename T>
-T scalar(const tensor::TensorMult<Derived, T>& tm)
+template <class derived, typename T>
+T scalar(const tensor::TensorMult<derived, T>& tm)
 {
     return tm.factor_*tm.B_.tensor_.dot(tm.A_.tensor_);
 }

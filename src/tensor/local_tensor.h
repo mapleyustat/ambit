@@ -42,19 +42,19 @@ namespace ambit {
 
 namespace tensor {
 
-#define INHERIT_FROM_LOCAL_TENSOR(Derived, T) \
+#define INHERIT_FROM_LOCAL_TENSOR(derived, T) \
     protected: \
-        using ambit::tensor::local_tensor< Derived, T >::len; \
-        using ambit::tensor::local_tensor< Derived, T >::ld; \
-        using ambit::tensor::local_tensor< Derived, T >::size; \
-        using ambit::tensor::local_tensor< Derived, T >::data; \
+        using ambit::tensor::local_tensor< derived, T >::len; \
+        using ambit::tensor::local_tensor< derived, T >::ld; \
+        using ambit::tensor::local_tensor< derived, T >::size; \
+        using ambit::tensor::local_tensor< derived, T >::data; \
     public: \
-        using ambit::tensor::local_tensor< Derived, T >::CLONE; \
-        using ambit::tensor::local_tensor< Derived, T >::REFERENCE; \
-        using ambit::tensor::local_tensor< Derived, T >::REPLACE; \
-        using ambit::tensor::local_tensor< Derived, T >::get_size; \
-    INHERIT_FROM_INDEXABLE_TENSOR(Derived, T) \
-    friend class ambit::tensor::local_tensor< Derived, T >;
+        using ambit::tensor::local_tensor< derived, T >::CLONE; \
+        using ambit::tensor::local_tensor< derived, T >::REFERENCE; \
+        using ambit::tensor::local_tensor< derived, T >::REPLACE; \
+        using ambit::tensor::local_tensor< derived, T >::get_size; \
+    INHERIT_FROM_INDEXABLE_TENSOR(derived, T) \
+    friend class ambit::tensor::local_tensor< derived, T >;
 
 #define CHECK_RETURN_VALUE(ret) \
     switch (ret) \
@@ -95,10 +95,10 @@ namespace tensor {
 
 #define VALIDATE_TENSOR_THROW(ndim,len,ld,sym) CHECK_RETURN_VALUE(validate_tensor(ndim,len,ld,sym))
 
-template <class Derived, typename T>
-struct local_tensor : public indexable_tensor< Derived, T>
+template <class derived, typename T>
+struct local_tensor : public indexable_tensor< derived, T>
 {
-    INHERIT_FROM_INDEXABLE_TENSOR(Derived,T)
+    INHERIT_FROM_INDEXABLE_TENSOR(derived,T)
 
 protected:
     std::vector<int> len;
@@ -111,31 +111,31 @@ public:
     enum CopyType { CLONE, REFERENCE, REPLACE };
 
     local_tensor(const std::string& name, const T& val = (T)0)
-        : indexable_tensor<Derived,T>(name, 0), len(0), ld(0), size(1)
+        : indexable_tensor<derived,T>(name, 0), len(0), ld(0), size(1)
     {
         data = SAFE_MALLOC(T, 1);
         isAlloced = true;
         data[0] = val;
     }
 
-    local_tensor(const Derived& A)
-        : indexable_tensor<Derived,T>(A.name, A.ndim), len(A.len), ld(A.ld), size(A.size)
+    local_tensor(const derived& A)
+        : indexable_tensor<derived,T>(A.name, A.ndim), len(A.len), ld(A.ld), size(A.size)
     {
         data = SAFE_MALLOC(T, size);
         std::copy(A.data, A.data+size, data);
         isAlloced = true;
     }
 
-    local_tensor(const std::string& name, const Derived& A)
-        : indexable_tensor<Derived,T>(name, A.ndim), len(A.len), ld(A.ld), size(A.size)
+    local_tensor(const std::string& name, const derived& A)
+        : indexable_tensor<derived,T>(name, A.ndim), len(A.len), ld(A.ld), size(A.size)
     {
         data = SAFE_MALLOC(T, size);
         std::copy(A.data, A.data+size, data);
         isAlloced = true;
     }
 
-    local_tensor(const std::string& name, Derived& A, const CopyType type=CLONE)
-        : indexable_tensor<Derived,T>(name, A.ndim), len(A.len), ld(A.ld), size(A.size)
+    local_tensor(const std::string& name, derived& A, const CopyType type=CLONE)
+        : indexable_tensor<derived,T>(name, A.ndim), len(A.len), ld(A.ld), size(A.size)
     {
         switch(type)
         {
@@ -157,7 +157,7 @@ public:
     }
 
     local_tensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld_, uint64_t size, T* data_, bool zero=false)
-        : indexable_tensor<Derived,T>(name, len.size()), len(len), ld(ld_), size(size)
+        : indexable_tensor<derived,T>(name, len.size()), len(len), ld(ld_), size(size)
     {
         size_t ndim = len.size();
         if (ld.size() != ndim) {
@@ -179,7 +179,7 @@ public:
     }
 
     local_tensor(const std::string& name, const std::string& indices, bool zero=false)
-        : indexable_tensor<Derived,T>(name), size(0)
+        : indexable_tensor<derived,T>(name), size(0)
     {
         // Make sure the indices are known.
         std::vector<index_range> ind = index_range::find(split_indices(indices));
@@ -193,7 +193,7 @@ public:
         for (auto& i : ind) {
             // This version of LocalTensor does not support subblocks.
             if (i.start.size() > 1 || i.end.size() > 1)
-                throw InvalidNdimError();
+                throw invalid_ndim_error();
         }
 
         ndim = ind.size();
@@ -219,7 +219,7 @@ public:
     }
 
     local_tensor(const std::string& name, const std::vector<int>& len, const std::vector<int>& ld_, uint64_t size_, bool zero=true)
-        : indexable_tensor<Derived,T>(name, len.size()), len(len), ld(ld_), size(size_)
+        : indexable_tensor<derived,T>(name, len.size()), len(len), ld(ld_), size(size_)
     {
         size_t ndim = len.size();
 
@@ -251,8 +251,8 @@ public:
     const std::vector<int>& getLeadingDims() const { return ld; }
     uint64_t get_size() const { return size; }
 
-    void div(const T alpha, const Derived& A,
-                            const Derived& B, const T beta)
+    void div(const T alpha, const derived& A,
+                            const derived& B, const T beta)
     {
         assert(size == A.size && size == B.size);
 
@@ -262,7 +262,7 @@ public:
         }
     }
 
-    void invert(const T alpha, const Derived& A, const T beta)
+    void invert(const T alpha, const derived& A, const T beta)
     {
         assert(size == A.size);
 
@@ -285,10 +285,10 @@ public:
     T* get_data() { return data; }
     const T* get_data() const { return data; }
 
-    T dot(const Derived& A, const std::string& idx_A,
+    T dot(const derived& A, const std::string& idx_A,
                             const std::string& idx_B) const
     {
-        Derived dt("scalar");
+        derived dt("scalar");
         dt.mult(1, A,            idx_A,
                    get_derived(), idx_B,
                 0,               "");

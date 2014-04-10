@@ -36,7 +36,7 @@ const index_range& index_range::find(const std::string& index)
 {
     auto it = set.find(index);
     if (it == set.end()) {
-        throw IndexNotFoundError();
+        throw index_not_found_error();
     }
     return it->second;
 }
@@ -64,7 +64,7 @@ void declare_index_range(const std::string& name_,
     for (auto it = v.begin(); it != v.end(); ++it) {
         // Before adding make sure index does not already exist in set
         if (index_range::set.find(*it) != index_range::set.end())
-            throw IndexAlreadyExistsError();
+            throw index_already_exists_error();
 
         index_range r;
         r.name = name;

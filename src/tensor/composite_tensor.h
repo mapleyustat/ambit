@@ -37,65 +37,65 @@ namespace ambit
 namespace tensor
 {
 
-#define INHERIT_FROM_COMPOSITE_TENSOR(Derived,Base,T) \
+#define INHERIT_FROM_COMPOSITE_TENSOR(derived,Base,T) \
     protected: \
-    using ambit::tensor::composite_tensor< Derived, Base, T >::tensors; \
-    using ambit::tensor::composite_tensor< Derived, Base, T >::add_tensor; \
+    using ambit::tensor::composite_tensor< derived, Base, T >::tensors; \
+    using ambit::tensor::composite_tensor< derived, Base, T >::add_tensor; \
     public: \
-    using ambit::tensor::composite_tensor< Derived, Base, T >::mult; \
-    using ambit::tensor::composite_tensor< Derived, Base, T >::div; \
-    using ambit::tensor::composite_tensor< Derived, Base, T >::sum; \
-    using ambit::tensor::composite_tensor< Derived, Base, T >::invert; \
-    using ambit::tensor::composite_tensor< Derived, Base, T >::dot; \
-    using ambit::tensor::composite_tensor< Derived, Base, T >::exists; \
-    using ambit::tensor::composite_tensor< Derived, Base, T >::operator(); \
-    using ambit::tensor::tensor< Derived,T >::get_derived; \
-    using ambit::tensor::tensor< Derived,T >::operator=; \
-    using ambit::tensor::tensor< Derived,T >::operator+=; \
-    using ambit::tensor::tensor< Derived,T >::operator-=; \
-    using ambit::tensor::tensor< Derived,T >::operator*=; \
-    using ambit::tensor::tensor< Derived,T >::operator/=; \
-    using ambit::tensor::tensor< Derived,T >::operator*; \
-    using ambit::tensor::tensor< Derived,T >::operator/; \
-    Derived & operator=(const Derived & other) \
+    using ambit::tensor::composite_tensor< derived, Base, T >::mult; \
+    using ambit::tensor::composite_tensor< derived, Base, T >::div; \
+    using ambit::tensor::composite_tensor< derived, Base, T >::sum; \
+    using ambit::tensor::composite_tensor< derived, Base, T >::invert; \
+    using ambit::tensor::composite_tensor< derived, Base, T >::dot; \
+    using ambit::tensor::composite_tensor< derived, Base, T >::exists; \
+    using ambit::tensor::composite_tensor< derived, Base, T >::operator(); \
+    using ambit::tensor::tensor< derived,T >::get_derived; \
+    using ambit::tensor::tensor< derived,T >::operator=; \
+    using ambit::tensor::tensor< derived,T >::operator+=; \
+    using ambit::tensor::tensor< derived,T >::operator-=; \
+    using ambit::tensor::tensor< derived,T >::operator*=; \
+    using ambit::tensor::tensor< derived,T >::operator/=; \
+    using ambit::tensor::tensor< derived,T >::operator*; \
+    using ambit::tensor::tensor< derived,T >::operator/; \
+    derived & operator=(const derived & other) \
 { \
     sum((T)1, false, other, (T)0); \
     return *this; \
 } \
     private:
 
-#define INHERIT_FROM_INDEXABLE_COMPOSITE_TENSOR(Derived,Base,T) \
+#define INHERIT_FROM_INDEXABLE_COMPOSITE_TENSOR(derived,Base,T) \
     protected: \
-    using ambit::tensor::composite_tensor< Derived, Base, T >::tensors; \
-    using ambit::tensor::composite_tensor< Derived, Base, T >::add_tensor; \
-    using ambit::tensor::indexable_tensor_base< Derived, T >::ndim; \
+    using ambit::tensor::composite_tensor< derived, Base, T >::tensors; \
+    using ambit::tensor::composite_tensor< derived, Base, T >::add_tensor; \
+    using ambit::tensor::indexable_tensor_base< derived, T >::ndim; \
     public: \
-    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::mult; \
-    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::sum; \
-    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::div; \
-    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::invert; \
-    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::scale; \
-    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::dot; \
-    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::operator=; \
-    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::operator+=; \
-    using ambit::tensor::indexable_composite_tensor< Derived, Base, T >::operator-=; \
-    using ambit::tensor::indexable_tensor_base< Derived, T >::operator[]; \
-    using ambit::tensor::composite_tensor< Derived, Base, T >::operator(); \
-    using ambit::tensor::composite_tensor< Derived, Base, T >::exists; \
-    using ambit::tensor::tensor< Derived,T >::get_derived; \
-    using ambit::tensor::tensor< Derived,T >::operator*=; \
-    using ambit::tensor::tensor< Derived,T >::operator/=; \
-    using ambit::tensor::tensor< Derived,T >::operator*; \
-    using ambit::tensor::tensor< Derived,T >::operator/; \
-    Derived & operator=(const Derived & other) \
+    using ambit::tensor::indexable_composite_tensor< derived, Base, T >::mult; \
+    using ambit::tensor::indexable_composite_tensor< derived, Base, T >::sum; \
+    using ambit::tensor::indexable_composite_tensor< derived, Base, T >::div; \
+    using ambit::tensor::indexable_composite_tensor< derived, Base, T >::invert; \
+    using ambit::tensor::indexable_composite_tensor< derived, Base, T >::scale; \
+    using ambit::tensor::indexable_composite_tensor< derived, Base, T >::dot; \
+    using ambit::tensor::indexable_composite_tensor< derived, Base, T >::operator=; \
+    using ambit::tensor::indexable_composite_tensor< derived, Base, T >::operator+=; \
+    using ambit::tensor::indexable_composite_tensor< derived, Base, T >::operator-=; \
+    using ambit::tensor::indexable_tensor_base< derived, T >::operator[]; \
+    using ambit::tensor::composite_tensor< derived, Base, T >::operator(); \
+    using ambit::tensor::composite_tensor< derived, Base, T >::exists; \
+    using ambit::tensor::tensor< derived,T >::get_derived; \
+    using ambit::tensor::tensor< derived,T >::operator*=; \
+    using ambit::tensor::tensor< derived,T >::operator/=; \
+    using ambit::tensor::tensor< derived,T >::operator*; \
+    using ambit::tensor::tensor< derived,T >::operator/; \
+    derived & operator=(const derived & other) \
 { \
     sum((T)1, false, other, (T)0); \
     return *this; \
 } \
     private:
 
-template <class Derived, class Base, class T>
-class composite_tensor : public tensor<Derived,T>
+template <class derived, class Base, class T>
+class composite_tensor : public tensor<derived,T>
 {
 protected:
     struct TensorRef
@@ -131,8 +131,8 @@ protected:
     }
 
 public:
-    composite_tensor(const composite_tensor<Derived,Base,T>& other)
-        : tensor<Derived,T>(other.name), tensors(other.tensors)
+    composite_tensor(const composite_tensor<derived,Base,T>& other)
+        : tensor<derived,T>(other.name), tensors(other.tensors)
     {
         for (int i = 0;i < tensors.size();i++)
         {
@@ -150,8 +150,8 @@ public:
         }
     }
 
-    composite_tensor(const std::string& name, const composite_tensor<Derived,Base,T>& other)
-        : tensor<Derived,T>(name), tensors(other.tensors)
+    composite_tensor(const std::string& name, const composite_tensor<derived,Base,T>& other)
+        : tensor<derived,T>(name), tensors(other.tensors)
     {
         for (int i = 0;i < tensors.size();i++)
         {
@@ -170,7 +170,7 @@ public:
     }
 
     composite_tensor(const std::string& name, int ntensors = 0)
-        : tensor<Derived,T>(name), tensors(ntensors) {}
+        : tensor<derived,T>(name), tensors(ntensors) {}
 
     virtual ~composite_tensor()
     {
@@ -225,8 +225,8 @@ public:
         }
     }
 
-    void mult(const T alpha, const Derived& A,
-              const Derived& B, const T beta)
+    void mult(const T alpha, const derived& A,
+              const derived& B, const T beta)
     {
 #ifdef VALIDATE_INPUTS
         if (tensors.size() != A.tensors.size() ||
@@ -242,8 +242,8 @@ public:
         }
     }
 
-    void div(const T alpha, const Derived& A,
-             const Derived& B, const T beta)
+    void div(const T alpha, const derived& A,
+             const derived& B, const T beta)
     {
 #ifdef VALIDATE_INPUTS
         if (tensors.size() != A.tensors.size() ||
@@ -270,7 +270,7 @@ public:
         }
     }
 
-    void sum(const T alpha, const Derived& A, const T beta)
+    void sum(const T alpha, const derived& A, const T beta)
     {
 #ifdef VALIDATE_INPUTS
         if (tensors.size() != A.tensors.size()) throw LengthMismatchError();
@@ -285,7 +285,7 @@ public:
         }
     }
 
-    void invert(const T alpha, const Derived& A, const T beta)
+    void invert(const T alpha, const derived& A, const T beta)
     {
 #ifdef VALIDATE_INPUTS
         if (tensors.size() != A.tensors.size()) throw LengthMismatchError();
@@ -300,7 +300,7 @@ public:
         }
     }
 
-    T dot(const Derived& A, bool conjb) const
+    T dot(const derived& A, bool conjb) const
     {
 #ifdef VALIDATE_INPUTS
         if (tensors.size() != A.tensors.size()) throw LengthMismatchError();
@@ -320,36 +320,36 @@ public:
     }
 };
 
-template <class Derived, class Base, class T>
-class indexable_composite_tensor : public indexable_tensor_base<Derived,T>, public composite_tensor<Derived,Base,T>
+template <class derived, class Base, class T>
+class indexable_composite_tensor : public indexable_tensor_base<derived,T>, public composite_tensor<derived,Base,T>
 {
-    INHERIT_FROM_TENSOR(Derived,T)
+    INHERIT_FROM_TENSOR(derived,T)
 
     protected:
-        using indexable_tensor_base<Derived,T>::ndim;
+        using indexable_tensor_base<derived,T>::ndim;
 
 public:
-    using indexable_tensor_base< Derived, T >::operator=;
-    using indexable_tensor_base< Derived, T >::operator+=;
-    using indexable_tensor_base< Derived, T >::operator-=;
-    //using composite_tensor<Derived,Base,T>::div;
-    //using composite_tensor<Derived,Base,T>::invert;
-    using indexable_tensor_base<Derived,T>::scale;
-    using indexable_tensor_base<Derived,T>::dot;
-    using indexable_tensor_base<Derived,T>::mult;
-    using indexable_tensor_base<Derived,T>::sum;
-    using indexable_tensor_base<Derived,T>::implicit;
+    using indexable_tensor_base< derived, T >::operator=;
+    using indexable_tensor_base< derived, T >::operator+=;
+    using indexable_tensor_base< derived, T >::operator-=;
+    //using composite_tensor<derived,Base,T>::div;
+    //using composite_tensor<derived,Base,T>::invert;
+    using indexable_tensor_base<derived,T>::scale;
+    using indexable_tensor_base<derived,T>::dot;
+    using indexable_tensor_base<derived,T>::mult;
+    using indexable_tensor_base<derived,T>::sum;
+    using indexable_tensor_base<derived,T>::implicit;
 
 public:
-    indexable_composite_tensor(const Derived& other)
-        : indexable_tensor_base<Derived,T>(other), composite_tensor<Derived,Base,T>(other) {}
+    indexable_composite_tensor(const derived& other)
+        : indexable_tensor_base<derived,T>(other), composite_tensor<derived,Base,T>(other) {}
 
-    indexable_composite_tensor(const std::string& name, const Derived& other)
-        : indexable_tensor_base<Derived,T>(other), composite_tensor<Derived,Base,T>(name, other) {}
+    indexable_composite_tensor(const std::string& name, const derived& other)
+        : indexable_tensor_base<derived,T>(other), composite_tensor<derived,Base,T>(name, other) {}
 
     indexable_composite_tensor(const std::string& name, int ndim=0, int ntensors=0)
 
-        : indexable_tensor_base<Derived,T>(ndim), composite_tensor<Derived,Base,T>(name, ntensors) {}
+        : indexable_tensor_base<derived,T>(ndim), composite_tensor<derived,Base,T>(name, ntensors) {}
 
     virtual ~indexable_composite_tensor() {}
 
@@ -358,8 +358,8 @@ public:
         scale(alpha);
     }
 
-    void mult(const T alpha, const Derived& A,
-              const Derived& B,
+    void mult(const T alpha, const derived& A,
+              const derived& B,
               const T beta)
     {
 #ifdef VALIDATE_INPUTS
@@ -371,14 +371,14 @@ public:
              beta,      implicit());
     }
 
-    virtual Derived& scalar() const = 0;
+    virtual derived& scalar() const = 0;
 
     void sum(const T alpha, const T beta)
     {
-        composite_tensor<Derived,Base,T>::sum(alpha, beta);
+        composite_tensor<derived,Base,T>::sum(alpha, beta);
     }
 
-    void sum(const T alpha, const Derived& A, const T beta)
+    void sum(const T alpha, const derived& A, const T beta)
     {
 #ifdef VALIDATE_INPUTS
         if (ndim != A.ndim) throw InvalidNdimError();
@@ -388,15 +388,15 @@ public:
             beta,      implicit());
     }
 
-    void div(const T alpha, const Derived& A,
-             const Derived& B, const T beta)
+    void div(const T alpha, const derived& A,
+             const derived& B, const T beta)
     {
-        composite_tensor<Derived,Base,T>::div(alpha, A, B, beta);
+        composite_tensor<derived,Base,T>::div(alpha, A, B, beta);
     }
 
-    void invert(const T alpha, const Derived& A, const T beta)
+    void invert(const T alpha, const derived& A, const T beta)
     {
-        composite_tensor<Derived,Base,T>::invert(alpha, A, beta);
+        composite_tensor<derived,Base,T>::invert(alpha, A, beta);
     }
 
     void scale(const T alpha)
@@ -404,7 +404,7 @@ public:
         scale(alpha, implicit());
     }
 
-    T dot(const Derived& A, bool conjb) const
+    T dot(const derived& A, bool conjb) const
     {
 #ifdef VALIDATE_INPUTS
         if (ndim != A.ndim) throw InvalidNdimError();

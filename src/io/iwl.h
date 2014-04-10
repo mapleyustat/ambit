@@ -52,9 +52,10 @@ struct iwl : public file
     aligned_vector<short int> r;
     aligned_vector<short int> s;
 
-    /// fetches the next batch of integrals.
+    /// fetch the next batch of integrals.
     void fetch();
 
+    static read_one(file& io, const std::string& label, )
 private:
 
     /// psi3/4 compatible label structure.
