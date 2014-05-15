@@ -60,34 +60,34 @@ namespace tensor {
     switch (ret) \
     { \
         case kTensorReturnCodeOutOfBounds: \
-            throw OutOfBoundsError(); \
+            throw out_of_bounds_error(); \
             break; \
         case kTensorReturnCodeLengthMismatch: \
-            throw LengthMismatchError(); \
+            throw length_mismatch_error(); \
             break; \
         case kTensorReturnCodeIndexMismatch: \
-            throw IndexMismatchError(); \
+            throw index_mismatch_error(); \
             break; \
         case kTensorReturnCodeInvalidNDim: \
-            throw InvalidNdimError(); \
+            throw invalid_ndim_error(); \
             break; \
         case kTensorReturnCodeInvalidLength: \
-            throw InvalidLengthError(); \
+            throw invalid_length_error(); \
             break; \
         case kTensorReturnCodeInvalidLD: \
-            throw InvalidLdError(); \
+            throw invalid_ld_error(); \
             break; \
         case kTensorReturnCodeLDTooSmall: \
-            throw LdTooSmallError(); \
+            throw ld_too_small_error(); \
             break; \
         case kTensorReturnCodeSymmetryMismatch: \
-            throw SymmetryMismatchError(); \
+            throw symmetry_mismatch_error(); \
             break; \
         case kTensorReturnCodeInvalidSymmetry: \
-            throw InvalidSymmetryError(); \
+            throw invalid_symmetry_error(); \
             break; \
         case kTensorReturnCodeInvalidStart: \
-            throw InvalidStartError(); \
+            throw invalid_start_error(); \
             break; \
         default: \
             break; \

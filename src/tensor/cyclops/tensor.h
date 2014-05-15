@@ -1,10 +1,4 @@
 /*
- * Copyright (C) 2013 Devin Matthews
- *
- * This is a slimmed down version of the tensor framework developed by
- * Devin Matthews. The version by Devin was tied to Aquarius. This
- * version is not.
- *
  * Copyright (C) 2013  Justin Turney
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,7 +10,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -26,11 +20,11 @@
 #define AMBIT_LIB_TENSOR_CYCLOPS_TENSOR
 
 #if !defined(HAVE_MPI)
-#   error MPI is not defined and is required for compiling tensor.
+#   error MPI is not defined and is required for compiling Cyclops tensor.
 #endif
 
 #include <ctf.hpp>
-#include <tensor/indexable_tensor.h>
+#include "../tensor.h"
 #include "world.h"
 
 #include <vector>
@@ -40,81 +34,95 @@ namespace ambit { namespace tensor { namespace cyclops {
 template <typename T>
 struct tensor : public indexable_tensor< tensor<T>, T>
 {
-    INHERIT_FROM_INDEXABLE_TENSOR(tensor<T>,T)
+    using tensor_base< tensor<T>, T>::ndim_;
 
 protected:
     tCTF_Tensor<T> *dt_;
-    world& world_;
-    std::vector<int> len_;
-    std::vector<int> sym_;
 
-    void allocate();
-    void free();
+    // Cyclops specific way of loading local data.
+    void read_local(std::vector<tkv_pair<T> >& pairs) const
+    {
+        int64_t npair = 0;
+        tkv_pair<T> *data;
+        dt_->read_local(&npair, &data);
+        pairs.assign(data, data+npair);
+        if (npair > 0)
+            ::free(data);
+    }
 
 public:
-    tensor(const std::string& name, world& arena, T scalar = (T)0);
-    tensor(const std::string& name, const tensor<T>& A, T scalar);
+    void write(const std::vector<tkv_pair<T> >& pairs)
+    {
+        dt_->write(pairs.size(), pairs.data());
+    }
 
-    tensor(const tensor<T>& A, bool copy=true, bool zero=false);
+    void write()
+    {
+        dt_->write(0, NULL);
+    }
 
-    tensor(const std::string& name, world& arena, const std::vector<int>& len, const std::vector<int>& sym,
-                bool zero=true);
+    using indexable_tensor<tensor<T>, T>::operator=;
+    //tensor& operator=(const tensor& other) = delete;
 
-    ~tensor();
+    tensor(const std::string& name, const std::string& indices) :
+        indexable_tensor<tensor<T>, T>(name)
+    {
+        std::vector<index_range> ir = index_range::find(split_indices(indices));
+        ndim_ = ir.size();
+        indexable_tensor< tensor<T>, T>::check_indices(indices);
+        std::vector<int> len(ndim_), sym(ndim_);
 
-    void resize(int ndim, const std::vector<int>& len, const std::vector<int>& sym, bool zero);
+        for (int i=0; i<ndim_; ++i) {
+            len[i] = ir[i].length();
+            sym[i] = 0;
+        }
+        dt_ = new tCTF_Tensor<T>(ndim_, len.data(), sym.data(), world::shared().ctf<T>(), name.c_str(), 1);
+    }
 
-    const std::vector<int>& get_lengths() const { return len_; }
-    const std::vector<int>& get_symmetry() const { return sym_; }
+    virtual ~tensor()
+    {
+        delete dt_;
+    }
 
-    void fill_with_random_data();
+    void print() const
+    {
+        dt_->print(stdout, 1.0e-10);
+    }
 
-    T* get_raw_data(int64_t& size);
-    const T* get_raw_data(int64_t& size) const;
+    void fill_random()
+    {
+        std::vector<tkv_pair<T> > pairs;
 
-    void read_local(std::vector<tkv_pair<T> >& pairs) const;
-    std::vector<tkv_pair<T> > read_local() const;
-    void read(std::vector<tkv_pair<T> >& pairs) const;
-    void read() const;
+        // get our local pairs
+        read_local(pairs);
 
-    void write(const std::vector<tkv_pair<T> >& pairs);
-    void write();
+        // fill with random data
+        for (auto& a : pairs)
+            a.d = drand48() - 0.5;
 
-//    void write_remote_data(double alpha, double beta, const std::vector<tkv_pair<T> >& pairs);
-//    void write_remote_data(double alpha, double beta);
+        // save our local data to the tensor
+        write(pairs);
+    }
 
-    void get_all_data(std::vector<T>& vals) const;
-    void get_all_data(std::vector<T> &vals, int rank) const;
+    // this = alpha * this + beta * A * B
+    // this = alpha * this + beta * A * B
+    void multiply(const T& alpha, const indexed_tensor<tensor, T>& A,
+                                  const indexed_tensor<tensor, T>& B,
+                  const T& beta,  const std::string& index_C)
+    {
+        dt_->contract(alpha, *A.tensor_.dt_, A.index_.c_str(),
+                             *B.tensor_.dt_, B.index_.c_str(),
+                      beta,                  index_C.c_str());
+    }
 
-    void div(T alpha, const tensor<T>& A,
-                      const tensor<T>& B, T beta);
-
-    void invert(T alpha, const tensor<T>& A, T beta);
-
-    void weight(const std::vector<const std::vector<T>*>& d);
-
-    void print() const;
-
-    void compare(const tensor<T>& other, double cutoff = 0.0) const;
-
-    typename real_type<T>::type norm(int p) const;
-
-    void mult(T alpha, const tensor<T>& A, const std::string& idx_A,
-                       const tensor<T>& B, const std::string& idx_B,
-              T  beta,                     const std::string& idx_C);
-
-    void sum(T alpha, const tensor<T>& A, const std::string& idx_A,
-             T beta,                      const std::string& idx_B);
-
-    void scale(T alpha, const std::string& idx_A);
-
-    T dot(const tensor<T>& A, const std::string& idx_A,
-                              const std::string& idx_B) const;
-
-    /// Performs this[idx_B] = factor * A[idx_A]
-    void sort(T alpha, const tensor<T>& A, const std::string& idx_A, const std::string& idx_B);
+    void sum(const T& alpha, const indexed_tensor<tensor, T>& A,
+             const T& beta,  const std::string& index_B)
+    {
+        dt_->sum(alpha, *A.tensor_.dt_, A.index_.c_str(),
+                 beta,                  index_B.c_str());
+    }
 };
 
-} } }
+}}}
 
 #endif

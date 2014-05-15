@@ -19,6 +19,6 @@
 add_subdirectory(io)
 add_subdirectory(mints)
 add_subdirectory(tensor)
+add_subdirectory(tensor_old)
 add_subdirectory(util)
-add_subdirectory(driver)
 

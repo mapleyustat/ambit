@@ -55,7 +55,7 @@ struct iwl : public file
     /// fetch the next batch of integrals.
     void fetch();
 
-    static read_one(file& io, const std::string& label, )
+//    static read_one(file& io, const std::string& label, )
 private:
 
     /// psi3/4 compatible label structure.

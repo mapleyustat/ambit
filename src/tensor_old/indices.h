@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014  Justin Turney
+ * Copyright (C) 2013  Justin Turney
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,15 +16,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#if !defined(AMBIT_TENSOR_INDICES_H)
-#define AMBIT_TENSOR_INDICES_H
+#if !defined(AMBIT_TENSOR_INDEX_H)
+#define AMBIT_TENSOR_INDEX_H
 
 #include <string>
 #include <vector>
 #include <map>
 #include <numeric>
 
-namespace ambit { namespace tensor {
+namespace ambit {
+namespace tensor {
 
 struct index_range
 {
@@ -35,27 +36,26 @@ struct index_range
     static set_type set;
 
     std::string name;
-    int start;
-    int end;
+    std::vector<uint64_t> start;
+    std::vector<uint64_t> end;
     char index_value;
-
-    int length() const { return (end - start); };
 
     static const index_range& find(const std::string& index);
     static std::vector<index_range> find(const std::vector<std::string>& indices);
 
-    friend std::ostream& operator<<(std::ostream& o, index_range const& idx);
+    friend std::ostream& operator<< (std::ostream& o, index_range const& idx);
 };
 
-std::ostream& operator<<(std::ostream& o, index_range const& idx);
+std::ostream& operator<< (std::ostream& o, index_range const& idx);
 
 void declare_index_range(const std::string& name,
                          const std::string& indices,
-                         const int& start,
-                         const int& end);
+                         const std::vector<uint64_t>& start,
+                         const std::vector<uint64_t>& end);
 
 std::vector<std::string> split_indices(const std::string& indices);
 
-}}
+}
+}
 
 #endif
