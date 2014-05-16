@@ -13,7 +13,7 @@
 *.a
 
 # Qt Creator files
-CMakeLists.txt.user
+CMakeLists.txt.user*
 
 # Compiled Python files
 *.pyc

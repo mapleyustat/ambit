@@ -49,7 +49,6 @@ manager::manager(const std::string& base_directory)
     : base_directory_(base_directory)
 {
     create_directory(base_directory_);
-    // so it exists and is a directory...good for us!
 
     // if we are running with MPI create a "local" scratch directory
 #if defined(HAVE_MPI)
@@ -68,9 +67,12 @@ manager::manager(const std::string& base_directory)
     // append tailing '/' to the directories to make our lives easier
     base_directory_ += "/";
     mpi_base_directory_ += "/";
+
+    ambit::util::printn("base_directory_ %s\n", base_directory_.c_str());
+    ambit::util::printn("mpi_base_directory_ %s\n", mpi_base_directory_.c_str());
 }
 
-struct file manager::file(const std::string& basename)
+struct file manager::scratch_file(const std::string& basename)
 {
     return io::file(mpi_base_directory_ + basename, kOpenModeOpenExisting);
 }

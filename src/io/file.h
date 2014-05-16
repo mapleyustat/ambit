@@ -248,6 +248,23 @@ struct file
      * In practice, the start_address of the entry is offset by sizeof(entry) and then the write is performed.
      * \param buffer Memory location to read into.
      * \param add Address to read from.
+     */
+    template <typename T>
+    void write(const std::string& label, const std::vector<T>& buffer) {
+        // obtain or create the entry in the TOC
+        toc::entry& entry = toc_.entry(label);
+        // compute location where to start the write
+        address write_start = util::get_address(entry.start_address, sizeof(toc::entry));
+        // perform a raw write at the location
+        write(buffer.data(), write_start, buffer.size());
+        // update the end_address for the entry.
+        entry.end_address = util::get_address(write_start, sizeof(T) * buffer.size());
+    }
+
+    /** Performs a write of the data for an entry.
+     * In practice, the start_address of the entry is offset by sizeof(entry) and then the write is performed.
+     * \param buffer Memory location to read into.
+     * \param add Address to read from.
      * \param count Number of T's to read in.
      */
     template <typename T>
@@ -264,6 +281,29 @@ struct file
         // no update to the entry is performed.
         // check the read count against the end address
         address end = util::get_address(read_start, sizeof(T) * count);
+        if (end > entry.end_address)
+            throw std::runtime_error("read past the end address of this entry: " + label);
+    }
+
+    /** Performs a write of the data for an entry.
+     * In practice, the start_address of the entry is offset by sizeof(entry) and then the write is performed.
+     * \param buffer Memory location to read into.
+     * \param add Address to read into.
+     */
+    template <typename T>
+    void read(const std::string& label, std::vector<T>& buffer) {
+        // ensure the entry exists
+        if (toc_.exists(label) == false)
+            throw std::runtime_error("entry does not exist in the file: " + label);
+        // obtain the entry (if we get here it is guarenteed to exist
+        toc::entry& entry = toc_.entry(label);
+        // compute location where to start the write
+        address read_start = util::get_address(entry.start_address, sizeof(toc::entry));
+        // perform a raw write at the location
+        read(buffer.data(), read_start, buffer.size());
+        // no update to the entry is performed.
+        // check the read count against the end address
+        address end = util::get_address(read_start, sizeof(T) * buffer.size());
         if (end > entry.end_address)
             throw std::runtime_error("read past the end address of this entry: " + label);
     }
@@ -296,6 +336,21 @@ struct file
         address read_start = util::get_address(entry.start_address, sizeof(toc::entry));
         // perform a raw write at the location
         read(buffer, read_start, count);
+        // no update to the entry is performed.
+    }
+
+    /** Performs a write of the data for an entry.
+     * In practice, the start_address of the entry is offset by sizeof(entry) and then the write is performed.
+     * \param buffer Memory location to read into.
+     * \param add Address to read from.
+     * \param count Number of T's to read in.
+     */
+    template <typename T>
+    void read(const toc::entry& entry, std::vector<T>& buffer) {
+        // compute location where to start the write
+        address read_start = util::get_address(entry.start_address, sizeof(toc::entry));
+        // perform a raw write at the location
+        read(buffer.data(), read_start, buffer.size());
         // no update to the entry is performed.
     }
 
@@ -347,7 +402,7 @@ struct file
         // ensure the label exists
         if (toc_.exists(label) == false)
             throw std::runtime_error("entry does not exist in the file: " + label);
-        // obtain the entry (if we get here it is guarenteed to exist
+        // obtain the entry (if we get here it will exist
         toc::entry& entry = toc_.entry(label);
         // our first time in the call, initialize next
         if (next.page == 0 && next.offset == 0) {

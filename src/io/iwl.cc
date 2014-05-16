@@ -69,4 +69,40 @@ void iwl::fetch()
     }
 }
 
+void iwl::read_one(file& io, const std::string& label, ambit::tensor::tensor& tensor)
+{
+    // ensure the tensor object is only 2D.
+    if (tensor.dimension() != 2)
+        throw std::runtime_error("tensor must be 2 dimension.");
+
+    // psi stores lower triangle full block (may be symmetry blocked, but we don't care).
+    const std::vector<ambit::tensor::index_range>& ir = tensor.index_ranges();
+
+    ambit::tensor::key_generator2 key(ir[0], ir[1]);
+    int n = ir[0].length();
+    int ntri = n * (n+1) / 2;
+
+    std::vector<double> ints(ntri);
+    //double *ints = new double[ntri];
+    io.read(label, ints);
+
+    std::vector<tkv_pair<double>> values(n*n);
+    int64_t c=0, d=0;
+    for (int p=0; p<ir[0].length(); ++p) {
+        for (int q=0; q<=p; ++q) {
+            values[c].k = key(p, q);
+            values[c++].d = ints[d];
+
+            //std::cout << "p " << p << " q " << q << " value " << ints[d] << "\n";
+
+            if (p != q) {
+                values[c].k = key(q,p);
+                values[c++].d = ints[d];
+            }
+            d++;
+        }
+    }
+    tensor.write(values);
+}
+
 }}

@@ -23,6 +23,8 @@
 #include <util/aligned.h>
 #include <util/constants.h>
 
+#include <tensor/tensor.h>
+
 namespace ambit { namespace io {
 
 namespace details {
@@ -55,7 +57,8 @@ struct iwl : public file
     /// fetch the next batch of integrals.
     void fetch();
 
-//    static read_one(file& io, const std::string& label, )
+    static void read_one(file& io, const std::string& label, ambit::tensor::tensor& tensor);
+
 private:
 
     /// psi3/4 compatible label structure.

@@ -37,7 +37,7 @@ struct manager
     /** Returns a file object associated with the basename given.
      * \param basename The name of the file to be created.
      */
-    struct file file(const std::string& basename);
+    struct file scratch_file(const std::string& basename);
 
 private:
     /** Base directory for the scratch files.

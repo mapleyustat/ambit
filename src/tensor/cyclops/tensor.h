@@ -35,6 +35,7 @@ template <typename T>
 struct tensor : public indexable_tensor< tensor<T>, T>
 {
     using tensor_base< tensor<T>, T>::ndim_;
+    using indexable_tensor< tensor<T>, T>::ir_;
 
 protected:
     tCTF_Tensor<T> *dt_;
@@ -65,15 +66,12 @@ public:
     //tensor& operator=(const tensor& other) = delete;
 
     tensor(const std::string& name, const std::string& indices) :
-        indexable_tensor<tensor<T>, T>(name)
+        indexable_tensor<tensor<T>, T>(name, indices)
     {
-        std::vector<index_range> ir = index_range::find(split_indices(indices));
-        ndim_ = ir.size();
-        indexable_tensor< tensor<T>, T>::check_indices(indices);
         std::vector<int> len(ndim_), sym(ndim_);
 
         for (int i=0; i<ndim_; ++i) {
-            len[i] = ir[i].length();
+            len[i] = ir_[i].length();
             sym[i] = 0;
         }
         dt_ = new tCTF_Tensor<T>(ndim_, len.data(), sym.data(), world::shared().ctf<T>(), name.c_str(), 1);
@@ -123,6 +121,10 @@ public:
     }
 };
 
-}}}
+} // namespace cyclops
+
+using tensor = cyclops::tensor<double>;
+
+}}
 
 #endif

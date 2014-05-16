@@ -30,9 +30,6 @@
 namespace ambit { namespace tensor {
 
 // forward declarations
-template <typename derived, typename T>
-struct tensor;
-
 template <typename Derived, typename T>
 struct indexed_tensor;
 
@@ -136,6 +133,9 @@ struct tensor_base
     //virtual void scale(const T& alpha) = 0;
 
 protected:
+
+    void set_dimension(int ndim) { ndim_ = ndim; }
+
     std::string name_;
     int ndim_;
 };
@@ -226,7 +226,13 @@ struct indexable_tensor : public tensor_base<Derived, T>
     Derived& derived() { return static_cast<Derived&>(*this); }
     const Derived& derived() const { return static_cast<const Derived&>(*this); }
 
-    indexable_tensor(const std::string& name, int ndim=0) : tensor_base<Derived, T>(name, ndim) {}
+    indexable_tensor(const std::string& name, const std::string& indices, int ndim=0) : tensor_base<Derived, T>(name, ndim), indices_(indices)
+    {
+        ir_ = index_range::find(split_indices(indices));
+        tensor_base<Derived, T>::set_dimension(ir_.size());
+        check_indices(indices);
+    }
+
     virtual ~indexable_tensor() {}
 
     std::string implicit() const
@@ -237,6 +243,8 @@ struct indexable_tensor : public tensor_base<Derived, T>
             idxs[i] = (char)('A'+i);
         return idxs;
     }
+
+    const std::vector<index_range>& index_ranges() const { return ir_; }
 
     // explicit indexing operations
     indexed_tensor<Derived, T> operator[](const std::string& idx)
@@ -275,6 +283,9 @@ protected:
         if (dim != tensor_base<Derived, T>::dimension())
             throw invalid_ndim_error();
     }
+
+    const std::string& indices_;
+    std::vector<index_range> ir_;
 };
 
 template <typename Derived, typename T>
@@ -293,5 +304,9 @@ struct indexed_tensor_multiplication
 };
 
 }}
+
+#if defined(HAVE_MPI)
+#include "cyclops/tensor.h"
+#endif
 
 #endif

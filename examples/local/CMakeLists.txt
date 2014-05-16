@@ -22,9 +22,11 @@ set(LOCAL1_SOURCE_FILES
 
 add_executable(local1 ${LOCAL1_SOURCE_FILES})
 target_link_libraries(local1
+    io
     tensor
     util
     ${CTF_LIBRARIES}
+    ${Boost_LIBRARIES}
     ${LAPACK_LIBRARIES}
     ${BLAS_LIBRARIES}
 )

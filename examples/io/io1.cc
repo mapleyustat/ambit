@@ -16,11 +16,19 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-151 USA.
  */
 
+#if defined(HAVE_MPI)
+#include <mpi.h>
+#endif
+
 #include <io/io.h>
 #include <util/print.h>
 
 int main(int argc, char **argv)
 {
+#if defined(HAVE_MPI)
+    MPI::Init(argc, argv);
+#endif // defined(HAVE_MPI)
+
     // this call is MPI-aware and safe
     if (!ambit::util::print::initialize())
         printf("Unable to initialize print system.\n");
@@ -85,35 +93,41 @@ int main(int argc, char **argv)
 //    }
 
     // this tests the io system using the manager.
-//    {
+    {
 //        char label[81];
-//        ambit::io::manager manager(".");
-//        ambit::io::file file32 = manager.file("psi.32");
-//        file32.toc().print();
+        ambit::io::manager manager(".");
+        ambit::io::file file32 = manager.scratch_file("psi.32");
+        file32.toc().print();
 
 //        file32.read("::Label", label, 80);
 //        label[80] = '\0';
 //        ambit::util::print0("Label is '%s'\n", label);
-//    }
+    }
 
     // this tests the io system with an iwl file
-    {
-        ambit::io::iwl iwl("psi.33", ambit::io::kOpenModeOpenExisting);
+//    {
+//        ambit::io::iwl iwl("psi.33", ambit::io::kOpenModeOpenExisting);
 
-        // attempt to print some integrals
-        size_t count = 0;
-        do {
-            ambit::util::printn("Number of integrals in this buffer: %d\n", iwl.nintegral);
-            ambit::util::printn("Is this the last buffer: %d\n", iwl.last_buffer);
-            for (int i=0; i<iwl.nintegral; ++i)
-                ambit::util::printn("%3d %3d %3d %3d %20.16lf\n", iwl.p[i], iwl.q[i], iwl.r[i], iwl.s[i], iwl.values[i]);
-            count += iwl.nintegral;
+//        // attempt to print some integrals
+//        size_t count = 0;
+//        do {
+//            ambit::util::printn("Number of integrals in this buffer: %d\n", iwl.nintegral);
+//            ambit::util::printn("Is this the last buffer: %d\n", iwl.last_buffer);
+//            for (int i=0; i<iwl.nintegral; ++i)
+//                ambit::util::printn("%3d %3d %3d %3d %20.16lf\n", iwl.p[i], iwl.q[i], iwl.r[i], iwl.s[i], iwl.values[i]);
+//            count += iwl.nintegral;
 
-            if (iwl.last_buffer)
-                break;
-            iwl.fetch();
-        } while (1);
-        ambit::util::printn("Read in %ld integrals.\n", count);
-    }
+//            if (iwl.last_buffer)
+//                break;
+//            iwl.fetch();
+//        } while (1);
+//        ambit::util::printn("Read in %ld integrals.\n", count);
+//    }
     ambit::util::print::finalize();
+
+#if defined(HAVE_MPI)
+    MPI::Finalize();
+#endif
+
+    return 0;
 }
