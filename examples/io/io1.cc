@@ -123,6 +123,7 @@ int main(int argc, char **argv)
 //        } while (1);
 //        ambit::util::printn("Read in %ld integrals.\n", count);
 //    }
+
     ambit::util::print::finalize();
 
 #if defined(HAVE_MPI)

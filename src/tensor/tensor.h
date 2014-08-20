@@ -43,6 +43,9 @@ template <typename derived, typename T>
 struct indexed_tensor_multiplication;
 
 template <typename derived, typename T>
+struct indexed_tensor_subtraction;
+
+template <typename derived, typename T>
 struct tensor_division;
 
 template <typename T>
@@ -71,6 +74,41 @@ struct key_generator2
     key_generator2(const index_range& r1, const index_range& r2) : range1(r1), range2(r2) {}
 
     int64_t operator()(int64_t p, int64_t q) const { return p * range2.length() + q; }
+};
+
+struct key_generator3
+{
+    const index_range& range1;
+    const index_range& range2;
+    const index_range& range3;
+
+    key_generator3(const index_range& r1,
+                   const index_range& r2,
+                   const index_range& r3)
+        : range1(r1), range2(r2), range3(r3) {}
+
+    int64_t operator()(int64_t p, int64_t q, int64_t r) const {
+        return ((p * range2.length()) + range3.length() * q) + r;
+    }
+};
+
+struct key_generator4
+{
+    const index_range& range1;
+    const index_range& range2;
+    const index_range& range3;
+    const index_range& range4;
+
+    key_generator4(const index_range& r1,
+                   const index_range& r2,
+                   const index_range& r3,
+                   const index_range& r4)
+        : range1(r1), range2(r2), range3(r3), range4(r4) {}
+
+    int64_t operator()(int64_t p, int64_t q, int64_t r, int64_t s) const {
+        int64_t v = (((p) * range2.length() + q) * range3.length() + r) * range4.length() + s;
+        return v;
+    }
 };
 
 template <typename Derived, typename T>
@@ -129,6 +167,14 @@ struct tensor_base
     virtual void sum(const T& alpha, const indexed_tensor<Derived, T>& A,
                      const T& beta,  const std::string& index_B) = 0;
 
+    // this(C) = alpha * A + beta * B
+    virtual void sum(const T& alpha, const indexed_tensor<Derived, T>& A,
+                     const T& beta,  const indexed_tensor<Derived, T>& B,
+                     const std::string& index_C) = 0;
+
+    virtual T dot(const indexed_tensor<Derived, T>& A,
+                  const std::string& index_B) = 0;
+
     // this = alpha * this
     //virtual void scale(const T& alpha) = 0;
 
@@ -156,12 +202,18 @@ struct indexed_tensor
         : tensor_(tensor), index_(index), factor_(factor)
     {
         std::vector<std::string> indices = split_indices(index_);
-        if (indices.size() != tensor.dimension())
+        if (!index_.empty() && indices.size() != tensor.dimension())
             throw invalid_ndim_error();
 
         // ensure the indices given are valid. this throws if invalid.
         // TODO: We may not want to do this. When using implicit() this will likely throw.
 //        index_range::find(indices);
+    }
+
+    // dot product
+    T dot(const indexed_tensor<Derived, T>& other) const
+    {
+        return tensor_.dot(other, index_);
     }
 
     // unary negation
@@ -178,6 +230,12 @@ struct indexed_tensor
         return indexed_tensor_multiplication<Derived, T>(*(this), other);
     }
 
+    // subtraction expression
+    indexed_tensor_subtraction<Derived, T> operator-(const indexed_tensor<Derived, T>& other) const
+    {
+        return indexed_tensor_subtraction<Derived, T>(*(this), other);
+    }
+
     /*****************************************************************************************************************
      *
      * Binary tensor operations (multiplication)
@@ -192,7 +250,7 @@ struct indexed_tensor
 
     /*****************************************************************************************************************
      *
-     * Binary tensor operations (multiplication)
+     * Binary tensor operations
      *
      *****************************************************************************************************************/
     indexed_tensor<Derived, T>& operator=(const indexed_tensor_multiplication<Derived,T>& other)
@@ -200,6 +258,14 @@ struct indexed_tensor
         tensor_.multiply(other.factor_, other.A_,
                                         other.B_,
                          (T)0,          index_);
+        return *this;
+    }
+
+    indexed_tensor<Derived, T>& operator=(const indexed_tensor_subtraction<Derived,T>& other)
+    {
+        tensor_.sum(other.A_.factor_, other.A_,
+                    -other.B_.factor_, other.B_,
+                    index_);
         return *this;
     }
 
@@ -216,6 +282,18 @@ struct indexed_tensor
         tensor_.multiply(-other.factor_, other.A_,
                                          other.B_,
                          factor_,        index_);
+        return *this;
+    }
+
+    indexed_tensor<Derived, T>& operator+=(const indexed_tensor<Derived, T>& other)
+    {
+        tensor_.sum(1.0, other, 1.0, index_);
+        return *this;
+    }
+
+    indexed_tensor<Derived, T>& operator-=(const indexed_tensor<Derived, T>& other)
+    {
+        tensor_.sum(-1.0, other, 1.0, index_);
         return *this;
     }
 };
@@ -301,6 +379,18 @@ struct indexed_tensor_multiplication
     //template <typename Derived1, typename Derived2>
     indexed_tensor_multiplication(const indexed_tensor<Derived, T>& A, const indexed_tensor<Derived, T>& B)
         : A_(A), B_(B), factor_(A.factor_ * B_.factor_) {}
+};
+
+template <typename Derived, typename T>
+struct indexed_tensor_subtraction
+{
+    const indexed_tensor_subtraction& operator=(const indexed_tensor_subtraction<Derived, T>& other) = delete;
+
+    const indexed_tensor<Derived, T>& A_;
+    const indexed_tensor<Derived, T>& B_;
+
+    indexed_tensor_subtraction(const indexed_tensor<Derived, T>& A, const indexed_tensor<Derived, T>& B)
+        : A_(A), B_(B) {}
 };
 
 }}

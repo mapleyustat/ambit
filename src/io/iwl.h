@@ -58,6 +58,7 @@ struct iwl : public file
     void fetch();
 
     static void read_one(file& io, const std::string& label, ambit::tensor::tensor& tensor);
+    static void read_two(iwl& io, ambit::tensor::tensor& tensor);
 
 private:
 

@@ -24,5 +24,8 @@ add_executable(io1 ${IO1_SOURCE_FILES})
 target_link_libraries(io1
     io
     util
+    ${CTF_LIBRARIES}
+    ${LAPACK_LIBRARIES}
+    ${BLAS_LIBRARIES}
     ${Boost_LIBRARIES}
 )

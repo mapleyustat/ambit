@@ -51,6 +51,11 @@ protected:
             ::free(data);
     }
 
+    void read(std::vector<tkv_pair<T>>& pairs) const
+    {
+        dt_->read(pairs.size(), pairs.data());
+    }
+
 public:
     void write(const std::vector<tkv_pair<T> >& pairs)
     {
@@ -64,6 +69,13 @@ public:
 
     using indexable_tensor<tensor<T>, T>::operator=;
     //tensor& operator=(const tensor& other) = delete;
+
+    tensor(const std::string& name, T scalar = 0) :
+        indexable_tensor<tensor<T>, T>(name, "")
+    {
+        dt_ = new tCTF_Scalar<T>(world::shared().ctf<T>());
+        *dt_ = scalar;
+    }
 
     tensor(const std::string& name, const std::string& indices) :
         indexable_tensor<tensor<T>, T>(name, indices)
@@ -85,6 +97,23 @@ public:
     void print() const
     {
         dt_->print(stdout, 1.0e-10);
+    }
+
+    tensor<T> slice(const std::string& new_indices)
+    {
+        tensor<T> new_tensor("New Splice", new_indices);
+        std::vector<int> new_sym(ndim_), new_lens(ndim_);
+        std::vector<int> offsets(ndim_), ends(ndim_);
+
+        std::fill(new_sym.begin(), new_sym.end(), 0);
+        for (int i=0; i<ndim_; ++i) {
+            new_lens[i] = new_tensor.ir_[i].length();
+            offsets[i] = new_tensor.ir_[i].start;
+            ends[i] = new_tensor.ir_[i].end;
+        }
+
+        new_tensor.dt_->slice(new_sym.data(), new_lens.data(), 0.0, *dt_, offsets.data(), ends.data(), 1.0);
+        return new_tensor;
     }
 
     void fill_random()
@@ -118,6 +147,26 @@ public:
     {
         dt_->sum(alpha, *A.tensor_.dt_, A.index_.c_str(),
                  beta,                  index_B.c_str());
+    }
+
+    // gamma * C = alpha * A + beta * B
+    void sum(const T& alpha, const indexed_tensor<tensor, T>& A,
+             const T& beta,  const indexed_tensor<tensor, T>& B,
+             const std::string& index_C)
+    {
+        sum(alpha, A, 0.0, index_C);
+        sum(beta,  B, 1.0, index_C);
+    }
+
+    T dot(const indexed_tensor<tensor, T>& A,
+             const std::string& index_B)
+    {
+        tensor<T> dt(A.tensor_.name_);
+        std::vector<T> val;
+        dt.dt_->contract(1.0, *A.tensor_.dt_, A.index_.c_str(),
+                              *dt_,           index_B.c_str(),
+                         0.0, "");
+        return ((tCTF_Scalar<T>*)dt.dt_)->get_val();
     }
 };
 

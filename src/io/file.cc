@@ -343,9 +343,10 @@ void file::read_raw(void *buffer, const address& add, uint64_t size)
     seek(add);
 
     error_code = ::read(handle_, buffer, size);
-    if (error_code != size)
+    if (error_code != size) {
+        ambit::util::printn("size = %ld error_code %ld\n", size, error_code);
         error(kIOErrorRead);
-
+    }
     read_stat_ += size;
 }
 
