@@ -57,7 +57,7 @@ struct iwl : public file
     /// fetch the next batch of integrals.
     void fetch();
 
-    static void read_one(file& io, const std::string& label, ambit::tensor::tensor& tensor);
+    static void read_one(file& io, const std::string& label, ambit::tensor::tensor& tensor, bool symmetric=true);
     static void read_two(iwl& io, ambit::tensor::tensor& tensor);
 
 private:

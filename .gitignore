@@ -17,3 +17,9 @@ CMakeLists.txt.user*
 
 # Compiled Python files
 *.pyc
+
+ambit.config
+ambit.creator
+ambit.creator.user
+ambit.files
+ambit.includes

@@ -69,7 +69,7 @@ void iwl::fetch()
     }
 }
 
-void iwl::read_one(file& io, const std::string& label, ambit::tensor::tensor& tensor)
+void iwl::read_one(file& io, const std::string& label, ambit::tensor::tensor& tensor, bool symmetric)
 {
     // ensure the tensor object is only 2D.
     if (tensor.dimension() != 2)
@@ -80,23 +80,26 @@ void iwl::read_one(file& io, const std::string& label, ambit::tensor::tensor& te
 
     ambit::tensor::key_generator2 key(ir[0], ir[1]);
     int n = ir[0].length();
-    int ntri = n * (n+1) / 2;
+    int ntri;
+    if (symmetric)
+        ntri = n * (n+1) / 2;
+    else
+        ntri = n*n;
 
     std::vector<double> ints(ntri);
-    //double *ints = new double[ntri];
     io.read(label, ints);
 
     std::vector<tkv_pair<double>> values(n*n);
     int64_t c=0, d=0;
     for (int p=0; p<ir[0].length(); ++p) {
         for (int q=0; q<=p; ++q) {
-            values[c].k = key(p, q);
+            values[c].k = key(q, p);
             values[c++].d = ints[d];
 
             //std::cout << "p " << p << " q " << q << " value " << ints[d] << "\n";
 
-            if (p != q) {
-                values[c].k = key(q,p);
+            if (symmetric && p != q) {
+                values[c].k = key(p,q);
                 values[c++].d = ints[d];
             }
             d++;

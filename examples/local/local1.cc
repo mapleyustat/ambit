@@ -181,7 +181,7 @@ int main(int argc, char** argv)
 //        V.print();
 
         ambit::tensor::tensor C("MO Coefficients", "p,m");
-        ambit::io::iwl::read_one(file32, "::MO coefficients", C);
+        ambit::io::iwl::read_one(file32, "::MO coefficients", C, false);
 //        std::cout << "C coefficients\n";
 //        C.print();
 
@@ -217,6 +217,7 @@ int main(int argc, char** argv)
         Dijab["ijab"] += Dii["j"];
         Dijab["ijab"] -= Daa["a"];
         Dijab["ijab"] -= Daa["b"];
+        // Dijab["ijab"] = 1 / Dijab["ijab"];
 
         // Modify tensor to take a lambda function that knows how to construct
         // the data on the fly.
