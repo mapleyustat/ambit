@@ -133,7 +133,7 @@ void iwl::read_two(iwl& io, ambit::tensor::tensor& tensor)
 
         for (int i=0; i<io.nintegral; ++i) {
 
-            ambit::util::print0("read (%d %d| %d %d) = %lf\ncontributes to\n", io.p[i], io.q[i], io.r[i], io.s[i], io.values[i]);
+//            ambit::util::print0("read (%d %d| %d %d) = %lf\ncontributes to\n", io.p[i], io.q[i], io.r[i], io.s[i], io.values[i]);
 
             short int p, q, r, s;
             p = io.p[i]; q = io.q[i]; r = io.r[i]; s = io.s[i];
@@ -142,15 +142,15 @@ void iwl::read_two(iwl& io, ambit::tensor::tensor& tensor)
             if (p == q && p == r && p == s) {
                 values[c].k = key(p, p, p, p); values[c++].d = io.values[i];
 
-                ambit::util::print0("[%d %d %d %d]\n", p, p, p, p);
+//                ambit::util::print0("[%d %d %d %d]\n", p, p, p, p);
             }
             // pprr case
             else if (p == q && r == s) {
                 values[c].k = key(p, p, r, r); values[c++].d = io.values[i];
                 values[c].k = key(r, r, p, p); values[c++].d = io.values[i];
 
-                ambit::util::print0("[%d %d %d %d]\n", p, p, r, r);
-                ambit::util::print0("[%d %d %d %d]\n", r, r, p, p);
+//                ambit::util::print0("[%d %d %d %d]\n", p, p, r, r);
+//                ambit::util::print0("[%d %d %d %d]\n", r, r, p, p);
             }
             // pprs
             else if (p == q) {
@@ -158,10 +158,10 @@ void iwl::read_two(iwl& io, ambit::tensor::tensor& tensor)
                 values[c].k = key(p, p, s, r); values[c++].d = io.values[i];
                 values[c].k = key(r, s, p, p); values[c++].d = io.values[i];
                 values[c].k = key(s, r, p, p); values[c++].d = io.values[i];
-                ambit::util::print0("[%d %d %d %d]\n", p, p, r, s);
-                ambit::util::print0("[%d %d %d %d]\n", p, p, s, r);
-                ambit::util::print0("[%d %d %d %d]\n", r, s, p, p);
-                ambit::util::print0("[%d %d %d %d]\n", s, r, p, p);
+//                ambit::util::print0("[%d %d %d %d]\n", p, p, r, s);
+//                ambit::util::print0("[%d %d %d %d]\n", p, p, s, r);
+//                ambit::util::print0("[%d %d %d %d]\n", r, s, p, p);
+//                ambit::util::print0("[%d %d %d %d]\n", s, r, p, p);
             }
             // pqrr
             else if (r == s) {
@@ -169,20 +169,20 @@ void iwl::read_two(iwl& io, ambit::tensor::tensor& tensor)
                 values[c].k = key(q, p, r, r); values[c++].d = io.values[i];
                 values[c].k = key(r, r, p, q); values[c++].d = io.values[i];
                 values[c].k = key(r, r, q, p); values[c++].d = io.values[i];
-                ambit::util::print0("[%d %d %d %d]\n", p, q, r, r);
-                ambit::util::print0("[%d %d %d %d]\n", q, p, r, r);
-                ambit::util::print0("[%d %d %d %d]\n", r, r, p, q);
-                ambit::util::print0("[%d %d %d %d]\n", r, r, q, p);
+//                ambit::util::print0("[%d %d %d %d]\n", p, q, r, r);
+//                ambit::util::print0("[%d %d %d %d]\n", q, p, r, r);
+//                ambit::util::print0("[%d %d %d %d]\n", r, r, p, q);
+//                ambit::util::print0("[%d %d %d %d]\n", r, r, q, p);
             }
             else if (p == r && q == s) {
                 values[c].k = key(p, q, p, q); values[c++].d = io.values[i];
                 values[c].k = key(p, q, q, p); values[c++].d = io.values[i];
                 values[c].k = key(q, p, p, q); values[c++].d = io.values[i];
                 values[c].k = key(q, p, q, p); values[c++].d = io.values[i];
-                ambit::util::print0("[%d %d %d %d]\n", p, q, p, q);
-                ambit::util::print0("[%d %d %d %d]\n", p, q, q, p);
-                ambit::util::print0("[%d %d %d %d]\n", q, p, p, q);
-                ambit::util::print0("[%d %d %d %d]\n", q, p, q, p);
+//                ambit::util::print0("[%d %d %d %d]\n", p, q, p, q);
+//                ambit::util::print0("[%d %d %d %d]\n", p, q, q, p);
+//                ambit::util::print0("[%d %d %d %d]\n", q, p, p, q);
+//                ambit::util::print0("[%d %d %d %d]\n", q, p, q, p);
             }
             else {
                 values[c].k = key(p, q, r, s); values[c++].d = io.values[i];
@@ -193,14 +193,14 @@ void iwl::read_two(iwl& io, ambit::tensor::tensor& tensor)
                 values[c].k = key(r, s, q, p); values[c++].d = io.values[i];
                 values[c].k = key(s, r, p, q); values[c++].d = io.values[i];
                 values[c].k = key(s, r, q, p); values[c++].d = io.values[i];
-                ambit::util::print0("[%d %d %d %d]\n", p, q, r, s);
-                ambit::util::print0("[%d %d %d %d]\n", p, q, s, r);
-                ambit::util::print0("[%d %d %d %d]\n", q, p, r, s);
-                ambit::util::print0("[%d %d %d %d]\n", q, p, s, r);
-                ambit::util::print0("[%d %d %d %d]\n", r, s, p, q);
-                ambit::util::print0("[%d %d %d %d]\n", r, s, q, p);
-                ambit::util::print0("[%d %d %d %d]\n", s, r, p, q);
-                ambit::util::print0("[%d %d %d %d]\n", s, r, q, p);
+//                ambit::util::print0("[%d %d %d %d]\n", p, q, r, s);
+//                ambit::util::print0("[%d %d %d %d]\n", p, q, s, r);
+//                ambit::util::print0("[%d %d %d %d]\n", q, p, r, s);
+//                ambit::util::print0("[%d %d %d %d]\n", q, p, s, r);
+//                ambit::util::print0("[%d %d %d %d]\n", r, s, p, q);
+//                ambit::util::print0("[%d %d %d %d]\n", r, s, q, p);
+//                ambit::util::print0("[%d %d %d %d]\n", s, r, p, q);
+//                ambit::util::print0("[%d %d %d %d]\n", s, r, q, p);
             }
         }
         count += c;
