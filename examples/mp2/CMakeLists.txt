@@ -16,8 +16,17 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-add_subdirectory(io)
-add_subdirectory(local)
-add_subdirectory(molecule)
-add_subdirectory(mp2)
+set(MP2_SOURCE_FILES
+    mp2.cc
+)
 
+add_executable(mp2 ${MP2_SOURCE_FILES})
+target_link_libraries(mp2
+    io
+    tensor
+    util
+    ${CTF_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${LAPACK_LIBRARIES}
+    ${BLAS_LIBRARIES}
+)
