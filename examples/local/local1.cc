@@ -182,8 +182,8 @@ int main(int argc, char** argv)
 
         ambit::tensor::tensor C("MO Coefficients", "p,m");
         ambit::io::iwl::read_one(file32, "::MO coefficients", C, false);
-        std::cout << "C coefficients\n";
-        C.print();
+//        std::cout << "C coefficients\n";
+//        C.print();
 
         ambit::tensor::tensor Co = C.slice("p,i");
 //        std::cout << "C occupied coefficients\n";
