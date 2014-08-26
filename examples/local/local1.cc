@@ -213,11 +213,14 @@ int main(int argc, char** argv)
 //        Daa.print();
 
         ambit::tensor::tensor Dijab("Dijab", "i,j,a,b");
-        Dijab["ijab"] += Dii["i"];
-        Dijab["ijab"] += Dii["j"];
-        Dijab["ijab"] -= Daa["a"];
-        Dijab["ijab"] -= Daa["b"];
-        // Dijab["ijab"] = 1 / Dijab["ijab"];
+        {
+            ambit::tensor::tensor Dtmp("Dijab", "i,j,a,b");
+            Dtmp["ijab"] += Dii["i"];
+            Dtmp["ijab"] += Dii["j"];
+            Dtmp["ijab"] -= Daa["a"];
+            Dtmp["ijab"] -= Daa["b"];
+            Dijab["ijab"] = 1.0 / Dtmp["ijab"];
+        }
 
         // Modify tensor to take a lambda function that knows how to construct
         // the data on the fly.

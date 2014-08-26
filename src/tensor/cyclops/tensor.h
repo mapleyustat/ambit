@@ -168,6 +168,27 @@ public:
                          0.0, "");
         return ((tCTF_Scalar<T>*)dt.dt_)->get_val();
     }
+
+    void invert(const T& alpha, const indexed_tensor<tensor, T>& A, const T& beta)
+    {
+        // read data from this
+        std::vector<tkv_pair<T>> local_data;
+        read_local(local_data);
+
+        // make a copy of the local data and use the keys from it to pull data from A.
+        std::vector<tkv_pair<T>> A_data;
+        std::copy(local_data.begin(), local_data.end(), std::back_inserter(A_data));
+        A.tensor_.read(A_data);
+
+        // perform inversion
+        int64_t size = local_data.size();
+        for (int64_t i=0; i<size; i++) {
+            local_data[i].d = beta * local_data[i].d + alpha / A_data[i].d;
+        }
+
+        // push the data out.
+        write(local_data);
+    }
 };
 
 } // namespace cyclops

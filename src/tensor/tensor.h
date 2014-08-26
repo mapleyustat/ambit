@@ -175,6 +175,9 @@ struct tensor_base
     virtual T dot(const indexed_tensor<Derived, T>& A,
                   const std::string& index_B) = 0;
 
+    // this = alpha*this + beta/A;
+    virtual void invert(const T& alpha, const indexed_tensor<Derived, T>& A, const T& beta) = 0;
+
     // this = alpha * this
     //virtual void scale(const T& alpha) = 0;
 
@@ -296,6 +299,24 @@ struct indexed_tensor
         tensor_.sum(-1.0, other, 1.0, index_);
         return *this;
     }
+
+    indexed_tensor<Derived, T>& operator=(const inverted_tensor<Derived, T>& other)
+    {
+        tensor_.invert(other.factor_, other.tensor_, (T)0);
+        return *this;
+    }
+
+    indexed_tensor<Derived, T>& operator+=(const inverted_tensor<Derived, T>& other)
+    {
+        tensor_.invert(other.factor_, other.tensor_, (T)1);
+        return *this;
+    }
+
+    indexed_tensor<Derived, T>& operator-=(const inverted_tensor<Derived, T>& other)
+    {
+        tensor_.invert(-other.factor_, other.tensor_, (T)0);
+        return *this;
+    }
 };
 
 template <typename Derived, typename T>
@@ -392,6 +413,51 @@ struct indexed_tensor_subtraction
     indexed_tensor_subtraction(const indexed_tensor<Derived, T>& A, const indexed_tensor<Derived, T>& B)
         : A_(A), B_(B) {}
 };
+
+template <typename Derived, typename T>
+struct inverted_tensor
+{
+    const inverted_tensor& operator=(const inverted_tensor<Derived, T>& other) = delete;
+
+    indexed_tensor<Derived, T>& tensor_;
+    T factor_;
+
+    inverted_tensor(indexed_tensor<Derived, T>& tensor, const T& factor)
+        : tensor_(tensor), factor_(factor)
+    {}
+
+    inverted_tensor<Derived, T> operator-() const
+    {
+        inverted_tensor<Derived, T> ret(*this);
+        ret.factor_ = -ret.factor_;
+        return ret;
+    }
+
+    inverted_tensor<Derived, T> operator*(const T& factor) const
+    {
+        inverted_tensor<Derived, T> ret(*this);
+        ret.factor_ *= factor;
+        return ret;
+    }
+
+    inverted_tensor<Derived, T> operator/(const T& factor) const
+    {
+        inverted_tensor<Derived, T> ret(*this);
+        ret.factor_ /= factor;
+        return ret;
+    }
+
+    friend inverted_tensor<Derived,T> operator*(const T factor, const inverted_tensor<Derived,T>& other)
+    {
+        return other*factor;
+    }
+};
+
+template <typename Derived, typename T>
+inverted_tensor<Derived, T> operator/(T val, const indexed_tensor<Derived, T>& other)
+{
+    return inverted_tensor<Derived, T>(const_cast<indexed_tensor<Derived, T>&>(other), val);
+}
 
 }}
 
