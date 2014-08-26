@@ -75,91 +75,7 @@ int main(int argc, char** argv)
         std::cout << e[i] << " ";
     std::cout << "\n";
 
-//    for (auto iter = ambit::tensor::index_range::set.begin(); iter != ambit::tensor::index_range::set.end(); ++iter) {
-//        std::cout << "name " << iter->first
-//                  << " index " << iter->second.name
-//                  << " start " << iter->second.start
-//                  << " end " << iter->second.end
-//                  << " length " << iter->second.length()
-//                  << " value " << static_cast<int>(iter->second.index_value)
-//                  << std::endl;
-//    }
 
-    //std::cout << "found " << ambit::tensor::index_range::find("i").start << std::endl;
-
-    //std::vector<ambit::tensor::index_range> range = ambit::tensor::index_range::find(ambit::tensor::split_indices("i,j,a"));
-    //for (auto& i : range) {
-    //    std::cout << " index " << i.name
-    //              << " start " << i.start
-    //              << " end " << i.end
-    //              << " value " << static_cast<int>(i.index_value)
-    //              << std::endl;
-    //}
-
-    // this was for testing tensor_old
-    {
-//    ambit::tensor::dense_tensor<double> A("A", "i,j");
-//    ambit::tensor::dense_tensor<double> B("B", "i,a");
-//    ambit::tensor::dense_tensor<double> C("C", "j,a");
-
-//    A.fill_with_random_data();
-//    B.fill_with_random_data();
-
-//    A.print();
-//    B.print();
-
-//    C["ja"] = A["ij"] * B["ia"];
-
-//    C.print();
-
-//    ambit::tensor::DenseTensor<double> B("B", {5, 5});
-//    ambit::tensor::DenseTensor<double> C("C", {5, 5});
-
-//    C["ij"] = A["ik"] * B["jk"];
-
-//    C.print();
-    }
-
-    // start testing the new tensor library
-//    {
-//        ambit::tensor::tensor it0("test", "i,j");
-//        ambit::tensor::tensor it1("test", "i,j");
-//        ambit::tensor::tensor it2("test", "i,j");
-
-//        const ambit::tensor::index_range& occupied = ambit::tensor::index_range::find("i");
-
-//        //std::string indices = it.implicit();
-//        //std::cout << "indices " << indices << "\n";
-
-//        it1.fill_random();
-//        it2.fill_random();
-
-//        it0.multiply(1.0, it1["ik"], it2["kj"], 0.0, "ij");
-
-//        it0.print();
-
-//        it0["ij"] = it1["ik"] * it2["kj"];
-//        it0.print();
-
-//        ambit::tensor::key_generator2 ij(occupied, occupied);
-//        std::cout << "(0, 1) " << ij(0,1) << "\n";
-//        std::cout << "(1, 0) " << ij(1,0) << "\n";
-
-//        std::vector<tkv_pair<double>> values(10);
-//        int64_t count=0;
-//        for (auto& i : values) {
-//            i.k = ij(0, count);
-//            i.d = (double)count++;
-//        }
-//        it0.write(values);
-//        it0.print();
-
-//        // This does not work.
-//        //it0["ij"] = it1["ij"];
-//        //it0.print();
-//        //it0 = it1;
-//        //it0.print();
-//    }
 
     {
         ambit::io::file file35 = manager.scratch_file("psi.35");
@@ -271,8 +187,9 @@ int main(int argc, char** argv)
         double e_bb = e_aa;
         double e_ab = Gijab2["ijab"].dot(Dijab["ijab"]);
         double e_mp2 = e_aa + e_ab + e_bb;
-
-        std::cout << "mp2 " << e_mp2 << "\n";
+        std::cout.width(19);
+        std::cout.precision(14);
+        std::cout << "MP2 Correlation Energy:    " << e_mp2 << "\n";
     }
 
     ambit::util::print::finalize();
