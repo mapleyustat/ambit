@@ -92,7 +92,13 @@ void iwl::read_one(file& io, const std::string& label, ambit::tensor::tensor& te
     std::vector<tkv_pair<double>> values(n*n);
     int64_t c=0, d=0;
     for (int p=0; p<ir[0].length(); ++p) {
-        for (int q=0; q<=p; ++q) {
+        int p1;
+        if (symmetric)
+            p1 = p+1;
+        else
+            p1 = n;
+
+        for (int q=0; q<p1; ++q) {
             values[c].k = key(q, p);
             values[c++].d = ints[d];
 
