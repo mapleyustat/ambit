@@ -182,8 +182,8 @@ int main(int argc, char** argv)
 
         ambit::tensor::tensor C("MO Coefficients", "p,m");
         ambit::io::iwl::read_one(file32, "::MO coefficients", C, false);
-//        std::cout << "C coefficients\n";
-//        C.print();
+        std::cout << "C coefficients\n";
+        C.print();
 
         ambit::tensor::tensor Co = C.slice("p,i");
 //        std::cout << "C occupied coefficients\n";
@@ -233,8 +233,8 @@ int main(int argc, char** argv)
             ambit::tensor::tensor G("ERIs", "p,q,r,s");
             ambit::io::iwl iwl("psi.33", ambit::io::kOpenModeOpenExisting);
             ambit::io::iwl::read_two(iwl, G);
-            std::cout << "ERIs\n";
-            G.print();
+//            std::cout << "ERIs\n";
+//            G.print();
 
             // Integral transformation
             ambit::tensor::tensor Gpqrb("g_pqrb", "p,q,r,b");
