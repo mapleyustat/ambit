@@ -16,9 +16,17 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-add_subdirectory(io)
-add_subdirectory(local)
-add_subdirectory(molecule)
-add_subdirectory(mp2)
-add_subdirectory(ccsd)
+set(CCSD_SOURCE_FILES
+    ccsd.cc
+)
 
+add_executable(ccsd ${CCSD_SOURCE_FILES})
+target_link_libraries(ccsd
+    io
+    tensor
+    util
+    ${CTF_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${LAPACK_LIBRARIES}
+    ${BLAS_LIBRARIES}
+)
