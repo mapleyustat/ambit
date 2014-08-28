@@ -34,6 +34,7 @@
 #include <io/io.h>
 
 #include <iostream>
+#include <iomanip>
 
 int main(int argc, char** argv)
 {
@@ -63,10 +64,10 @@ int main(int argc, char** argv)
     file32.read("::Closed shells per irrep", &closed, 1);
     std::cout << "clsd = " << closed << "\n";
 
-    ambit::tensor::declare_index_range("occupied", "i,j,k,l", {0}, {closed});
-    ambit::tensor::declare_index_range("virtual", "a,b,c,d", {closed}, {nmo});
+    ambit::tensor::declare_index_range("occupied", "i,j,k,l,m,n", {0}, {closed});
+    ambit::tensor::declare_index_range("virtual", "a,b,c,d,e,f", {closed}, {nmo});
     ambit::tensor::declare_index_range("so", "p,q,r,s", 0, nso);
-    ambit::tensor::declare_index_range("mo", "m,n", 0, nmo);
+    ambit::tensor::declare_index_range("mo", "u,v,x,y", 0, nmo);
 
     std::vector<double> e(nmo);
     file32.read("::MO energies", e);
@@ -96,18 +97,43 @@ int main(int argc, char** argv)
 //        std::cout << "potential\n";
 //        V.print();
 
-        ambit::tensor::tensor C("MO Coefficients", "p,m");
+        ambit::tensor::tensor C("MO Coefficients", "p,u");
         ambit::io::iwl::read_one(file32, "::MO coefficients", C, false);
 //        std::cout << "C coefficients\n";
 //        C.print();
 
-        ambit::tensor::tensor Co = C.slice("p,i");
+//        ambit::tensor::tensor Co = C.slice("p,i");
 //        std::cout << "C occupied coefficients\n";
 //        Co.print();
 
-        ambit::tensor::tensor Cv = C.slice("m,a");
+//        ambit::tensor::tensor Cv = C.slice("u,a");
 //        std::cout << "C virtual coefficients\n";
 //        Cv.print();
+
+        double Escf;
+        file32.read("::SCF energy", &Escf, 1);
+//        std::cout.width(19);
+        std::cout << std::setprecision(14) << std::fixed;
+        std::cout << "SCF Reference Energy   :   "   << Escf << "\n";
+
+        // Read the SO basis Fock matrix
+        ambit::tensor::tensor F_SO("SO basis Fock matrix", "p,q");
+        ambit::io::iwl::read_one(file32, "::Fock Matrix", F_SO);
+//        std::cout << "SO basis Fock matrix \n";
+//        F_SO.print();
+
+
+
+        //Transform Fock matrix into MO basis
+        ambit::tensor::tensor F("MO basis Fock matrix", "u,v");
+        {
+            ambit::tensor::tensor Ftmp("Ftmp", "p,v");
+            Ftmp["pv"] = C["qv"] * F_SO["pq"];
+            F["uv"]    = C["pu"] * Ftmp["pv"];
+        }
+//        std::cout << "MO basis Fock matrix \n";
+//        F.print();
+
 
         // Construct denominators
         ambit::tensor::tensor Dii("Dii", "i");
@@ -137,10 +163,19 @@ int main(int argc, char** argv)
             Dtmp["ijab"] -= Daa["b"];
             Dijab["ijab"] = 1.0 / Dtmp["ijab"];
         }
+//        Dijab.print();
 
+        ambit::tensor::tensor Dia("Dia", "i,a");
+        {
+            ambit::tensor::tensor Dtmp("Dia","i,a");
+            Dtmp["ia"] += Dii["i"];
+            Dtmp["ia"] -= Daa["a"];
+            Dia["ia"]  = 1.0 / Dtmp["ia"];
+        }
+//        Dia.print();
         // Modify tensor to take a lambda function that knows how to construct
         // the data on the fly.
-        ambit::tensor::tensor Giajb("g_iajb", "i,a,j,b");
+        ambit::tensor::tensor Gmo("MO basis 2e integrals (uv|xy)", "u,v,x,y");
         // For example this is how to transform the AO integrals to iajb.
         // In this case once we compute iajb we don't need to do it again,
         // but there are cases where we'll need to call this lambda each
@@ -156,40 +191,52 @@ int main(int argc, char** argv)
 //            G.print();
 
             // Integral transformation
-            ambit::tensor::tensor Gpqrb("g_pqrb", "p,q,r,b");
-            ambit::tensor::tensor Gpqjb("g_pqjb", "p,q,j,b");
-            ambit::tensor::tensor Gpajb("g_pajb", "p,a,j,b");
+            ambit::tensor::tensor Gpqry("g_pqry", "p,q,r,y");
+            ambit::tensor::tensor Gpqxy("g_pqxy", "p,q,x,y");
+            ambit::tensor::tensor Gpvxy("g_pvxy", "p,v,x,y");
 
-            Gpqrb["pqrb"] = Cv["sb"] * G["pqrs"];
-            Gpqjb["pqjb"] = Co["rj"] * Gpqrb["pqrb"];
-            Gpajb["pajb"] = Cv["qa"] * Gpqjb["pqjb"];
-            Giajb["iajb"] = Co["pi"] * Gpajb["pajb"];
+            Gpqry["pqry"] = C["sy"] * G["pqrs"];
+            Gpqxy["pqxy"] = C["rx"] * Gpqry["pqry"];
+            Gpvxy["pvxy"] = C["qv"] * Gpqxy["pqxy"];
+            Gmo["uvxy"]   = C["pu"] * Gpvxy["pvxy"];
         }
-//        std::cout << "(ia|jb)\n";
-//        Giajb.print();
 
-        // Sort the integrals
-        ambit::tensor::tensor Gijab("g_ijab", "i,j,a,b");
-        Gijab["ijab"] = Giajb["iajb"];
 
-        // Antisymmetrize
-        ambit::tensor::tensor Aijab("a_ijab", "i,j,a,b");
-        Aijab["ijab"] = Gijab["ijab"] - Gijab["ijba"];
+        // Sort the integrals into physist's notation (uv|xy) -> <ux|vy>
+        ambit::tensor::tensor G_p("g_uxvy", "u,x,v,y");
+        G_p["uxvy"] = Gmo["uvxy"];
 
-        // Squaring the terms
-        ambit::tensor::tensor Gijab2("ijab2", "i,j,a,b");
-        ambit::tensor::tensor Aijab2("a_ijab2", "i,j,a,b");
-        Aijab2["ijab"] = Aijab["ijab"] * Aijab["ijab"];
-        Gijab2["ijab"] = Gijab["ijab"] * Gijab["ijab"];
+//        // Antisymmetrize
+//        ambit::tensor::tensor Aijab("a_ijab", "i,j,a,b");
+//        Aijab["ijab"] = Gijab["ijab"] - Gijab["ijba"];
 
-        // Dot product
-        double e_aa = Aijab2["ijab"].dot(Dijab["ijab"]) / 4.0;
-        double e_bb = e_aa;
-        double e_ab = Gijab2["ijab"].dot(Dijab["ijab"]);
-        double e_mp2 = e_aa + e_ab + e_bb;
-        std::cout.width(19);
-        std::cout.precision(14);
-        std::cout << "MP2 Correlation Energy:    " << e_mp2 << "\n";
+//        // Squaring the terms
+//        ambit::tensor::tensor Gijab2("ijab2", "i,j,a,b");
+//        ambit::tensor::tensor Aijab2("a_ijab2", "i,j,a,b");
+//        Aijab2["ijab"] = Aijab["ijab"] * Aijab["ijab"];
+//        Gijab2["ijab"] = Gijab["ijab"] * Gijab["ijab"];
+
+//        // Dot product
+//        double e_aa = Aijab2["ijab"].dot(Dijab["ijab"]) / 4.0;
+//        double e_bb = e_aa;
+//        double e_ab = Gijab2["ijab"].dot(Dijab["ijab"]);
+//        double e_mp2 = e_aa + e_ab + e_bb;
+
+        // Form initial T1 and T2 amplitudes
+        ambit::tensor::tensor t1("t_ia","i,a");
+        t1["ia"] = F["ia"] * Dia["ia"];
+        ambit::tensor::tensor t2("t_ijab","i,j,a,b");
+        t2["ijab"] = G_p["ijab"] * Dijab["ijab"];
+
+        // Compute the MP2 energy for test
+        double e_mp2;
+        {
+            ambit::tensor::tensor Ttmp("Ttmp","i,j,a,b");
+            Ttmp["ijab"]= t2["ijab"] * 2 - t2["jiab"];
+            e_mp2 = G_p["ijab"].dot(Ttmp["ijab"]);
+        }
+        std::cout << "MP2 Correlation Energy :    " << e_mp2 << "\n";
+
     }
 
     ambit::util::print::finalize();
