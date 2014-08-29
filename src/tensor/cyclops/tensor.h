@@ -189,6 +189,7 @@ public:
         // push the data out.
         write(local_data);
     }
+
 };
 
 } // namespace cyclops

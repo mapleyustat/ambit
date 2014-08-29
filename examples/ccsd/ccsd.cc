@@ -232,7 +232,7 @@ int main(int argc, char** argv)
         double e_mp2;
         {
             ambit::tensor::tensor Ttmp("Ttmp","i,j,a,b");
-            Ttmp["ijab"] = t2["ijab"] * 2.0;
+            Ttmp["ijab"] = 2.0 * t2["ijab"];
             Ttmp["ijab"] -= t2["jiab"];
             e_mp2 = G_p["ijab"].dot(Ttmp["ijab"]);
         }
@@ -243,6 +243,7 @@ int main(int argc, char** argv)
 
         double Ecc = 0.0;
         int maxiter = 150;
+        int E_conv = 8, t_conv = 8;
 
         for(int iter=0;iter<maxiter;++iter) {
 
