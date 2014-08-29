@@ -238,6 +238,125 @@ int main(int argc, char** argv)
         }
         std::cout << "MP2 Correlation Energy :    " << e_mp2 << "\n";
 
+        /* Start CCSD Iteration */
+        // RHF-CCSD Equations from Dr. Yamaguchi's Notes
+
+        double Ecc = 0.0;
+        int maxiter = 150;
+
+        for(int iter=0;iter<maxiter;++iter) {
+
+            //Form the intermediates
+            //Fae
+            ambit::tensor::tensor Fae("Fae","a,b");
+            Fae["ae"] = t1["mf"]*(2*G_p["amef"]-G_p["maef"]);
+            Fae["ae"] -= (t2["mnaf"] + 0.5*t1["ma"]*t1["nf"])*(2*G_p["mnef"]-G_p["nmef"]);
+
+            //Fmi
+            ambit::tensor::tensor Fmi("Fmi","m,i");
+            Fmi["mi"] = t1["mi"]*(2*G_p["mnie"]-G_p["nmie"]);
+            Fmi["mi"] += (t2["inef"]+0.5*t1["ie"]*t1["nf"])*(2*G_p["mnef"]-G_p["nmef"]);
+
+            //Fme
+            ambit::tensor::tensor Fme("Fme","m,e");
+            Fme["me"] = t1["nf"]*(2*G_p["mnef"]-G_p["nmef"]);
+
+            //Wmnij
+            ambit::tensor::tensor Wmnij("Wmnij","m,n,i,j");
+            Wmnij["mnij"] = G_p["mnij"];
+            Wmnij["mnij"] += t1["je"]*G_p["mnie"];
+            Wmnij["mnij"] += t1["ie"]*G_p["mnej"];
+            Wmnij["mnij"] += 0.5*(t2["ijef"]+t1["ie"]*t1["jf"])*G_p["mnef"];
+
+            //Wabef
+            ambit::tensor::tensor Wabef("Wabef","a,b,e,f");
+            Wabef["abef"] = G_p["abef"];
+            Wabef["abef"] -= t1["me"]*G_p["amef"];
+            Wabef["abef"] += t1["ma"]*G_p["mbef"];
+            Wabef["abef"] += 0.5*(t2["mnab"]+t1["ma"]*t1["nb"])*G_p["mnef"];
+
+            //Wmbej
+            ambit::tensor::tensor Wmbej("Wmbej","m,b,e,j");
+            Wmbej["mbej"] = G_p["mbej"];
+            Wmbej["mbej"] -= t1["jf"]*G_p["mbef"];
+            Wmbej["mbej"] += t1["nb"]*G_p["mnej"];
+            Wmbej["mbej"] -= 0.5*(t2["jnfb"]+2*t1["jf"]*t1["nb"])*G_p["mnef"];
+            Wmbej["mbej"] += 0.5*t2["njfb"]*(2*G_p["mnef"]-G_p["nmef"]);
+
+            //Wmbej abba case
+            ambit::tensor::tensor W_MbeJ("WMbeJ","m,b,e,j");
+            W_MbeJ["mbej"] = -G_p["bmej"];
+            W_MbeJ["mbej"] -= t1["jf"]*G_p["mbfe"];
+            W_MbeJ["mbej"] += t1["nb"]*G_p["nmej"];
+            W_MbeJ["mbej"] += (0.5*t2["jnfb"]+t1["jf"]*t1["nb"])*G_p["nmef"];
+
+            //Compute new t1 and t2 amplitudes
+            //t1
+            ambit::tensor::tensor t1n("T1 new","i,a");
+            t1n["ia"] = t1["ie"]*Fae["ae"];
+            t1n["ia"] -= t1["ma"]*Fmi["mi"];
+            t1n["ia"] += Fme["me"]*(2*t2["imae"]-t2["miae"]);
+            t1n["ia"] += t1["me"]*(2*G_p["amie"]-G_p["maie"]);
+            t1n["ia"] -= t2["mnae"]*(2*G_p["mnie"]-G_p["nmie"]);
+            t1n["ia"] += t2["imef"]*(2*G_p["amef"]-G_p["amfe"]);
+            t1n["ia"] *= Dia["ia"];
+            //t2
+            ambit::tensor::tensor t2n("T2 new","i,j,a,b");
+            t2n["ijab"] = G_p["ijab"];
+            t2n["ijab"] += t2["ijae"]*(Fae["be"]-0.5*t1["mb"]*Fme["me"]);
+            t2n["ijab"] += t2["ijeb"]*(Fae["ae"]-0.5*t1["ma"]*Fme["me"]);
+            t2n["ijab"] -= t2["imab"]*(Fmi["mj"]+0.5*t1["je"]*Fme["me"]);
+            t2n["ijab"] -= t2["mjab"]*(Fmi["mi"]+0.5*t1["ie"]*Fme["me"]);
+            t2n["ijab"] += (t2["mnab"]+t1["ma"]*t1["nb"])*Wmnij["mnij"];
+            t2n["ijab"] += (t2["ijef"]+t1["ie"]*t1["jf"])*Wabef["abef"];
+            t2n["ijab"] += (t2["imae"]-t2["miae"])*Wmbej["mbej"]-t1["ie"]*t1["ma"]*G_p["mbej"];
+            t2n["ijab"] += t2["imae"]*(Wmbej["mbej"]+W_MbeJ["mbej"]);
+            t2n["ijab"] += (t2["mibe"]*W_MbeJ["maej"]-t1["ie"]*t1["mb"]*G_p["amej"]);
+            t2n["ijab"] += (t2["mjae"]*W_MbeJ["mbei"]-t1["je"]*t1["ma"]*G_p["bmei"]);
+            t2n["ijab"] += (t2["jmbe"]-t2["mjbe"])*Wmbej["maei"]-t1["je"]*t1["mb"]*G_p["maei"];
+            t2n["ijab"] += t2["jmbe"]*(Wmbej["maei"]+W_MbeJ["maei"]);
+            t2n["ijab"] += t1["ie"]*G_p["ejab"];
+            t2n["ijab"] += t1["je"]*G_p["ieab"];
+            t2n["ijab"] -= t1["ma"]*G_p["ijmb"];
+            t2n["ijab"] -= t1["mb"]*G_p["ijam"];
+            t2n["ijab"] *= Dijab["ijab"];
+
+            //Compute the new CCSD energy
+            double Eccn = 2*F["ia"].dot(t1n["ia"]) + G_p["ijab"].dot(2*t2n["ijab"]+2*t1n["ia"]*t1n["jb"]-t2n["jiab"]-t1n["ja"]*t1n["ib"]);
+
+
+
+            //Test the convergence
+            //Energy Difference
+            double E_change = Eccn - Ecc;
+            //Print Iteration Info
+            std::cout << "Iteration "<< iter << " : E(CCSD) = " << Eccn << " dE = " << E_change << "\n";
+            //RMS square of T1 amplitudes
+            double t1_change = (t1n["ia"]-t1["ia"]).dot(t1n["ia"]-t1["ia"]);
+            //RMS square of T2 amplitudes
+            double t2_change = (t2n["ijab"]-t2["ijab"]).dot(t2n["ijab"]-t2["ijab"]);
+            //if converged
+            if(fabs(E_change)<pow(10,-E_conv) && t1_change<pow(10,-t_conv) && t2_change<pow(10,-t_conv)) {
+                std::cout << "CC converged! \n\n   CCSD Correlation Energy : "<< Eccn << "\n" <<"CCSD Total Energy : " << Eccn+Escf <<"\n";
+                break;
+            }
+            //else, update t1 and t2 amplitudes
+            else {
+                t1["ia"] = t1n["ia"];
+                t2["ijab"] = t2n["ijab"];
+            }
+
+            //continue next iteration..
+
+
+        }
+
+
+
+
+
+
+
     }
 
     ambit::util::print::finalize();
