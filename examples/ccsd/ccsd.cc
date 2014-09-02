@@ -175,6 +175,7 @@ int main(int argc, char** argv)
 //        Dia.print();
         // Modify tensor to take a lambda function that knows how to construct
         // the data on the fly.
+
         ambit::tensor::tensor Gmo("MO basis 2e integrals (uv|xy)", "u,v,x,y");
         // For example this is how to transform the AO integrals to iajb.
         // In this case once we compute iajb we don't need to do it again,
@@ -203,8 +204,16 @@ int main(int argc, char** argv)
 
 
         // Sort the integrals into physist's notation (uv|xy) -> <ux|vy>
-        ambit::tensor::tensor G_p("g_uxvy", "u,x,v,y");
+        ambit::tensor::tensor G_p("<ux|vy>", "u,x,v,y");
         G_p["uxvy"] = Gmo["uvxy"];
+
+        /*
+         * Slice the G tensor into 6 types of TEIs:
+         * <ia|bc>, <ij|ab>, <ij|ka>, <ab|cd>, <ia|jb>, <ij|kl>
+         * The last type <ij|kl> is not used in CCSD
+         */
+
+//        ambit::tensor::tensor Givxy = G_p.slice("i,a,b,c"); ?
 
 //        // Antisymmetrize
 //        ambit::tensor::tensor Aijab("a_ijab", "i,j,a,b");
