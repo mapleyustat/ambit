@@ -105,7 +105,7 @@ int main(int argc, char** argv)
 //        std::cout << "C occupied coefficients\n";
 //        Co.print();
 
-        ambit::tensor::tensor Cv = C.slice("m,a");
+        ambit::tensor::tensor Cv = C.slice("p,a");
 //        std::cout << "C virtual coefficients\n";
 //        Cv.print();
 
