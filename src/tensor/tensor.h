@@ -179,7 +179,7 @@ struct tensor_base
     virtual void invert(const T& alpha, const indexed_tensor<Derived, T>& A, const T& beta) = 0;
 
     // this = alpha * this
-    virtual void scale(const T& alpha) = 0;
+//    virtual void scale(const T& alpha) = 0;
 
 protected:
 
